@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Prüfobjekte – EHS Manager</title>
+<title>EHS Datenbank</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -23,12 +23,11 @@ body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;f
 .user-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:var(--s2);border:1px solid var(--border);cursor:pointer;font-size:12px;color:var(--t2)}
 .user-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
 .app{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.main{flex:1;overflow-y:auto;padding:16px;max-width:900px;margin:0 auto;width:100%;padding-bottom:80px}
-.type-tabs{display:flex;gap:4px;background:var(--s2);border-radius:10px;padding:4px;border:1px solid var(--border);margin-bottom:16px}
-.type-tab{flex:1;padding:9px 12px;border-radius:7px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;cursor:pointer;transition:all .2s;text-align:center;font-weight:400}
+.main{flex:1;overflow-y:auto;padding:16px;max-width:960px;margin:0 auto;width:100%;padding-bottom:80px}
+.type-tabs{display:flex;gap:4px;background:var(--s2);border-radius:10px;padding:4px;border:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.type-tab{flex:1;min-width:120px;padding:9px 12px;border-radius:7px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;cursor:pointer;transition:all .2s;text-align:center;font-weight:400}
 .type-tab.on{background:var(--s3);color:var(--text);font-weight:500}
 .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
-.card-head{font-family:var(--fm);font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
 .obj-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
 .obj-card:hover{border-color:var(--b2)}
 .obj-card-body{padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
@@ -49,7 +48,6 @@ input[type=file]{display:none}
 .btn-d{background:transparent;border:1px solid rgba(255,71,87,.4);color:var(--nok)}.btn-d:hover{background:rgba(255,71,87,.08)}
 .btn-warn{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.3);color:var(--warn)}
 .btn-sm{padding:7px 13px;font-size:12px}
-.btn-full{width:100%;justify-content:center}
 .gap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .fb{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-family:var(--fm)}
@@ -62,8 +60,9 @@ input[type=file]{display:none}
 .prog-fill.ok{background:linear-gradient(90deg,var(--ok),var(--a2))}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .overlay.on{display:flex}
-.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:24px;width:100%;max-width:560px;margin:auto}
-.modal-wide{max-width:740px}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:24px;width:100%;max-width:600px;margin:auto}
+.modal-wide{max-width:760px}
+.modal-xl{max-width:900px}
 .modal-t{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:18px}
 .modal-act{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
 .cat-block{border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
@@ -78,16 +77,12 @@ input[type=file]{display:none}
 .tgl-btn.a-ok{background:var(--ok);color:#fff}
 .tgl-btn.a-nok{background:var(--nok);color:#fff}
 .tgl-btn.a-warn{background:var(--warn);color:#000}
-.nohl-wrap{margin-top:8px}
 .nohl-grid{display:grid;grid-template-columns:auto repeat(4,1fr);gap:3px;width:160px}
 .nohl-hdr{display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--t3);font-family:var(--fm);padding:2px}
 .nohl-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;border:2px solid transparent}
 .nohl-cell:hover{filter:brightness(1.3);transform:scale(1.1)}
 .nohl-cell.sel{border-color:#fff;box-shadow:0 0 0 2px var(--accent)}
-.n1{background:rgba(0,201,123,.3);color:var(--ok)}
-.n2{background:rgba(255,193,7,.3);color:var(--warn)}
-.n3{background:rgba(255,120,50,.3);color:#ff7832}
-.n4{background:rgba(255,71,87,.3);color:var(--nok)}
+.n1{background:rgba(0,201,123,.3);color:var(--ok)}.n2{background:rgba(255,193,7,.3);color:var(--warn)}.n3{background:rgba(255,120,50,.3);color:#ff7832}.n4{background:rgba(255,71,87,.3);color:var(--nok)}
 .ts{font-size:12px;color:var(--t3)}
 .font-mono{font-family:var(--fm)}
 .divider{height:1px;background:var(--border);margin:14px 0}
@@ -96,31 +91,33 @@ input[type=file]{display:none}
 .doc-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);color:var(--accent);font-size:12px;cursor:pointer}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:11px 22px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{border-color:var(--ok);color:var(--ok)}
-.toast.err{border-color:var(--nok);color:var(--nok)}
-.stab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
+.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--nok);color:var(--nok)}
+.stab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
 .stab{padding:8px 14px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--ff);font-size:13px;border-bottom:2px solid transparent;transition:all .2s}
 .stab.on{color:var(--text);border-bottom-color:var(--a2)}
+.section-block{background:var(--s2);border-radius:8px;padding:14px;margin-bottom:12px}
+.section-label{font-family:var(--fm);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;color:var(--t2)}
+.pikto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-top:8px}
+.pikto-item{cursor:pointer;border-radius:8px;padding:6px;text-align:center;border:2px solid var(--border);background:var(--s2);transition:all .2s}
+.pikto-item:hover{border-color:var(--b2)}
+.pikto-item.sel-ghs{border-color:var(--nok);background:rgba(255,71,87,.1)}
+.pikto-item.sel-asr{border-color:var(--accent);background:rgba(79,142,247,.1)}
+.pikto-item img{width:46px;height:46px;object-fit:contain;display:block;margin:0 auto 3px}
+.pikto-item .pikto-label{font-size:8px;color:var(--t3);line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pikto-cat-hdr{font-size:11px;font-weight:600;color:var(--t2);margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.rec-dot{width:10px;height:10px;border-radius:50%;background:var(--nok);animation:pulse 1s infinite;display:inline-block}
 .sdb-block{background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.2);border-radius:10px;padding:14px;margin-bottom:12px}
 .sdb-block.ok{background:rgba(0,201,123,.06);border-color:rgba(0,201,123,.2)}
-.section-block{background:var(--s2);border-radius:8px;padding:14px;margin-bottom:12px}
-.section-label{font-family:var(--fm);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
-.ghs-btn{width:52px;height:60px;cursor:pointer;border-radius:6px;padding:4px;border:2px solid var(--border);background:var(--s3);transition:all .2s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
-.ghs-btn.sel{border-color:var(--nok);background:rgba(255,71,87,.12)}
-.ghs-btn svg{width:36px;height:36px;flex-shrink:0}
-.ghs-btn span{font-size:8px;color:var(--t3);line-height:1.2;text-align:center}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-.rec-dot{width:10px;height:10px;border-radius:50%;background:var(--nok);animation:pulse 1s infinite;display:inline-block}
 </style>
 </head>
 <body>
-
 <nav class="topnav">
-  <div class="logo">EHS · Prüfobjekte</div>
+  <div class="logo">EHS · Datenbank</div>
   <div style="display:flex;align-items:center;gap:8px">
-    <button class="btn btn-o btn-sm" onclick="openSettings()" title="Einstellungen & API-Key">⚙</button>
-    <button class="btn btn-o btn-sm" onclick="exportAllData()" title="Alle Daten exportieren">⬇ Export</button>
-    <button class="btn btn-o btn-sm" onclick="document.getElementById('inp-import').click()" title="Daten importieren">⬆ Import</button>
+    <button class="btn btn-o btn-sm" onclick="openSettings()">⚙</button>
+    <button class="btn btn-o btn-sm" onclick="exportAllData()">⬇ Export</button>
+    <button class="btn btn-o btn-sm" onclick="document.getElementById('inp-import').click()">⬆ Import</button>
     <input type="file" id="inp-import" accept=".json" onchange="importAllData(event)">
     <div class="user-chip" onclick="openUserPicker()">
       <div class="user-av" id="u-av">?</div>
@@ -128,13 +125,13 @@ input[type=file]{display:none}
     </div>
   </div>
 </nav>
-
-<div class="app">
-<div class="main">
+<div class="app"><div class="main">
   <div class="type-tabs">
-    <button class="type-tab on" onclick="switchTab('maschine')"     id="tab-maschine">🏭 Maschinen</button>
-    <button class="type-tab"    onclick="switchTab('gefahrstoff')"  id="tab-gefahrstoff">☣ Gefahrstoffe</button>
+    <button class="type-tab on" onclick="switchTab('maschine')"      id="tab-maschine">🏭 Maschinen</button>
+    <button class="type-tab"    onclick="switchTab('gefahrstoff')"   id="tab-gefahrstoff">☣ Gefahrstoffe</button>
     <button class="type-tab"    onclick="switchTab('arbeitsmittel')" id="tab-arbeitsmittel">🔧 Arbeitsmittel</button>
+    <button class="type-tab"    onclick="switchTab('beauftragte')"   id="tab-beauftragte">👤 Beauftragte</button>
+    <button class="type-tab"    onclick="switchTab('bereiche')"      id="tab-bereiche">🏢 Bereiche</button>
   </div>
   <div class="fb" style="margin-bottom:14px">
     <div>
@@ -142,61 +139,14 @@ input[type=file]{display:none}
       <div class="ts" id="list-sub"></div>
     </div>
     <div class="gap">
-      <button class="btn btn-o btn-sm" onclick="openFragenEditor()" id="btn-fragen">✏ Prüffragen</button>
+      <button class="btn btn-o btn-sm" id="btn-fragen" onclick="openFragenEditor()" style="display:none">✏ Prüffragen</button>
+      <button class="btn btn-o btn-sm" onclick="downloadExcelTemplate()">⬇ Excel-Vorlage</button>
+      <button class="btn btn-o btn-sm" onclick="document.getElementById('inp-excel-import').click()">⬆ Excel-Import</button>
+      <input type="file" id="inp-excel-import" accept=".xlsx,.xls,.csv" onchange="importExcel(event)">
       <button class="btn btn-p btn-sm" onclick="openAdd()">+ Anlegen</button>
     </div>
   </div>
   <div id="obj-list"></div>
-</div>
-</div>
-
-
-<!-- MODAL: Einstellungen -->
-<div class="overlay" id="m-settings">
-<div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0">Einstellungen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-settings')">✕</button>
-  </div>
-
-  <!-- API Key -->
-  <div class="section-block">
-    <div class="section-label" style="color:var(--a2)">Claude API-Key</div>
-    <p class="ts" style="margin-bottom:10px">Erforderlich für KI-Auslese (SDB) und Sprachnotizen. Der Key wird nur lokal in deinem Browser gespeichert und nie übertragen.</p>
-    <div style="display:flex;gap:8px">
-      <input id="inp-api-key" type="password" placeholder="sk-ant-..." style="flex:1;font-family:var(--fm)"
-        value="">
-      <button class="btn btn-p btn-sm" onclick="saveApiKey()">Speichern</button>
-    </div>
-    <div id="api-key-status" class="ts" style="margin-top:6px"></div>
-    <p class="ts" style="margin-top:8px">
-      ⚠ Damit KI-Funktionen funktionieren, muss die App über HTTPS aufgerufen werden (z.B. GitHub Pages), nicht als lokale Datei.
-      <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">API-Key erstellen →</a>
-    </p>
-  </div>
-
-  <!-- Globale Piktogramm-Bibliothek -->
-  <div class="section-block">
-    <div class="section-label">Globale Piktogramm-Bibliothek</div>
-    <p class="ts" style="margin-bottom:10px">Hier hochgeladene Piktogramme stehen bei allen Objekten zur Auswahl. Objekt-spezifische Piktogramme direkt beim jeweiligen Objekt hochladen.</p>
-    <div class="gap" style="margin-bottom:10px">
-      <button class="btn btn-p btn-sm" onclick="document.getElementById('inp-pikto').click()">+ Piktogramme hochladen</button>
-      <button class="btn btn-d btn-sm" onclick="clearGlobalPiktos()">🗑 Alle löschen</button>
-    </div>
-    <div id="global-pikto-preview" style="display:flex;flex-wrap:wrap;gap:8px"></div>
-  </div>
-
-  <!-- Export / Import -->
-  <div class="section-block">
-    <div class="section-label">Daten sichern & übertragen</div>
-    <p class="ts" style="margin-bottom:10px">Exportiere alle Daten als JSON-Datei und importiere sie auf einem anderen Gerät.</p>
-    <div class="gap">
-      <button class="btn btn-p" onclick="exportAllData()">⬇ Vollständiger Export (.json)</button>
-      <button class="btn btn-o" onclick="document.getElementById('inp-import').click()">⬆ Import von Datei</button>
-    </div>
-    <p class="ts" style="margin-top:8px">Der Export enthält: Stammdaten, Prüfungsergebnisse, Verlauf, BA-Versionen, hochgeladene PDFs und Piktogramme.</p>
-  </div>
-
 </div></div>
 
 <!-- MODAL: Add/Edit -->
@@ -224,7 +174,7 @@ input[type=file]{display:none}
         <div class="ts" id="pruef-sub"></div>
       </div>
       <div class="gap">
-        <button class="btn btn-p btn-sm" id="voice-btn" onclick="toggleVoice()" title="Sprachnotiz aufnehmen – KI wertet aus" style="gap:5px">🎙 <span style="font-size:11px">Sprachnotiz</span></button>
+        <button class="btn btn-p btn-sm" id="voice-btn" onclick="toggleVoice()">🎙 Sprachnotiz</button>
         <button class="btn btn-o btn-sm" onclick="closePruefung()">✕</button>
       </div>
     </div>
@@ -251,47 +201,6 @@ input[type=file]{display:none}
   </div>
 </div></div>
 
-<!-- MODAL: BA Export -->
-<div class="overlay" id="m-ba">
-<div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:10px">
-    <div>
-      <div class="modal-t" style="margin:0">Betriebsanweisung</div>
-      <div class="ts"><span id="ba-obj-name"></span> <span id="ba-version-tag" class="badge b-info" style="font-size:10px"></span></div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-ba')">✕</button>
-  </div>
-  <div class="stab-row">
-    <button class="stab on" onclick="switchBATab('piktos')"   id="batab-piktos">🖼 Piktogramme</button>
-    <button class="stab"    onclick="switchBATab('inhalt')"   id="batab-inhalt">✏ Inhalt</button>
-    <button class="stab"    onclick="switchBATab('versionen')" id="batab-versionen">📋 Versionen</button>
-  </div>
-  <div id="ba-piktos">
-    <div class="card-head">Piktogramme auswählen (Mehrfachauswahl)</div>
-    <div id="ba-pikto-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin-bottom:8px"></div>
-    <div id="ba-pikto-empty" class="ts" style="display:none;padding:14px;text-align:center">Keine Piktogramme – unter Einstellungen hochladen.</div>
-    <div class="ts" id="ba-pikto-count"></div>
-  </div>
-  <div id="ba-inhalt" style="display:none">
-    <p class="ts" style="margin-bottom:14px">Ergänzende Felder – leer lassen = automatisch aus Prüfergebnis.</p>
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div><label>Tätigkeit / Anwendungsbereich</label><textarea id="ba-taetigkeit" rows="2" placeholder="Was wird getan, wer ist betroffen?"></textarea></div>
-      <div><label>Zusätzliche Gefahrenhinweise</label><textarea id="ba-gefahren" rows="2" placeholder="Ergänzende Gefahren (Lärm, Staub, Hitze…)"></textarea></div>
-      <div><label>Schutzmaßnahmen / Verhaltensregeln</label><textarea id="ba-schutzmassnahmen" rows="3" placeholder="Wichtigste Verhaltensregeln…"></textarea></div>
-      <div><label>Verhalten im Störfall</label><textarea id="ba-stoerfall" rows="2" placeholder="Not-Aus betätigen · Vorgesetzten informieren · Notruf 112"></textarea></div>
-      <div class="g2">
-        <div><label>Erste Hilfe / Notfallkontakt</label><input id="ba-erstehilfe" placeholder="Ersthelfer: Name, Tel."></div>
-        <div><label>Änderungsgrund</label><input id="ba-aenderungsgrund" placeholder="z.B. Neue PSA-Pflicht"></div>
-      </div>
-    </div>
-  </div>
-  <div id="ba-versionen" style="display:none"><div id="ba-versionen-list"></div></div>
-  <div class="modal-act">
-    <button class="btn btn-o" onclick="exportBA(false)">PDF ohne Piktogramme</button>
-    <button class="btn btn-ok" onclick="exportBA(true)">📄 Exportieren</button>
-  </div>
-</div></div>
-
 <!-- MODAL: Verlauf -->
 <div class="overlay" id="m-verlauf">
 <div class="modal modal-wide">
@@ -305,12 +214,9 @@ input[type=file]{display:none}
 <!-- MODAL: Fragenkatalog -->
 <div class="overlay" id="m-fragen">
 <div class="modal modal-wide" style="max-width:780px">
-  <div style="position:sticky;top:0;background:var(--s1);padding-bottom:12px;margin-bottom:4px;z-index:5">
+  <div style="position:sticky;top:0;background:var(--s1);padding-bottom:12px;z-index:5">
     <div class="fb" style="margin-bottom:10px">
-      <div>
-        <div class="modal-t" style="margin:0">Prüffragen anpassen</div>
-        <div class="ts" id="fk-type-label"></div>
-      </div>
+      <div><div class="modal-t" style="margin:0">Prüffragen</div><div class="ts" id="fk-type-label"></div></div>
       <button class="btn btn-o btn-sm" onclick="closeM('m-fragen')">✕</button>
     </div>
     <div class="gap">
@@ -328,10 +234,10 @@ input[type=file]{display:none}
   <div class="modal-t">Prüfer auswählen</div>
   <div id="user-list" style="margin-bottom:14px"></div>
   <div class="divider"></div>
-  <div class="card-head">Neuen Prüfer anlegen</div>
+  <div class="section-label">Neuen Prüfer anlegen</div>
   <div class="g2" style="margin-bottom:12px">
     <div><label>Name</label><input id="new-user-name" placeholder="Max Mustermann"></div>
-    <div><label>Kürzel</label><input id="new-user-kz" placeholder="MM" maxlength="3" style="font-family:var(--fm);text-transform:uppercase"></div>
+    <div><label>Kürzel</label><input id="new-user-kz" placeholder="MM" maxlength="3" style="text-transform:uppercase"></div>
   </div>
   <div class="modal-act">
     <button class="btn btn-o" onclick="closeM('m-user')">Schließen</button>
@@ -339,65 +245,226 @@ input[type=file]{display:none}
   </div>
 </div></div>
 
-<input type="file" id="inp-pikto" accept="image/*" multiple onchange="uploadPiktos(event)">
+<!-- MODAL: Einstellungen -->
+<div class="overlay" id="m-settings">
+<div class="modal modal-wide">
+  <div class="fb" style="margin-bottom:16px">
+    <div class="modal-t" style="margin:0">Einstellungen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-settings')">✕</button>
+  </div>
+  <div class="stab-row">
+    <button class="stab on" onclick="switchSettingsTab('api')"    id="stab-api">🔑 API-Key</button>
+    <button class="stab"    onclick="switchSettingsTab('firma')"  id="stab-firma">🏢 Firmendaten</button>
+    <button class="stab"    onclick="switchSettingsTab('export')" id="stab-export">💾 Export / Import</button>
+  </div>
+  <!-- API -->
+  <div id="st-api">
+    <div class="section-block">
+      <div class="section-label">Claude API-Key</div>
+      <p class="ts" style="margin-bottom:10px">Erforderlich für KI-Auslese (SDB) und Sprachnotizen. Wird nur lokal im Browser gespeichert. Funktioniert nur über HTTPS (GitHub Pages).</p>
+      <div style="display:flex;gap:8px">
+        <input id="inp-api-key" type="password" placeholder="sk-ant-..." style="flex:1;font-family:var(--fm)">
+        <button class="btn btn-p btn-sm" onclick="saveApiKey()">Speichern</button>
+      </div>
+      <div id="api-key-status" class="ts" style="margin-top:6px"></div>
+      <p class="ts" style="margin-top:8px"><a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">API-Key erstellen →</a></p>
+    </div>
+  </div>
+  <!-- Firma -->
+  <div id="st-firma" style="display:none">
+    <div class="section-block">
+      <div class="section-label">Firmendaten (werden als Kontext für die KI verwendet)</div>
+      <p class="ts" style="margin-bottom:12px">Diese Angaben fließen als rechtlicher Kontext in alle KI-Auswertungen ein. Je genauer, desto präzisere Ergebnisse.</p>
+      <div class="g2">
+        <div><label>Firmenname *</label><input id="f-firma-name" placeholder="Muster GmbH"></div>
+        <div><label>Branche / Tätigkeit</label><input id="f-firma-branche" placeholder="Spritzguss, Kunststoffverarbeitung"></div>
+      </div>
+      <div class="g2">
+        <div><label>Adresse</label><input id="f-firma-adresse" placeholder="Musterstraße 1, 86150 Augsburg"></div>
+        <div><label>BG-Zuständigkeit</label><input id="f-firma-bg" placeholder="z.B. BG RCI, BGHM, BG ETEM"></div>
+      </div>
+      <div class="g2">
+        <div><label>Anzahl Mitarbeiter</label><input id="f-firma-ma" type="number" placeholder="50"></div>
+        <div><label>Betriebsart (§ 3 ArbSchG)</label>
+          <select id="f-firma-art">
+            <option value="">– wählen –</option>
+            <option>Produktionsbetrieb</option>
+            <option>Handwerksbetrieb</option>
+            <option>Labor / Forschung</option>
+            <option>Büro / Verwaltung</option>
+            <option>Handel / Lager</option>
+            <option>Sonstiges</option>
+          </select>
+        </div>
+      </div>
+      <div><label>Anwendbare Normen / Vorschriften (kommagetrennt)</label>
+        <input id="f-firma-normen" placeholder="BetrSichV, GefStoffV, DGUV V1, TRGS 510, EN ISO 20430"></div>
+      <div style="margin-top:12px">
+        <div class="section-label" style="color:var(--a2)">Rechtsquellen-Kontext für KI</div>
+        <p class="ts" style="margin-bottom:8px">Diese Quellen werden der KI als verbindliche Grundlage genannt:</p>
+        <div style="padding:10px;background:var(--s3);border-radius:8px;font-size:12px;line-height:1.8;color:var(--t2)" id="firma-rechtsquellen-preview">
+          Wird nach dem Speichern angezeigt.
+        </div>
+      </div>
+      <div class="modal-act" style="margin-top:12px">
+        <button class="btn btn-p" onclick="saveFirmaDaten()">Speichern</button>
+      </div>
+    </div>
+  </div>
+  <!-- Export -->
+  <div id="st-export" style="display:none">
+    <div class="section-block">
+      <div class="section-label">Daten sichern & übertragen</div>
+      <p class="ts" style="margin-bottom:12px">Exportiere alle Daten als JSON. Auf einem anderen Gerät importieren.<br>
+      <strong style="color:var(--warn)">⚠ Wichtig:</strong> Bei 50+ Fotos vor dem Schließen des Browsers immer exportieren – localStorage kann bei Browser-Updates oder Speichermangel gelöscht werden.</p>
+      <div class="gap">
+        <button class="btn btn-p" onclick="exportAllData()">⬇ Vollständiger Export (.json)</button>
+        <button class="btn btn-o" onclick="document.getElementById('inp-import').click()">⬆ Import von Datei</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Storage ──────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// PIKTOGRAMME – aus img/ Ordner laden
+// ═══════════════════════════════════════════════════════════
+const PIKTO_DATA = {
+  ghs: [
+    {id:'ghs_001', name:'GHS01 – Explodierende Bombe',    file:'img/ghs_001.jpg'},
+    {id:'ghs_002', name:'GHS02 – Flamme',                 file:'img/ghs_002.jpg'},
+    {id:'ghs_003', name:'GHS03 – Flamme über Kreis',      file:'img/ghs_003.jpg'},
+    {id:'ghs_004', name:'GHS04 – Gasflasche',             file:'img/ghs_004.jpg'},
+    {id:'ghs_005', name:'GHS05 – Ätzwirkung',             file:'img/ghs_005.jpg'},
+    {id:'ghs_006', name:'GHS06 – Totenkopf',              file:'img/ghs_006.jpg'},
+    {id:'ghs_007', name:'GHS07 – Ausrufezeichen',         file:'img/ghs_007.jpg'},
+    {id:'ghs_008', name:'GHS08 – Gesundheitsgefahr',      file:'img/ghs_008.jpg'},
+    {id:'ghs_009', name:'GHS09 – Umwelt',                 file:'img/ghs_009.jpg'},
+  ],
+  verb: [
+    {id:'verb_p001', name:'P001 – Allgemeines Verbot',            file:'img/verb_p001.jpg'},
+    {id:'verb_p002', name:'P002 – Rauchen verboten',              file:'img/verb_p002.jpg'},
+    {id:'verb_p003', name:'P003 – Feuer / offenes Licht verboten',file:'img/verb_p003.jpg'},
+    {id:'verb_p004', name:'P004 – Mit Wasser löschen verboten',   file:'img/verb_p004.jpg'},
+    {id:'verb_p005', name:'P005 – Berühren verboten',             file:'img/verb_p005.jpg'},
+    {id:'verb_p006', name:'P006 – Für Fußgänger verboten',        file:'img/verb_p006.jpg'},
+    {id:'verb_p007', name:'P007 – Mit Wasser besprühen verboten', file:'img/verb_p007.jpg'},
+    {id:'verb_p009', name:'P009 – Besteigen verboten',            file:'img/verb_p009.jpg'},
+    {id:'verb_p010', name:'P010 – Für Flurförderzeuge verboten',  file:'img/verb_p010.jpg'},
+    {id:'verb_p011', name:'P011 – Überlasten verboten',           file:'img/verb_p011.jpg'},
+    {id:'verb_p012', name:'P012 – Mobiltelefon verboten',         file:'img/verb_p012.jpg'},
+    {id:'verb_p013', name:'P013 – Schrittmacher verboten',        file:'img/verb_p013.jpg'},
+    {id:'verb_p014', name:'P014 – Metallimplantat verboten',      file:'img/verb_p014.jpg'},
+    {id:'verb_p015', name:'P015 – Laufen verboten',               file:'img/verb_p015.jpg'},
+    {id:'verb_p020', name:'P020 – Hunde verboten',                file:'img/verb_p020.jpg'},
+    {id:'verb_p021', name:'P021 – Essen und Trinken verboten',    file:'img/verb_p021.jpg'},
+    {id:'verb_p022', name:'P022 – Lagern verboten',               file:'img/verb_p022.jpg'},
+    {id:'verb_p023', name:'P023 – Personenbeförderung verboten',  file:'img/verb_p023.jpg'},
+    {id:'verb_p024', name:'P024 – Aufzug bei Brand verboten',     file:'img/verb_p024.jpg'},
+    {id:'verb_p027', name:'P027 – Schalten verboten',             file:'img/verb_p027.jpg'},
+    {id:'verb_p028', name:'P028 – Handschuhe verboten',           file:'img/verb_p028.jpg'},
+    {id:'verb_p031', name:'P031 – Zutritt für Unbefugte verboten',file:'img/verb_p031.jpg'},
+    {id:'verb_p035', name:'P035 – Besprühen verboten',            file:'img/verb_p035.jpg'},
+    {id:'verb_p036', name:'P036 – Betreten verboten',             file:'img/verb_p036.jpg'},
+    {id:'verb_p038', name:'P038 – Rennen verboten',               file:'img/verb_p038.jpg'},
+  ],
+  gebo: [
+    {id:'gebo_m001', name:'M001 – Allgemeines Gebot',         file:'img/gebo_m001.jpg'},
+    {id:'gebo_m003', name:'M003 – Gehörschutz benutzen',      file:'img/gebo_m003.jpg'},
+    {id:'gebo_m004', name:'M004 – Schutzbrille benutzen',     file:'img/gebo_m004.jpg'},
+    {id:'gebo_m008', name:'M008 – Sicherheitsschuhe',         file:'img/gebo_m008.jpg'},
+    {id:'gebo_m009', name:'M009 – Schutzhandschuhe',          file:'img/gebo_m009.jpg'},
+    {id:'gebo_m010', name:'M010 – Schutzkleidung',            file:'img/gebo_m010.jpg'},
+    {id:'gebo_m011', name:'M011 – Hände waschen',             file:'img/gebo_m011.jpg'},
+    {id:'gebo_m012', name:'M012 – Geländer benutzen',         file:'img/gebo_m012.jpg'},
+    {id:'gebo_m013', name:'M013 – Gesichtsschutz',            file:'img/gebo_m013.jpg'},
+    {id:'gebo_m014', name:'M014 – Schutzhelm',                file:'img/gebo_m014.jpg'},
+    {id:'gebo_m015', name:'M015 – Warnschutzkleidung',        file:'img/gebo_m015.jpg'},
+    {id:'gebo_m017', name:'M017 – Atemschutz',                file:'img/gebo_m017.jpg'},
+    {id:'gebo_m018', name:'M018 – Auffanggurt',               file:'img/gebo_m018.jpg'},
+    {id:'gebo_m020', name:'M020 – Sicherheitsgurt',           file:'img/gebo_m020.jpg'},
+    {id:'gebo_m021', name:'M021 – Vor Betreten freischalten', file:'img/gebo_m021.jpg'},
+    {id:'gebo_m022', name:'M022 – Hautschutzmittel',          file:'img/gebo_m022.jpg'},
+    {id:'gebo_m023', name:'M023 – Übergang benutzen',         file:'img/gebo_m023.jpg'},
+    {id:'gebo_m024', name:'M024 – Fußweg benutzen',           file:'img/gebo_m024.jpg'},
+    {id:'gebo_m026', name:'M026 – Schutzschürze',             file:'img/gebo_m026.jpg'},
+    {id:'gebo_m027', name:'M027 – Schutzweste',               file:'img/gebo_m027.jpg'},
+  ],
+  erhi: [
+    {id:'erhi_e001', name:'E001 – Notausgang rechts',         file:'img/erhi_e001.jpg'},
+    {id:'erhi_e002', name:'E002 – Notausgang links',          file:'img/erhi_e002.jpg'},
+    {id:'erhi_e003', name:'E003 – Erste Hilfe',               file:'img/erhi_e003.jpg'},
+    {id:'erhi_e004', name:'E004 – Notruftelefon',             file:'img/erhi_e004.jpg'},
+    {id:'erhi_e007', name:'E007 – Sammelstelle',              file:'img/erhi_e007.jpg'},
+    {id:'erhi_e009', name:'E009 – Notarzt',                   file:'img/erhi_e009.jpg'},
+    {id:'erhi_e010', name:'E010 – Defibrillator',             file:'img/erhi_e010.jpg'},
+    {id:'erhi_e011', name:'E011 – Augenspüleinrichtung',      file:'img/erhi_e011.jpg'},
+    {id:'erhi_e012', name:'E012 – Notdusche',                 file:'img/erhi_e012.jpg'},
+    {id:'erhi_e013', name:'E013 – Krankentrage',              file:'img/erhi_e013.jpg'},
+    {id:'erhi_e016', name:'E016 – Notausstieg Leiter',        file:'img/erhi_e016.jpg'},
+    {id:'erhi_e020', name:'E020 – Pfeil rechts',              file:'img/erhi_e020.jpg'},
+    {id:'erhi_e021', name:'E021 – Pfeil diagonal re-unten',   file:'img/erhi_e021.jpg'},
+    {id:'erhi_e022', name:'E022 – Pfeil diagonal li-unten',   file:'img/erhi_e022.jpg'},
+    {id:'erhi_e023', name:'E023 – Pfeil links',               file:'img/erhi_e023.jpg'},
+    {id:'erhi_e024', name:'E024 – Rettungsring',              file:'img/erhi_e024.jpg'},
+    {id:'erhi_e025', name:'E025 – Notausstieg Fenster',       file:'img/erhi_e025.jpg'},
+    {id:'erhi_e029', name:'E029 – Schiebetür',                file:'img/erhi_e029.jpg'},
+    {id:'erhi_e030', name:'E030 – Notausgang li-unten',       file:'img/erhi_e030.jpg'},
+    {id:'erhi_e031', name:'E031 – Notausgang re-unten',       file:'img/erhi_e031.jpg'},
+  ],
+  rett: [
+    {id:'rett_n080', name:'F001 – Löschschlauch',             file:'img/rett_n080.jpg'},
+    {id:'rett_n081', name:'F002 – Feuerwehrausrüstung',       file:'img/rett_n081.jpg'},
+    {id:'rett_n082', name:'F003 – Feuerlöscher',              file:'img/rett_n082.jpg'},
+    {id:'rett_n083', name:'F004 – Brandmelder',               file:'img/rett_n083.jpg'},
+    {id:'rett_n084', name:'F005 – Brandschutztelefon',        file:'img/rett_n084.jpg'},
+    {id:'rett_n085', name:'F006 – Feuerleiter',               file:'img/rett_n085.jpg'},
+    {id:'rett_n091', name:'F007 – Pfeil diagonal re-unten',   file:'img/rett_n091.jpg'},
+    {id:'rett_n092', name:'F008 – Pfeil links',               file:'img/rett_n092.jpg'},
+    {id:'rett_n093', name:'F009 – Pfeil diagonal li-unten',   file:'img/rett_n093.jpg'},
+    {id:'rett_n094', name:'F010 – Pfeil rechts',              file:'img/rett_n094.jpg'},
+  ],
+};
+
+// ASR categories (for Maschinen + Arbeitsmittel)
+const ASR_CATS = ['verb','gebo','erhi','rett'];
+const ASR_LABELS = {verb:'Verbotszeichen',gebo:'Gebotszeichen',erhi:'Rettungszeichen',rett:'Brandschutzzeichen'};
+
+function getPiktos(type){
+  if(type==='ghs') return PIKTO_DATA.ghs;
+  return ASR_CATS.flatMap(c=>PIKTO_DATA[c]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════
 const S={
   get:(k,d=null)=>{try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch{return d;}},
-  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){console.warn('localStorage full',e);}},
 };
 const DB={
-  maschinen:    S.get('po_maschinen',    []),
-  gefahrstoffe: S.get('po_gefahrstoffe', []),
-  arbeitsmittel:S.get('po_arbeitsmittel',[]),
-  users:        S.get('po_users', [{id:'U1',name:'Max Mustermann',kz:'MM'}]),
-  activeUser:   S.get('po_active_user',  null),
-  piktos:       S.get('po_piktos',       []),
-  fragen:       S.get('po_fragen',       {}),
+  maschinen:     S.get('po_maschinen',    []),
+  gefahrstoffe:  S.get('po_gefahrstoffe', []),
+  arbeitsmittel: S.get('po_arbeitsmittel',[]),
+  beauftragte:   S.get('po_beauftragte',  []),
+  bereiche:      S.get('po_bereiche',     []),
+  users:         S.get('po_users', [{id:'U1',name:'Max Mustermann',kz:'MM'}]),
+  activeUser:    S.get('po_active_user', null),
+  fragen:        S.get('po_fragen', {}),
+  firma:         S.get('po_firma', {}),
   save(key){
     const m={maschinen:'po_maschinen',gefahrstoffe:'po_gefahrstoffe',arbeitsmittel:'po_arbeitsmittel',
-             users:'po_users',activeUser:'po_active_user',piktos:'po_piktos',fragen:'po_fragen'};
+             beauftragte:'po_beauftragte',bereiche:'po_bereiche',
+             users:'po_users',activeUser:'po_active_user',fragen:'po_fragen',firma:'po_firma'};
     if(m[key]) S.set(m[key],this[key]);
   },
 };
 
-// ── GHS SVG pictograms ───────────────────────────────────
-const GHS_LIST=[
-  {id:'GHS01',l:'Explosiv',       h:'Instabile explosive Stoffe'},
-  {id:'GHS02',l:'Entzündbar',     h:'Entzündbare Flüssigkeiten / Gase'},
-  {id:'GHS03',l:'Oxidierend',     h:'Brandfördernd / Oxidierend'},
-  {id:'GHS04',l:'Druckgas',       h:'Gase unter Druck'},
-  {id:'GHS05',l:'Ätzend',         h:'Ätzend / Korrosiv'},
-  {id:'GHS06',l:'Akut toxisch',   h:'Akut toxisch (oral/dermal/inhalativ)'},
-  {id:'GHS07',l:'Reizend',        h:'Reizend / Schädlich / Sensibilisierend'},
-  {id:'GHS08',l:'Gesundheitsgef.',h:'Schwere Gesundheitsschäden (CMR/STOT)'},
-  {id:'GHS09',l:'Umweltgef.',     h:'Gewässer- und Umweltgefährdend'},
-];
-const GHS_SVG={
-  GHS01:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="66" text-anchor="middle" font-size="44">💥</text></svg>',
-  GHS02:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="66" text-anchor="middle" font-size="44">🔥</text></svg>',
-  GHS03:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="64" text-anchor="middle" font-size="40">🔆</text></svg>',
-  GHS04:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="64" text-anchor="middle" font-size="40">🔵</text></svg>',
-  GHS05:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="64" text-anchor="middle" font-size="40">⚗</text></svg>',
-  GHS06:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="66" text-anchor="middle" font-size="44">☠</text></svg>',
-  GHS07:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="64" text-anchor="middle" font-size="40">⚠</text></svg>',
-  GHS08:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="63" text-anchor="middle" font-size="38">🫁</text></svg>',
-  GHS09:'<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50" fill="white" stroke="#CC0000" stroke-width="7"/><text x="50" y="64" text-anchor="middle" font-size="40">🐟</text></svg>',
-};
-function ghsBtn(id,selected){
-  const g=GHS_LIST.find(x=>x.id===id)||{l:id,h:''};
-  return '<div class="ghs-btn'+(selected?' sel':'')+'" onclick="toggleGHS(this,\''+id+'\')" data-ghs="'+id+'" data-sel="'+(selected?'true':'false')+'" title="'+g.h+'">'
-    +(GHS_SVG[id]||'')+'<span>'+g.l+'</span></div>';
-}
-function toggleGHS(el,id){
-  const s=el.dataset.sel==='true';
-  el.dataset.sel=(!s).toString();
-  el.classList.toggle('sel',!s);
-}
-
-// ── Default questions ────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// DEFAULT PRÜFFRAGEN
+// ═══════════════════════════════════════════════════════════
 const DEFAULT_FRAGEN={
   maschine:[
     {cat:'Mechanische Schutzeinrichtungen',items:[
@@ -425,34 +492,21 @@ const DEFAULT_FRAGEN={
       {id:'G1.1',l:'SDB vorhanden und nicht älter als 2 Jahre',s:'REACH VO 1907/2006, Art. 31',iv:'Jährlich'},
       {id:'G1.2',l:'SDB in deutscher Sprache vorhanden',s:'GefStoffV §6 / TRGS 220',iv:'Bei Änderung'},
       {id:'G1.3',l:'SDB enthält alle 16 Abschnitte gemäß REACH Anhang II',s:'REACH Anhang II',iv:'Bei Änderung'},
-      {id:'G1.4',l:'Lieferantendaten (Name, Adresse, Notfallkontakt) vollständig',s:'REACH Anhang II, Abschn. 1',iv:'Jährlich'},
+      {id:'G1.4',l:'Lieferantendaten vollständig (Name, Adresse, Notfallkontakt)',s:'REACH Anhang II, Abschn. 1',iv:'Jährlich'},
     ]},
     {cat:'Kennzeichnung am Behälter',items:[
       {id:'G2.1',l:'GHS-Piktogramme auf Behältern vollständig und lesbar',s:'GHS-VO (EG) 1272/2008',iv:'Täglich'},
       {id:'G2.2',l:'Signalwort (Gefahr / Achtung) vorhanden und korrekt',s:'GHS-VO Art. 17',iv:'Täglich'},
-      {id:'G2.3',l:'H-Sätze (Gefahrenhinweise) vollständig auf Etikett',s:'GHS-VO (EG) 1272/2008',iv:'Bei Änderung'},
-      {id:'G2.4',l:'P-Sätze (Sicherheitshinweise) vollständig auf Etikett',s:'GHS-VO (EG) 1272/2008',iv:'Bei Änderung'},
+      {id:'G2.3',l:'H-Sätze vollständig auf Etikett',s:'GHS-VO (EG) 1272/2008',iv:'Bei Änderung'},
+      {id:'G2.4',l:'P-Sätze vollständig auf Etikett',s:'GHS-VO (EG) 1272/2008',iv:'Bei Änderung'},
       {id:'G2.5',l:'Originalgebinde oder zulässige Umetikettierung',s:'GefStoffV §8 / GHS-VO',iv:'Täglich'},
-    ]},
-    {cat:'Betriebsanweisung & Unterweisung',items:[
-      {id:'G3.1',l:'Betriebsanweisung für Gefahrstoff vorhanden und aktuell',s:'GefStoffV §14 / TRGS 555',iv:'Bei Änderung'},
-      {id:'G3.2',l:'Betriebsanweisung am Einsatzort zugänglich ausgehängt',s:'TRGS 555, Abschn. 4',iv:'Monatlich'},
-      {id:'G3.3',l:'Jährliche Unterweisung der Beschäftigten dokumentiert',s:'GefStoffV §14 Abs. 2',iv:'Jährlich'},
-      {id:'G3.4',l:'Unterweisung verständlich (Sprache der Beschäftigten)',s:'GefStoffV §14 Abs. 2',iv:'Jährlich'},
-    ]},
-    {cat:'Schutzmaßnahmen & PSA',items:[
-      {id:'G4.1',l:'Substitutionsprüfung durchgeführt und dokumentiert',s:'GefStoffV §6 Abs. 1',iv:'Jährlich'},
-      {id:'G4.2',l:'Technische Schutzmaßnahmen umgesetzt (Absaugung, Lüftung)',s:'GefStoffV §8 / TRGS 500',iv:'Wöchentlich'},
-      {id:'G4.3',l:'PSA vorhanden und geprüft',s:'PSA-BV / GefStoffV §8',iv:'Täglich'},
-      {id:'G4.4',l:'PSA entspricht den Angaben im SDB (Abschn. 8)',s:'REACH Anhang II, Abschn. 8',iv:'Bei Änderung'},
-      {id:'G4.5',l:'Arbeitsplatzgrenzwert (AGW / TRGS 900) eingehalten',s:'TRGS 900 / GefStoffV §9',iv:'Jährlich'},
     ]},
     {cat:'Lagerung (TRGS 510)',items:[
       {id:'G5.1',l:'Lagerung in zugelassenen Behältern gemäß Lagerklasse',s:'TRGS 510, Abschn. 5',iv:'Täglich'},
       {id:'G5.2',l:'Mengenbegrenzungen eingehalten',s:'TRGS 510, Abschn. 5',iv:'Täglich'},
       {id:'G5.3',l:'Auffangwanne vorhanden, intakt und ausreichend dimensioniert',s:'AwSV / TRGS 510',iv:'Wöchentlich'},
-      {id:'G5.4',l:'Trennung von unverträglichen Stoffen eingehalten',s:'TRGS 510, Abschn. 8',iv:'Täglich'},
-      {id:'G5.5',l:'Kühl- und Belüftungsanforderungen erfüllt (ggf. Ex-Schutz)',s:'TRGS 510 / BetrSichV',iv:'Monatlich'},
+      {id:'G5.4',l:'Trennung unverträglicher Stoffe eingehalten',s:'TRGS 510, Abschn. 8',iv:'Täglich'},
+      {id:'G5.5',l:'Kühl- und Belüftungsanforderungen erfüllt',s:'TRGS 510 / BetrSichV',iv:'Monatlich'},
       {id:'G5.6',l:'WGK bekannt und Anforderungen der AwSV erfüllt',s:'AwSV §62',iv:'Jährlich'},
     ]},
     {cat:'Notfallmaßnahmen',items:[
@@ -476,48 +530,121 @@ const DEFAULT_FRAGEN={
 
 const NOHL=[[1,1,2,2],[1,2,2,3],[2,2,3,4],[2,3,4,4]];
 const NI={1:{label:'GERING',cls:'n1',badge:'b-ok',color:'var(--ok)'},2:{label:'MITTEL',cls:'n2',badge:'b-warn',color:'var(--warn)'},3:{label:'HOCH',cls:'n3',badge:'b-nok',color:'#ff7832'},4:{label:'KRITISCH',cls:'n4',badge:'b-nok',color:'var(--nok)'}};
+
+// Beauftragte Typen
+const BEAUFTRAGTE_TYPEN=['Ersthelfer','Brandschutzhelfer','Sicherheitsbeauftragter','Sicherheitsfachkraft (SiFa)',
+  'Laserschutzbeauftragter','Strahlenschutzbeauftragter','Datenschutzbeauftragter','Gefahrgutbeauftragter',
+  'Abfallbeauftragter','Immissionsschutzbeauftragter','Betriebsarzt','Weitere'];
+
 function nohlClass(s,w){return NOHL[s-1]?.[w-1]??1;}
 function getFragen(t){return DB.fragen[t]||DEFAULT_FRAGEN[t]||[];}
 function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
-function esc(s){return (s||'').replace(/"/g,'&quot;');}
+function esc(s){return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
 function fmtDT(iso){if(!iso)return'–';try{return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
 function isSdbOld(obj){if(!obj||!obj.sdb_ueberarbeitung)return false;return(new Date()-new Date(obj.sdb_ueberarbeitung))>2*365*24*60*60*1000;}
 
-// ── UI utils ─────────────────────────────────────────────
 let _tt;
-function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',2800);}
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
 function openM(id){document.getElementById(id)?.classList.add('on');}
 function closeM(id){document.getElementById(id)?.classList.remove('on');}
 
-// ── State ────────────────────────────────────────────────
+// ── API ──────────────────────────────────────────────────
+function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
+function saveApiKey(){
+  var k=document.getElementById('inp-api-key').value.trim();
+  localStorage.setItem('ehs_api_key',k);
+  document.getElementById('api-key-status').textContent=k?'✓ Gespeichert':'Gelöscht';
+  toast('API-Key gespeichert ✓','ok');
+}
+async function claudeFetch(body){
+  var key=getApiKey();
+  if(!key){openSettings();throw new Error('Bitte API-Key eingeben');}
+  return fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify(body)
+  });
+}
+
+// ── Firmendaten ───────────────────────────────────────────
+function saveFirmaDaten(){
+  DB.firma={
+    name:document.getElementById('f-firma-name').value.trim(),
+    branche:document.getElementById('f-firma-branche').value.trim(),
+    adresse:document.getElementById('f-firma-adresse').value.trim(),
+    bg:document.getElementById('f-firma-bg').value.trim(),
+    ma:document.getElementById('f-firma-ma').value,
+    art:document.getElementById('f-firma-art').value,
+    normen:document.getElementById('f-firma-normen').value.trim(),
+  };
+  DB.save('firma');
+  updateRechtsquellenPreview();
+  toast('Firmendaten gespeichert ✓','ok');
+}
+function loadFirmaDaten(){
+  var f=DB.firma;
+  if(!f)return;
+  var set=(id,v)=>{var el=document.getElementById(id);if(el&&v)el.value=v;};
+  set('f-firma-name',f.name);set('f-firma-branche',f.branche);
+  set('f-firma-adresse',f.adresse);set('f-firma-bg',f.bg);
+  set('f-firma-ma',f.ma);set('f-firma-art',f.art);
+  set('f-firma-normen',f.normen);
+  updateRechtsquellenPreview();
+}
+function updateRechtsquellenPreview(){
+  var f=DB.firma||{};
+  var sources=[
+    'ArbSchG (Arbeitsschutzgesetz)',
+    'BetrSichV (Betriebssicherheitsverordnung)',
+    'GefStoffV (Gefahrstoffverordnung)',
+    'DGUV Vorschrift 1 (Grundsätze der Prävention)',
+    'ASR A1.3 (Sicherheits- und Gesundheitsschutzkennzeichnung)',
+  ];
+  if(f.bg) sources.push('Vorschriften der '+f.bg);
+  if(f.normen) f.normen.split(',').forEach(n=>{var t=n.trim();if(t)sources.push(t);});
+  var el=document.getElementById('firma-rechtsquellen-preview');
+  if(el) el.innerHTML=sources.map(s=>'• '+s).join('<br>');
+}
+function getFirmaKontext(){
+  var f=DB.firma||{};
+  var lines=[];
+  if(f.name) lines.push('Betrieb: '+f.name+(f.branche?' ('+f.branche+')':''));
+  if(f.art)  lines.push('Betriebsart: '+f.art);
+  if(f.ma)   lines.push('Mitarbeiter: '+f.ma);
+  if(f.bg)   lines.push('Berufsgenossenschaft: '+f.bg);
+  if(f.normen) lines.push('Geltende Normen: '+f.normen);
+  lines.push('Rechtsgrundlagen: ArbSchG, BetrSichV, GefStoffV, DGUV V1, ASR A1.3, REACH 1907/2006, GHS-VO 1272/2008');
+  return lines.join('\n');
+}
+
+// ── State ─────────────────────────────────────────────────
 let currentTab='maschine',pruefId=null,pruefType=null,pruefStates={};
-let baId=null,baType=null,baPiktos=[];
 let fkDraft=null,fkType=null;
 let mediaRec=null,audioChunks=[],isRec=false,pendingVoice=null;
 let pendingSDB=null;
 
-// ── Helpers ──────────────────────────────────────────────
-function getArr(t=currentTab){return t==='maschine'?DB.maschinen:t==='gefahrstoff'?DB.gefahrstoffe:DB.arbeitsmittel;}
-function saveArr(t=currentTab){DB.save(t==='maschine'?'maschinen':t==='gefahrstoff'?'gefahrstoffe':'arbeitsmittel');}
-function typeLabel(t=currentTab){return t==='maschine'?'Maschine':t==='gefahrstoff'?'Gefahrstoff':'Arbeitsmittel';}
+function getArr(t=currentTab){return t==='maschine'?DB.maschinen:t==='gefahrstoff'?DB.gefahrstoffe:t==='arbeitsmittel'?DB.arbeitsmittel:t==='beauftragte'?DB.beauftragte:DB.bereiche;}
+function saveArr(t=currentTab){DB.save(t==='maschine'?'maschinen':t==='gefahrstoff'?'gefahrstoffe':t==='arbeitsmittel'?'arbeitsmittel':t==='beauftragte'?'beauftragte':'bereiche');}
+function typeLabel(t=currentTab){return{maschine:'Maschine',gefahrstoff:'Gefahrstoff',arbeitsmittel:'Arbeitsmittel',beauftragte:'Beauftragter',bereiche:'Bereich'}[t]||t;}
 
-// ── User ─────────────────────────────────────────────────
-function updateUserUI(){const u=DB.activeUser;document.getElementById('u-av').textContent=u?.kz||'?';document.getElementById('u-name').textContent=u?.name||'Prüfer wählen';}
+// ── User ──────────────────────────────────────────────────
+function updateUserUI(){var u=DB.activeUser;document.getElementById('u-av').textContent=u?.kz||'?';document.getElementById('u-name').textContent=u?.name||'Prüfer wählen';}
 function openUserPicker(){
   document.getElementById('user-list').innerHTML=DB.users.map(u=>
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:'+(DB.activeUser?.id===u.id?'var(--s3)':'var(--s2)')+';border-radius:8px;border:1px solid '+(DB.activeUser?.id===u.id?'var(--accent)':'var(--border)')+';margin-bottom:6px">'
-    +'<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="selectUser(\''+u.id+'\')"><div class="user-av">'+u.kz+'</div><span style="font-size:14px;font-weight:500">'+u.name+'</span></div>'
+    +'<div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="selectUser(\''+u.id+'\')">'
+    +'<div class="user-av">'+u.kz+'</div><span style="font-size:14px;font-weight:500">'+u.name+'</span></div>'
     +'<button class="btn btn-d btn-sm" onclick="deleteUser(\''+u.id+'\')">✕</button></div>'
   ).join('');
   openM('m-user');
 }
 function selectUser(id){DB.activeUser=DB.users.find(u=>u.id===id)||null;DB.save('activeUser');updateUserUI();closeM('m-user');toast('Prüfer: '+(DB.activeUser?.name||'–'),'ok');}
 function addUser(){
-  const name=document.getElementById('new-user-name').value.trim();
-  const kz=document.getElementById('new-user-kz').value.trim().toUpperCase();
+  var name=document.getElementById('new-user-name').value.trim();
+  var kz=document.getElementById('new-user-kz').value.trim().toUpperCase();
   if(!name||!kz){toast('Name und Kürzel erforderlich','err');return;}
-  const u={id:uid('U'),name,kz};DB.users.push(u);DB.save('users');
+  var u={id:uid('U'),name,kz};DB.users.push(u);DB.save('users');
   document.getElementById('new-user-name').value='';document.getElementById('new-user-kz').value='';
   selectUser(u.id);openUserPicker();
 }
@@ -527,25 +654,84 @@ function deleteUser(id){
   openUserPicker();
 }
 
-// ── Tab switch ───────────────────────────────────────────
+// ── Settings ──────────────────────────────────────────────
+function openSettings(){
+  var el=document.getElementById('inp-api-key');
+  if(el)el.value=getApiKey();
+  loadFirmaDaten();
+  switchSettingsTab('api');
+  openM('m-settings');
+}
+function switchSettingsTab(tab){
+  ['api','firma','export'].forEach(t=>{
+    document.getElementById('st-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('stab-'+t).classList.toggle('on',t===tab);
+  });
+}
+
+// ── Tab switch ────────────────────────────────────────────
 function switchTab(tab){
   currentTab=tab;
-  ['maschine','gefahrstoff','arbeitsmittel'].forEach(t=>{document.getElementById('tab-'+t)?.classList.toggle('on',t===tab);});
-  document.getElementById('list-title').textContent={maschine:'Maschinen',gefahrstoff:'Gefahrstoffe',arbeitsmittel:'Arbeitsmittel'}[tab];
+  ['maschine','gefahrstoff','arbeitsmittel','beauftragte','bereiche'].forEach(t=>{
+    document.getElementById('tab-'+t)?.classList.toggle('on',t===tab);
+  });
+  var labels={maschine:'Maschinen',gefahrstoff:'Gefahrstoffe',arbeitsmittel:'Arbeitsmittel',beauftragte:'Beauftragte',bereiche:'Bereiche / Verantwortliche'};
+  document.getElementById('list-title').textContent=labels[tab];
+  // Show/hide Prüffragen button only for first 3 tabs
+  var showFragen=['maschine','gefahrstoff','arbeitsmittel'].includes(tab);
+  document.getElementById('btn-fragen').style.display=showFragen?'':'none';
   renderList();
 }
 
-// ── List ─────────────────────────────────────────────────
+// ── Pikto picker HTML ──────────────────────────────────────
+function renderPiktoPicker(obj, piktoType){
+  // piktoType: 'ghs' or 'asr'
+  var selectedIds=(obj&&obj.piktos||[]).map(p=>p.id);
+  var html='';
+  if(piktoType==='ghs'){
+    html+='<div class="pikto-cat-hdr">GHS-Gefahrenpiktogramme (GHS-VO 1272/2008)</div>';
+    html+='<div class="pikto-grid">';
+    PIKTO_DATA.ghs.forEach(function(p){
+      var sel=selectedIds.includes(p.id);
+      html+='<div class="pikto-item'+(sel?' sel-ghs':'')+'" onclick="togglePikto(this)" data-id="'+p.id+'" data-file="'+p.file+'" data-name="'+esc(p.name)+'" title="'+esc(p.name)+'">'
+        +'<img src="'+p.file+'" onerror="this.style.opacity=0.3"><div class="pikto-label">'+p.name.split('–').pop().trim()+'</div></div>';
+    });
+    html+='</div>';
+  } else {
+    ASR_CATS.forEach(function(cat){
+      html+='<div class="pikto-cat-hdr">'+ASR_LABELS[cat]+'</div>';
+      html+='<div class="pikto-grid">';
+      PIKTO_DATA[cat].forEach(function(p){
+        var sel=selectedIds.includes(p.id);
+        html+='<div class="pikto-item'+(sel?' sel-asr':'')+'" onclick="togglePikto(this)" data-id="'+p.id+'" data-file="'+p.file+'" data-name="'+esc(p.name)+'" title="'+esc(p.name)+'">'
+          +'<img src="'+p.file+'" onerror="this.style.opacity=0.3"><div class="pikto-label">'+p.name.split('–').pop().trim()+'</div></div>';
+      });
+      html+='</div>';
+    });
+  }
+  return html;
+}
+function togglePikto(el){
+  var isGHS=el.closest('#ghs-picker')!==null||el.dataset.id.startsWith('ghs_');
+  var selClass=isGHS?'sel-ghs':'sel-asr';
+  el.classList.toggle(selClass);
+}
+function getSelectedPiktos(containerSelector){
+  return [...document.querySelectorAll(containerSelector+' .pikto-item.sel-ghs, '+containerSelector+' .pikto-item.sel-asr')]
+    .map(el=>({id:el.dataset.id,name:el.dataset.name,file:el.dataset.file}));
+}
+
+// ── LIST ──────────────────────────────────────────────────
 function renderList(){
-  const data=getArr(),el=document.getElementById('obj-list');
-  const fragen=getFragen(currentTab),total=fragen.flatMap(c=>c.items).length;
-  document.getElementById('list-sub').textContent=data.length+' '+typeLabel()+(data.length!==1?'n':'')+' · '+total+' Prüfpunkte';
+  var el=document.getElementById('obj-list');
+  if(currentTab==='beauftragte') return renderBeauftragteList();
+  if(currentTab==='bereiche')    return renderBereicheList();
+  var data=getArr(), fragen=getFragen(currentTab), total=fragen.flatMap(c=>c.items).length;
+  document.getElementById('list-sub').textContent=data.length+' '+typeLabel()+(data.length!==1?'e':'')+' · '+total+' Prüfpunkte';
   if(!data.length){
     el.innerHTML='<div class="empty"><div class="empty-i">'+(currentTab==='maschine'?'🏭':currentTab==='gefahrstoff'?'☣':'🔧')+'</div>'
-      +'<p style="margin-bottom:14px">Noch keine Einträge.</p>'
-      +'<div class="gap" style="justify-content:center">'
-      +'<button class="btn btn-p" onclick="openAdd()">+ '+typeLabel()+' anlegen</button>'
-      +'<button class="btn btn-o btn-sm" onclick="openFragenEditor()">✏ Prüffragen</button></div></div>';
+      +'<p style="margin-bottom:14px">Noch keine '+typeLabel()+'e angelegt.</p>'
+      +'<button class="btn btn-p" onclick="openAdd()">+ '+typeLabel()+' anlegen</button></div>';
     return;
   }
   el.innerHTML=data.map(function(obj){
@@ -553,7 +739,7 @@ function renderList(){
     var nok=erg.filter(r=>r.status==='nok').length;
     var ok=erg.filter(r=>r.status==='ok').length;
     var warn=erg.filter(r=>r.status==='warn').length;
-    var done=ok+nok+warn,pct=total?Math.round(done/total*100):0;
+    var done=ok+nok+warn, pct=total?Math.round(done/total*100):0;
     var rc=obj.maxRisiko?NI[obj.maxRisiko]:null;
     var overdue=obj.naechsteP&&new Date(obj.naechsteP)<new Date();
     var sdbOld=currentTab==='gefahrstoff'&&isSdbOld(obj);
@@ -563,17 +749,32 @@ function renderList(){
       :currentTab==='gefahrstoff'
       ?[obj.cas?'CAS '+obj.cas:'',obj.lieferant||''].filter(Boolean).join(' · ')
       :[obj.kategorie,obj.naechsteP?'Prüfung: '+fmt(obj.naechsteP):''].filter(Boolean).join(' · ');
-    var ghsRow=currentTab==='gefahrstoff'&&obj.ghs&&obj.ghs.length
-      ?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">'+obj.ghs.map(g=>'<span style="display:inline-flex;width:28px;height:28px" title="'+(GHS_LIST.find(x=>x.id===g)||{l:g}).l+'">'+GHS_SVG[g]+'</span>').join('')+'</div>'
+    // Pikto row
+    var piktoRow=(obj.piktos&&obj.piktos.length)
+      ?'<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">'
+        +obj.piktos.slice(0,8).map(p=>'<img src="'+p.file+'" style="width:26px;height:26px;object-fit:contain" title="'+esc(p.name)+'">').join('')
+        +(obj.piktos.length>8?'<span class="ts">+'+( obj.piktos.length-8)+'</span>':'')
+        +'</div>'
       :'';
     var sigRow=currentTab==='gefahrstoff'&&obj.signalwort
-      ?'<div style="margin-bottom:5px"><span style="padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:'+(obj.signalwort==='Gefahr'?'rgba(255,71,87,.15)':'rgba(255,193,7,.15)')+';color:'+(obj.signalwort==='Gefahr'?'var(--nok)':'var(--warn)')+';border:1px solid '+(obj.signalwort==='Gefahr'?'rgba(255,71,87,.4)':'rgba(255,193,7,.4)')+'">'+obj.signalwort.toUpperCase()+'</span>'+(obj.agw?'<span class="ts" style="margin-left:8px">AGW: '+obj.agw+'</span>':'')+(obj.wgk?'<span class="ts" style="margin-left:8px">WGK '+obj.wgk+'</span>':'')+'</div>'
+      ?'<div style="margin-bottom:4px"><span style="padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:'
+        +(obj.signalwort==='Gefahr'?'rgba(255,71,87,.15)':'rgba(255,193,7,.15)')+';color:'
+        +(obj.signalwort==='Gefahr'?'var(--nok)':'var(--warn)')+';border:1px solid '
+        +(obj.signalwort==='Gefahr'?'rgba(255,71,87,.4)':'rgba(255,193,7,.4)')+'">'+obj.signalwort.toUpperCase()+'</span>'
+        +(obj.agw?'<span class="ts" style="margin-left:8px">AGW: '+obj.agw+'</span>':'')
+        +(obj.wgk?'<span class="ts" style="margin-left:6px">WGK '+obj.wgk+'</span>':'')+'</div>'
       :'';
+    // Verantwortliche(r)
+    var verantw='';
+    if(obj.verantwortlichId){
+      var v=DB.bereiche.find(b=>b.id===obj.verantwortlichId)||DB.beauftragte.find(b=>b.id===obj.verantwortlichId);
+      if(v) verantw='<span class="ts" style="margin-left:8px">👤 '+v.name+'</span>';
+    }
     return '<div class="obj-card">'
       +'<div class="obj-card-body"><div style="min-width:0">'
       +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">'
       +'<span style="font-size:15px;font-weight:600">'+obj.name+'</span>'
-      +(obj.id_nr?'<span class="ts font-mono" style="font-size:11px">'+obj.id_nr+'</span>':'')
+      +(obj.id_nr?'<span class="ts font-mono">'+obj.id_nr+'</span>':'')
       +(rc?'<span class="badge '+rc.badge+'" style="color:'+rc.color+'">⚑ '+rc.label+'</span>':'')
       +(nok>0?'<span class="badge b-nok">✗ '+nok+'</span>':'')
       +(warn>0?'<span class="badge b-warn">⚠ '+warn+'</span>':'')
@@ -581,9 +782,9 @@ function renderList(){
       +(done===0?'<span class="badge b-info">Noch nicht geprüft</span>':'')
       +(sdbMissing?'<span class="badge b-nok">⚠ Kein SDB</span>':'')
       +(sdbOld?'<span class="badge b-warn">⏰ SDB &gt; 2 Jahre</span>':'')
-      +'</div>'
-      +(sub?'<div class="ts" style="margin-bottom:6px">'+sub+'</div>':'')
-      +ghsRow+sigRow
+      +verantw+'</div>'
+      +(sub?'<div class="ts" style="margin-bottom:4px">'+sub+'</div>':'')
+      +sigRow+piktoRow
       +'<div style="display:flex;align-items:center;gap:10px">'
       +'<div class="prog-wrap" style="flex:1;max-width:220px"><div class="prog-fill'+(nok===0&&done>0?' ok':'')+'" style="width:'+pct+'%"></div></div>'
       +'<span class="ts">'+done+'/'+total+(obj.lastPruefung?' · '+fmt(obj.lastPruefung):'')+'</span></div>'
@@ -593,195 +794,257 @@ function renderList(){
       +'<div class="gap">'
       +'<button class="btn btn-o btn-sm" onclick="openVerlauf(\''+obj.id+'\')" title="Verlauf">📅</button>'
       +'<button class="btn btn-o btn-sm" onclick="openEdit(\''+obj.id+'\')">✏</button>'
-      +'<button class="btn btn-warn btn-sm" onclick="openBA(\''+obj.id+'\')">📄 BA</button>'
       +'<button class="btn btn-d btn-sm" onclick="deleteObj(\''+obj.id+'\')">🗑</button>'
       +'</div></div></div>'
       +(nok>0||warn>0?'<div class="obj-card-nok">'+erg.filter(r=>r.status==='nok'||r.status==='warn').slice(0,3).map(r=>{
         var nc=r.nohl_s&&r.nohl_w?NI[nohlClass(r.nohl_s,r.nohl_w)]:null;
-        return '<div class="ts" style="color:'+(r.status==='nok'?'var(--nok)':'var(--warn)')+';margin-bottom:2px">'+(r.status==='nok'?'✗':'⚠')+' '+r.label+(nc?' <span style="font-size:10px">['+nc.label+']</span>':'')+(r.remark?' <em style="color:var(--t3)">– '+r.remark+'</em>':'')+'</div>';
-      }).join('')+(nok+warn>3?'<div class="ts">…und '+(nok+warn-3)+' weitere</div>':'')+'</div>':'')
+        return '<div class="ts" style="color:'+(r.status==='nok'?'var(--nok)':'var(--warn)')+'">'+( r.status==='nok'?'✗':'⚠')+' '+r.label+(nc?' ['+nc.label+']':'')+( r.remark?' – '+r.remark:'')+'</div>';
+      }).join('')+'</div>':'')
       +'</div>';
   }).join('');
 }
 
-// ── Add / Edit ───────────────────────────────────────────
+// ── Beauftragte Liste ─────────────────────────────────────
+function renderBeauftragteList(){
+  var el=document.getElementById('obj-list');
+  document.getElementById('list-sub').textContent=DB.beauftragte.length+' Beauftragte';
+  if(!DB.beauftragte.length){
+    el.innerHTML='<div class="empty"><div class="empty-i">👤</div><p style="margin-bottom:14px">Noch keine Beauftragten angelegt.</p><button class="btn btn-p" onclick="openAdd()">+ Beauftragten anlegen</button></div>';
+    return;
+  }
+  el.innerHTML=DB.beauftragte.map(function(b){
+    return '<div class="obj-card"><div class="obj-card-body"><div>'
+      +'<div style="font-size:15px;font-weight:600;margin-bottom:4px">'+b.name+'</div>'
+      +'<div class="ts">'+b.funktion+'</div>'
+      +(b.qualifikation?'<div class="ts">📋 '+b.qualifikation+'</div>':'')
+      +(b.tel?'<div class="ts">📞 '+b.tel+'</div>':'')
+      +(b.email?'<div class="ts">✉ '+b.email+'</div>':'')
+      +(b.bereich?'<div class="ts">🏢 '+b.bereich+'</div>':'')
+      +(b.bestelltBis?'<div class="ts">📅 Bestellt bis: '+fmt(b.bestelltBis)+'</div>':'')
+      +'</div>'
+      +'<div class="gap"><button class="btn btn-o btn-sm" onclick="openEdit(\''+b.id+'\')">✏</button>'
+      +'<button class="btn btn-d btn-sm" onclick="deleteObj(\''+b.id+'\')">🗑</button></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+// ── Bereiche Liste ────────────────────────────────────────
+function renderBereicheList(){
+  var el=document.getElementById('obj-list');
+  document.getElementById('list-sub').textContent=DB.bereiche.length+' Bereiche';
+  if(!DB.bereiche.length){
+    el.innerHTML='<div class="empty"><div class="empty-i">🏢</div><p style="margin-bottom:14px">Noch keine Bereiche angelegt.</p><button class="btn btn-p" onclick="openAdd()">+ Bereich anlegen</button></div>';
+    return;
+  }
+  el.innerHTML=DB.bereiche.map(function(b){
+    var verantw=DB.beauftragte.find(x=>x.id===b.verantwortlichId);
+    return '<div class="obj-card"><div class="obj-card-body"><div>'
+      +'<div style="font-size:15px;font-weight:600;margin-bottom:4px">'+b.name+'</div>'
+      +(b.funktion?'<div class="ts">Funktion: '+b.funktion+'</div>':'')
+      +(b.kostenstelle?'<div class="ts font-mono">KST: '+b.kostenstelle+'</div>':'')
+      +(verantw?'<div class="ts">👤 Verantwortlich: '+verantw.name+' ('+verantw.funktion+')</div>':'')
+      +'</div>'
+      +'<div class="gap"><button class="btn btn-o btn-sm" onclick="openEdit(\''+b.id+'\')">✏</button>'
+      +'<button class="btn btn-d btn-sm" onclick="deleteObj(\''+b.id+'\')">🗑</button></div>'
+      +'</div></div>';
+  }).join('');
+}
+
+// ── Add / Edit ────────────────────────────────────────────
 function openAdd(){document.getElementById('obj-edit-id').value='';document.getElementById('m-obj-title').textContent=typeLabel()+' anlegen';renderFields({});openM('m-obj');setTimeout(()=>document.getElementById('f-name')?.focus(),120);}
 function openEdit(id){var obj=getArr().find(x=>x.id===id);if(!obj)return;document.getElementById('obj-edit-id').value=id;document.getElementById('m-obj-title').textContent=typeLabel()+' bearbeiten';renderFields(obj);openM('m-obj');}
 
 function renderFields(obj){
   obj=obj||{};
-  var t=currentTab;
-  var h='<div class="g2">'
-    +'<div><label>Bezeichnung *</label><input id="f-name" value="'+esc(obj.name)+'" placeholder="'+(t==='maschine'?'Arburg 370S':t==='gefahrstoff'?'PP-Granulat':'Anlegeleiter 4m')+'"></div>'
-    +'<div><label>'+(t==='maschine'?'Maschinen-ID':t==='gefahrstoff'?'Stoff-Nr.':'Inventar-Nr.')+'</label>'
-    +'<input id="f-id-nr" style="font-family:var(--fm)" value="'+esc(obj.id_nr)+'" placeholder="'+(t==='maschine'?'SGM-01':t==='gefahrstoff'?'GS-001':'AM-001')+'"></div></div>';
+  var t=currentTab, h='';
 
-  if(t==='maschine'){
-    h+='<div class="g2">'
-      +'<div><label>Hersteller</label><input id="f-hersteller" value="'+esc(obj.hersteller)+'" placeholder="Arburg, Engel…"></div>'
-      +'<div><label>Baujahr</label><input id="f-baujahr" type="number" value="'+esc(obj.baujahr)+'" placeholder="2020"></div></div>'
+  if(t==='beauftragte'){
+    h='<div class="g2">'
+      +'<div><label>Name *</label><input id="f-name" value="'+esc(obj.name)+'" placeholder="Max Mustermann"></div>'
+      +'<div><label>Funktion *</label><select id="f-funktion">'
+      +BEAUFTRAGTE_TYPEN.map(k=>'<option'+(obj.funktion===k?' selected':'')+'>'+k+'</option>').join('')
+      +'</select></div></div>'
       +'<div class="g2">'
-      +'<div><label>Standort</label><input id="f-standort" value="'+esc(obj.standort)+'" placeholder="Halle 3"></div>'
-      +'<div><label>Seriennummer</label><input id="f-sn" style="font-family:var(--fm)" value="'+esc(obj.sn)+'" placeholder="SN-123456"></div></div>'
+      +'<div><label>Telefon</label><input id="f-tel" value="'+esc(obj.tel)+'" placeholder="+49 821…"></div>'
+      +'<div><label>E-Mail</label><input id="f-email" type="email" value="'+esc(obj.email)+'" placeholder="max@firma.de"></div></div>'
       +'<div class="g2">'
-      +'<div><label>Nächste UVV-Prüfung</label><input id="f-uvv" type="date" value="'+(obj.naechsteP||'')+'"></div>'
-      +'<div><label>Verantwortliche/r</label><input id="f-verantwortlich" value="'+esc(obj.verantwortlich)+'" placeholder="Name, Funktion"></div></div>';
-    if(obj.id){
-      h+='<div style="border-top:1px solid var(--border);padding-top:12px">'
-        +'<label style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'
-        +'<span>Bedienungsanleitung (PDF, max. 10 MB)</span>'
-        +'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-dok-'+obj.id+'\').click()">+ PDF hochladen</button></label>'
-        +'<input type="file" id="inp-dok-'+obj.id+'" accept=".pdf" multiple onchange="uploadDok(event,\''+obj.id+'\')">'
-        +'<div id="dok-list-'+obj.id+'" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px">'+renderDokChips(obj)+'</div>'
-        +((obj.dokumente||[]).length?'<button type="button" class="btn btn-o btn-sm" onclick="askDok(\''+obj.id+'\')">🤖 KI-Frage an Anleitung</button>':'')
-        +'<div id="dok-ki-'+obj.id+'" style="display:none;margin-top:10px;padding:12px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px"></div>'
-        +'</div>';
-  
-    +'<div class="section-block"><div class="section-label" style="margin-bottom:8px">GHS-Piktogramme für BA-Export</div>'
-    +'<p class="ts" style="margin-bottom:8px">Lade hier spezifische GHS-Piktogramme als Bilddateien für den BA-Export hoch.</p>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="pikto-list-'+(obj.id||'NEW-G')+'">'
-    +renderObjPiktos(obj)
-    +'</div>'
-    +'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-obj-pikto-g-'+(obj.id||'NEW-G')+'\').click()">+ Piktogramm hochladen</button>'
-    +' <input type="file" id="inp-obj-pikto-g-'+(obj.id||'NEW-G')+'" accept="image/*" multiple onchange="uploadObjPikto(event,\'gefahrstoff\',\'obj-edit-id\')">'
-    +'</div>'
-    +'<div class="section-block"><div class="section-label" style="margin-bottom:8px">BA-Vorlage für Gefahrstoffe (.docx)</div>'
-    +'<div style="display:flex;align-items:center;gap:8px">'
-    +'<span id="tmpl-status-g-'+(obj.id||'')+'" style="font-size:13px">'+getObjTemplateStatus('gefahrstoff',obj.id||'')+'</span>'
-    +(obj.id?'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-obj-tmpl-g-'+(obj.id||'')+'\'). click()">Upload .docx</button>'
-      +'<input type="file" id="inp-obj-tmpl-g-'+(obj.id||'')+'" accept=".docx" onchange="uploadObjTemplate(event,\'gefahrstoff\',\'obj-edit-id\')">'
-      :'<span class="ts">Erst nach dem Speichern</span>')
-    +'</div></div>';
+      +'<div><label>Qualifikation / Zertifikat</label><input id="f-quali" value="'+esc(obj.qualifikation)+'" placeholder="Ersthelfer-Kurs 2024, DGUV"></div>'
+      +'<div><label>Bestellt bis</label><input id="f-bestellt-bis" type="date" value="'+(obj.bestelltBis||'')+'"></div></div>'
+      +'<div class="g2">'
+      +'<div><label>Bereich / Standort</label><input id="f-bereich" value="'+esc(obj.bereich)+'" placeholder="Halle 3, Produktion"></div>'
+      +'<div><label>Kostenstelle</label><input id="f-kst" value="'+esc(obj.kostenstelle)+'" placeholder="KST-4711"></div></div>'
+      +'<div><label>Notizen</label><textarea id="f-notizen" rows="2">'+(obj.notizen||'')+'</textarea></div>';
+  } else if(t==='bereiche'){
+    h='<div class="g2">'
+      +'<div><label>Bereichsname *</label><input id="f-name" value="'+esc(obj.name)+'" placeholder="Halle 3 – Spritzguss"></div>'
+      +'<div><label>Funktion / Beschreibung</label><input id="f-funktion" value="'+esc(obj.funktion)+'" placeholder="Produktionsbereich"></div></div>'
+      +'<div class="g2">'
+      +'<div><label>Kostenstelle</label><input id="f-kst" style="font-family:var(--fm)" value="'+esc(obj.kostenstelle)+'" placeholder="KST-4711"></div>'
+      +'<div><label>Bereichsverantwortliche/r</label><select id="f-verantwortlich">'
+      +'<option value="">– keine Zuordnung –</option>'
+      +DB.beauftragte.map(b=>'<option value="'+b.id+'"'+(obj.verantwortlichId===b.id?' selected':'')+'>'+b.name+' ('+b.funktion+')</option>').join('')
+      +'</select></div></div>'
+      +'<div><label>Notizen</label><textarea id="f-notizen" rows="2">'+(obj.notizen||'')+'</textarea></div>';
   } else {
-      h+='<div class="ts">Dokumente können nach dem ersten Speichern hochgeladen werden.</div>';
+    // Gemeinsame Kopffelder
+    h='<div class="g2">'
+      +'<div><label>Bezeichnung *</label><input id="f-name" value="'+esc(obj.name)+'" placeholder="'+(t==='maschine'?'Arburg 370S':t==='gefahrstoff'?'PP-Granulat':'Anlegeleiter 4m')+'"></div>'
+      +'<div><label>'+(t==='maschine'?'Maschinen-ID':t==='gefahrstoff'?'Stoff-Nr.':'Inventar-Nr.')+'</label>'
+      +'<input id="f-id-nr" style="font-family:var(--fm)" value="'+esc(obj.id_nr)+'" placeholder="'+(t==='maschine'?'SGM-01':t==='gefahrstoff'?'GS-001':'AM-001')+'"></div></div>';
+
+    // Verantwortliche/r Zuordnung
+    var allePersonen=[...DB.beauftragte,...DB.bereiche.map(b=>({...b,_isBer:true}))];
+    if(allePersonen.length){
+      h+='<div><label>Verantwortliche/r zuordnen</label><select id="f-verantwortlich">'
+        +'<option value="">– keine –</option>'
+        +DB.beauftragte.map(b=>'<option value="'+b.id+'"'+(obj.verantwortlichId===b.id?' selected':'')+'>'+b.name+' – '+b.funktion+'</option>').join('')
+        +'</select></div>';
     }
 
-      +'<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">'
-      +'<div class="section-label" style="margin-bottom:8px">Sicherheitspiktogramme (ASR A1.3)</div>'
-      +'<p class="ts" style="margin-bottom:8px">Gebotszeichen · Verbotszeichen · Warnzeichen · Rettungszeichen · Brandschutzzeichen</p>'
-      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="pikto-list-'+(obj.id||'NEW')+'">'
-      +renderObjPiktos(obj)
-      +'</div>'
-      +'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-obj-pikto-'+(obj.id||'NEW')+'\').click()">+ Piktogramm hochladen</button>'
-      +' <input type="file" id="inp-obj-pikto-'+(obj.id||'NEW')+'" accept="image/*" multiple onchange="uploadObjPikto(event,\'maschine\',\'obj-edit-id\')">'
-      +'</div>'
-      +'<div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px">'
-      +'<div class="section-label" style="margin-bottom:8px">BA-Vorlage für diese Maschine (.docx)</div>'
-      +'<div style="display:flex;align-items:center;gap:8px">'
-      +'<span id="tmpl-status-'+(obj.id||'')+'" style="font-size:13px">'+getObjTemplateStatus('maschine',obj.id||'')+'</span>'
-      +(obj.id?'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-obj-tmpl-'+(obj.id||'')+'\'). click()">Upload .docx</button>'
-        +'<input type="file" id="inp-obj-tmpl-'+(obj.id||'')+'" accept=".docx" onchange="uploadObjTemplate(event,\'maschine\',\'obj-edit-id\')">'
-        :'<span class="ts">Erst nach dem Speichern</span>')
-      +'</div></div>';
-  } else if(t==='gefahrstoff'){
-    var sdbOk=obj.sdb_datei&&!isSdbOld(obj);
-    h+='<div class="'+(obj.sdb_datei?sdbOk?'sdb-block ok':'sdb-block':'sdb-block')+'">'
-      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-      +'<div><div style="font-size:13px;font-weight:600;color:var(--nok)">📄 Sicherheitsdatenblatt (SDB) *</div>'
-      +'<div class="ts">Pflicht gem. REACH Art. 31 · PDF · max. 10 MB</div></div>'
-      +'<button type="button" class="btn btn-p btn-sm" onclick="document.getElementById(\'inp-sdb-'+(obj.id||'NEW')+'\').click()">'+(obj.sdb_datei?'🔄 Neu hochladen':'⬆ SDB hochladen')+'</button>'
-      +'<input type="file" id="inp-sdb-'+(obj.id||'NEW')+'" accept=".pdf" onchange="uploadSDB(event,\''+  (obj.id||'')+'\')"></div>'
-      +(obj.sdb_datei
-        ?'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s2);border-radius:8px;margin-bottom:8px">'
-          +'<span style="font-size:18px">📄</span><div style="flex:1">'
-          +'<div style="font-size:13px;font-weight:500">'+(obj.sdb_name||'SDB.pdf')+'</div>'
-          +'<div class="ts">'+(obj.sdb_datum?fmt(obj.sdb_datum):'')+(obj.sdb_ueberarbeitung?' · Überarbeitung: '+fmt(obj.sdb_ueberarbeitung):'')+'</div>'
-          +(isSdbOld(obj)?'<div style="color:var(--nok);font-size:11px">⚠ Älter als 2 Jahre – bitte aktualisieren!</div>':'')
-          +'</div>'
-          +'<button type="button" class="btn btn-ok btn-sm" onclick="extractSDB(\''+obj.id+'\')">🤖 KI-Auslesen</button>'
-          +'<button type="button" class="btn btn-o btn-sm" onclick="openSDB(\''+obj.id+'\')">📖 Öffnen</button>'
-          +'</div>'
-        :'<div style="padding:10px;background:rgba(255,71,87,.05);border-radius:6px;text-align:center;color:var(--t3);font-size:13px">Noch kein SDB hochgeladen</div>')
-      +'<div id="sdb-ki-status" style="display:none;margin-top:8px;padding:10px 12px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px;font-size:13px"></div>'
-      +'</div>'
-      +'<div class="section-block"><div class="section-label" style="color:var(--a2)">Stammdaten (aus SDB oder manuell)</div>'
-      +'<div class="g2">'
-      +'<div><label>Bezeichnung laut SDB</label><input id="f-sdb-bez" value="'+esc(obj.sdb_bezeichnung)+'" placeholder="Produktname im SDB"></div>'
-      +'<div><label>CAS-Nummer</label><input id="f-cas" style="font-family:var(--fm)" value="'+esc(obj.cas)+'" placeholder="z.B. 9003-07-0"></div></div>'
-      +'<div class="g2">'
-      +'<div><label>Lieferant / Hersteller</label><input id="f-lieferant" value="'+esc(obj.lieferant)+'" placeholder="Firma GmbH"></div>'
-      +'<div><label>E-Mail / Notfallkontakt</label><input id="f-lieferant-mail" value="'+esc(obj.lieferant_mail)+'" placeholder="safety@firma.de · Tel."></div></div>'
-      +'<div class="g2">'
-      +'<div><label>Verwendungszweck</label><input id="f-verwendung" value="'+esc(obj.verwendung)+'" placeholder="z.B. Reinigung von Formen"></div>'
-      +'<div><label>Überarbeitungsdatum SDB</label><input id="f-sdb-ueberarbeitung" type="date" value="'+(obj.sdb_ueberarbeitung||'')+'" style="'+(isSdbOld(obj)?'border-color:var(--nok)':'')+'" onchange="checkSdbDate(this)"></div></div>'
-      +'</div>'
-      +'<div class="section-block"><div class="section-label" style="color:var(--nok)">Gefahreninformationen (SDB Abschn. 2)</div>'
-      +'<div><label>GHS-Piktogramme – auswählen:</label>'
-      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="ghs-picker">'
-      +GHS_LIST.map(g=>ghsBtn(g.id,(obj.ghs||[]).includes(g.id))).join('')
-      +'</div></div>'
-      +'<div class="g2" style="margin-top:12px">'
-      +'<div><label>Signalwort</label><select id="f-signalwort"><option value="">– nicht angegeben –</option><option value="Gefahr"'+(obj.signalwort==='Gefahr'?' selected':'')+'>⚠ GEFAHR</option><option value="Achtung"'+(obj.signalwort==='Achtung'?' selected':'')+'>ℹ ACHTUNG</option></select></div>'
-      +'<div><label>SDB-Status</label><select id="f-sdb-status"><option value="ja"'+(obj.sdb_status==='ja'?' selected':'')+'>✓ Vorhanden & aktuell</option><option value="veraltet"'+(obj.sdb_status==='veraltet'?' selected':'')+'>⚠ Veraltet</option><option value="nein"'+(obj.sdb_status==='nein'?' selected':'')+'>✗ Nicht vorhanden</option></select></div></div>'
-      +'<div style="margin-top:12px"><label>H-Sätze – Gefahrenhinweise</label>'
-      +'<textarea id="f-hsaetze" rows="2" placeholder="z.B. H225: Leicht entzündbar. H319: Verursacht schwere Augenreizung.">'+(obj.hsaetze||'')+'</textarea></div>'
-      +'</div>'
-      +'<div class="section-block"><div class="section-label">Physikalisch-chemische Daten (SDB Abschn. 9)</div>'
-      +'<div class="g3">'
-      +'<div><label>Flammpunkt</label><input id="f-flammpunkt" style="font-family:var(--fm)" value="'+esc(obj.flammpunkt)+'" placeholder="z.B. 12 °C"></div>'
-      +'<div><label>Siedepunkt</label><input id="f-siedepunkt" style="font-family:var(--fm)" value="'+esc(obj.siedepunkt)+'" placeholder="z.B. 78 °C"></div>'
-      +'<div><label>Dampfdruck</label><input id="f-dampfdruck" style="font-family:var(--fm)" value="'+esc(obj.dampfdruck)+'" placeholder="z.B. 58 hPa"></div></div>'
-      +'</div>'
-      +'<div class="section-block"><div class="section-label">Grenzwerte & Lagerung</div>'
-      +'<div class="g3">'
-      +'<div><label>AGW / TRGS 900</label><input id="f-agw" style="font-family:var(--fm)" value="'+esc(obj.agw)+'" placeholder="z.B. 200 mg/m³"></div>'
-      +'<div><label>WGK</label><select id="f-wgk" style="font-family:var(--fm)"><option value=""'+(obj.wgk===''||!obj.wgk?' selected':'')+'>–</option><option value="nwg"'+(obj.wgk==='nwg'?' selected':'')+'>nwg</option><option value="1"'+(obj.wgk==='1'?' selected':'')+'>WGK 1</option><option value="2"'+(obj.wgk==='2'?' selected':'')+'>WGK 2</option><option value="3"'+(obj.wgk==='3'?' selected':'')+'>WGK 3</option></select></div>'
-      +'<div><label>Lagerklasse (TRGS 510)</label><input id="f-lagerklasse" style="font-family:var(--fm)" value="'+esc(obj.lagerklasse)+'" placeholder="z.B. LK 3"></div></div>'
-      +'<div class="g2" style="margin-top:10px">'
-      +'<div><label>Lagerort</label><input id="f-lagerort" value="'+esc(obj.lagerort)+'" placeholder="z.B. Gefahrstofflager A"></div>'
-      +'<div><label>Max. Lagermenge</label><input id="f-lagermenge" value="'+esc(obj.lagermenge)+'" placeholder="z.B. 20 Liter"></div></div>'
-      +'</div>';
-  } else {
-    h+='<div class="g2">'
-      +'<div><label>Kategorie</label><select id="f-kategorie">'+['Leiter / Aufstiegshilfe','Hebezeug / Kran','Handwerkzeug','Elektrowerkzeug','Förderfahrzeug','Behälter / Kanister','Messgerät','Schutzeinrichtung','Sonstiges'].map(k=>'<option'+(obj.kategorie===k?' selected':'')+'>'+k+'</option>').join('')+'</select></div>'
-      +'<div><label>Nächste Prüfung</label><input id="f-naechste" type="date" value="'+(obj.naechsteP||'')+'"></div></div>'
-      +'<div class="g2">'
-      +'<div><label>Prüfgrundlage</label><input id="f-pruefgrund" value="'+esc(obj.pruefgrund)+'" placeholder="z.B. DGUV V54 · BGV D27"></div>'
-      +'<div><label>Letzte Prüfung</label><input id="f-letzte" type="date" value="'+(obj.letzteP||'')+'"></div></div>';
+    if(t==='maschine'){
+      h+='<div class="g2">'
+        +'<div><label>Hersteller</label><input id="f-hersteller" value="'+esc(obj.hersteller)+'" placeholder="Arburg, Engel…"></div>'
+        +'<div><label>Baujahr</label><input id="f-baujahr" type="number" value="'+esc(obj.baujahr)+'" placeholder="2020"></div></div>'
+        +'<div class="g2">'
+        +'<div><label>Standort</label><input id="f-standort" value="'+esc(obj.standort)+'" placeholder="Halle 3"></div>'
+        +'<div><label>Seriennummer</label><input id="f-sn" style="font-family:var(--fm)" value="'+esc(obj.sn)+'" placeholder="SN-123456"></div></div>'
+        +'<div class="g2">'
+        +'<div><label>Nächste UVV-Prüfung</label><input id="f-uvv" type="date" value="'+(obj.naechsteP||'')+'"></div>'
+        +'<div><label>Standortbereich</label><select id="f-bereichId">'
+        +'<option value="">– kein Bereich –</option>'
+        +DB.bereiche.map(b=>'<option value="'+b.id+'"'+(obj.bereichId===b.id?' selected':'')+'>'+b.name+'</option>').join('')
+        +'</select></div></div>';
+      // Dokumente
+      if(obj.id){
+        h+='<div class="section-block"><div class="section-label">Bedienungsanleitung / Dokumente (PDF)</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px" id="dok-list-'+obj.id+'">'+renderDokChips(obj)+'</div>'
+          +'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-dok-'+obj.id+'\').click()">+ PDF hochladen</button>'
+          +'<input type="file" id="inp-dok-'+obj.id+'" accept=".pdf" multiple onchange="uploadDok(event,\''+obj.id+'\')">'
+          +((obj.dokumente||[]).length?'<button type="button" class="btn btn-o btn-sm" style="margin-left:8px" onclick="askDok(\''+obj.id+'\')">🤖 KI-Frage</button>':'')
+          +'<div id="dok-ki-'+obj.id+'" style="display:none;margin-top:8px;padding:10px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px"></div>'
+          +'</div>';
+      }
+      // ASR Piktogramme
+      h+='<div class="section-block"><div class="section-label">Sicherheitspiktogramme (ASR A1.3)</div>'
+        +'<div id="asr-picker">'+renderPiktoPicker(obj,'asr')+'</div></div>';
+    } else if(t==='gefahrstoff'){
+      // SDB
+      h+='<div class="'+(obj.sdb_datei?isSdbOld(obj)?'sdb-block':'sdb-block ok':'sdb-block')+'">'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+        +'<div><div style="font-size:13px;font-weight:600;color:var(--nok)">📄 Sicherheitsdatenblatt (SDB) *</div>'
+        +'<div class="ts">Pflicht gem. REACH Art. 31 · PDF · max. 10 MB</div></div>'
+        +'<button type="button" class="btn btn-p btn-sm" onclick="document.getElementById(\'inp-sdb-'+(obj.id||'NEW')+'\').click()">'+(obj.sdb_datei?'🔄 Neu':'⬆ SDB hochladen')+'</button>'
+        +'<input type="file" id="inp-sdb-'+(obj.id||'NEW')+'" accept=".pdf" onchange="uploadSDB(event,\''+(obj.id||'')+'\')">'
+        +'</div>'
+        +(obj.sdb_datei
+          ?'<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--s2);border-radius:8px;margin-bottom:8px">'
+            +'<span>📄</span><div style="flex:1"><div style="font-size:13px;font-weight:500">'+(obj.sdb_name||'SDB.pdf')+'</div>'
+            +'<div class="ts">'+(obj.sdb_datum?fmt(obj.sdb_datum):'')+(obj.sdb_ueberarbeitung?' · Überarbeitung: '+fmt(obj.sdb_ueberarbeitung):'')+'</div>'
+            +(isSdbOld(obj)?'<div style="color:var(--nok);font-size:11px">⚠ Älter als 2 Jahre!</div>':'')+'</div>'
+            +'<button type="button" class="btn btn-ok btn-sm" onclick="extractSDB(\''+obj.id+'\')">🤖 Auslesen</button>'
+            +'<button type="button" class="btn btn-o btn-sm" onclick="openSDB(\''+obj.id+'\')">📖</button></div>'
+          :'<div style="padding:10px;text-align:center;color:var(--t3);font-size:13px">Noch kein SDB hochgeladen</div>')
+        +'<div id="sdb-ki-status" style="display:none;margin-top:8px;padding:10px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px;font-size:13px"></div>'
+        +'</div>';
+      // Stammdaten
+      h+='<div class="section-block"><div class="section-label" style="color:var(--a2)">Stammdaten</div>'
+        +'<div class="g2">'
+        +'<div><label>Bezeichnung laut SDB</label><input id="f-sdb-bez" value="'+esc(obj.sdb_bezeichnung)+'" placeholder="Produktname im SDB"></div>'
+        +'<div><label>CAS-Nummer</label><input id="f-cas" style="font-family:var(--fm)" value="'+esc(obj.cas)+'" placeholder="9003-07-0"></div></div>'
+        +'<div class="g2">'
+        +'<div><label>Lieferant</label><input id="f-lieferant" value="'+esc(obj.lieferant)+'" placeholder="Firma GmbH"></div>'
+        +'<div><label>E-Mail / Notfallkontakt</label><input id="f-lieferant-mail" value="'+esc(obj.lieferant_mail)+'" placeholder="safety@firma.de"></div></div>'
+        +'<div class="g2">'
+        +'<div><label>Verwendungszweck</label><input id="f-verwendung" value="'+esc(obj.verwendung)+'" placeholder="z.B. Reinigung"></div>'
+        +'<div><label>Überarbeitungsdatum SDB</label><input id="f-sdb-ueberarbeitung" type="date" value="'+(obj.sdb_ueberarbeitung||'')+'" onchange="if((new Date()-new Date(this.value))>2*365*24*60*60*1000){this.style.borderColor=\'var(--nok)\';toast(\'SDB älter als 2 Jahre!\',\'err\');}else this.style.borderColor=\'\'"></div></div>'
+        +'</div>';
+      // Gefahrendaten
+      h+='<div class="section-block"><div class="section-label" style="color:var(--nok)">Gefahrendaten</div>'
+        +'<div class="g2">'
+        +'<div><label>Signalwort</label><select id="f-signalwort"><option value="">–</option><option value="Gefahr"'+(obj.signalwort==='Gefahr'?' selected':'')+'>⚠ GEFAHR</option><option value="Achtung"'+(obj.signalwort==='Achtung'?' selected':'')+'>ℹ ACHTUNG</option></select></div>'
+        +'<div><label>SDB-Status</label><select id="f-sdb-status"><option value="ja"'+(obj.sdb_status==='ja'?' selected':'')+'>✓ Aktuell</option><option value="veraltet"'+(obj.sdb_status==='veraltet'?' selected':'')+'>⚠ Veraltet</option><option value="nein"'+(obj.sdb_status==='nein'?' selected':'')+'>✗ Fehlt</option></select></div></div>'
+        +'<div><label>H-Sätze</label><textarea id="f-hsaetze" rows="2" placeholder="H225: Leicht entzündbar. H319: …">'+(obj.hsaetze||'')+'</textarea></div>'
+        +'<div class="g3" style="margin-top:10px">'
+        +'<div><label>Flammpunkt</label><input id="f-flammpunkt" style="font-family:var(--fm)" value="'+esc(obj.flammpunkt)+'" placeholder="z.B. 12 °C"></div>'
+        +'<div><label>Siedepunkt</label><input id="f-siedepunkt" style="font-family:var(--fm)" value="'+esc(obj.siedepunkt)+'" placeholder="z.B. 78 °C"></div>'
+        +'<div><label>Dampfdruck</label><input id="f-dampfdruck" style="font-family:var(--fm)" value="'+esc(obj.dampfdruck)+'" placeholder="z.B. 58 hPa"></div></div>'
+        +'</div>';
+      // Grenzwerte
+      h+='<div class="section-block"><div class="section-label">Grenzwerte & Lagerung</div>'
+        +'<div class="g3">'
+        +'<div><label>AGW / TRGS 900</label><input id="f-agw" style="font-family:var(--fm)" value="'+esc(obj.agw)+'" placeholder="200 mg/m³"></div>'
+        +'<div><label>WGK</label><select id="f-wgk" style="font-family:var(--fm)"><option value=""'+(obj.wgk===''||!obj.wgk?' selected':'')+'>–</option><option value="nwg"'+(obj.wgk==='nwg'?' selected':'')+'>nwg</option><option value="1"'+(obj.wgk==='1'?' selected':'')+'>WGK 1</option><option value="2"'+(obj.wgk==='2'?' selected':'')+'>WGK 2</option><option value="3"'+(obj.wgk==='3'?' selected':'')+'>WGK 3</option></select></div>'
+        +'<div><label>Lagerklasse (TRGS 510)</label><input id="f-lagerklasse" style="font-family:var(--fm)" value="'+esc(obj.lagerklasse)+'" placeholder="LK 3"></div></div>'
+        +'<div class="g2" style="margin-top:10px">'
+        +'<div><label>Lagerort</label><input id="f-lagerort" value="'+esc(obj.lagerort)+'" placeholder="Gefahrstofflager A"></div>'
+        +'<div><label>Max. Lagermenge</label><input id="f-lagermenge" value="'+esc(obj.lagermenge)+'" placeholder="20 Liter"></div></div>'
+        +'</div>';
+      // GHS Piktogramme
+      h+='<div class="section-block"><div class="section-label">GHS-Piktogramme auswählen</div>'
+        +'<div id="ghs-picker">'+renderPiktoPicker(obj,'ghs')+'</div></div>';
+    } else {
+      // Arbeitsmittel
+      h+='<div class="g2">'
+        +'<div><label>Kategorie</label><select id="f-kategorie">'+['Leiter / Aufstiegshilfe','Hebezeug / Kran','Handwerkzeug','Elektrowerkzeug','Förderfahrzeug','Behälter / Kanister','Messgerät','Schutzeinrichtung','Sonstiges'].map(k=>'<option'+(obj.kategorie===k?' selected':'')+'>'+k+'</option>').join('')+'</select></div>'
+        +'<div><label>Nächste Prüfung</label><input id="f-naechste" type="date" value="'+(obj.naechsteP||'')+'"></div></div>'
+        +'<div class="g2">'
+        +'<div><label>Prüfgrundlage</label><input id="f-pruefgrund" value="'+esc(obj.pruefgrund)+'" placeholder="DGUV V54 · BGV D27"></div>'
+        +'<div><label>Letzte Prüfung</label><input id="f-letzte" type="date" value="'+(obj.letzteP||'')+'"></div></div>';
+      // ASR Piktogramme für Arbeitsmittel
+      h+='<div class="section-block"><div class="section-label">Sicherheitspiktogramme (ASR A1.3)</div>'
+        +'<div id="asr-picker">'+renderPiktoPicker(obj,'asr')+'</div></div>';
+    }
+    h+='<div><label>Notizen</label><textarea id="f-notizen" rows="2">'+(obj.notizen||'')+'</textarea></div>';
   }
-  h+='<div><label>Notizen</label><textarea id="f-notizen" rows="2">'+(obj.notizen||'')+'</textarea></div>';
   document.getElementById('obj-fields').innerHTML=h;
 }
 
-function checkSdbDate(input){
-  if(!input.value)return;
-  var old=(new Date()-new Date(input.value))>2*365*24*60*60*1000;
-  input.style.borderColor=old?'var(--nok)':'';
-  if(old) toast('SDB-Überarbeitungsdatum älter als 2 Jahre!','err');
-}
-
-function renderDokChips(obj){
-  return (obj.dokumente||[]).map(d=>'<span class="doc-chip" onclick="openDok(\''+d.id+'\',\''+obj.id+'\')">'
-    +'📄 '+(d.name.length>22?d.name.slice(0,19)+'…':d.name)
-    +' <button onclick="event.stopPropagation();deleteDok(\''+d.id+'\',\''+obj.id+'\')" style="background:none;border:none;color:var(--nok);cursor:pointer;font-size:11px">✕</button></span>').join('');
-}
-
+// ── saveObj ───────────────────────────────────────────────
 function saveObj(){
   var name=document.getElementById('f-name')?.value.trim();
   if(!name){toast('Bezeichnung erforderlich','err');return;}
   var editId=document.getElementById('obj-edit-id')?.value;
-  var arr=getArr(),prev=editId?arr.find(x=>x.id===editId):null;
+  var arr=getArr(), prev=editId?arr.find(x=>x.id===editId):null;
   var obj={
-    id:prev?.id||uid('PO'),name,
-    id_nr:document.getElementById('f-id-nr')?.value.trim()||'',
+    id:prev?.id||uid('PO'), name,
     notizen:document.getElementById('f-notizen')?.value.trim()||'',
-    pruefErgebnisse:prev?.pruefErgebnisse||[],pruefHistorie:prev?.pruefHistorie||[],
-    baVersionen:prev?.baVersionen||[],baManual:prev?.baManual||{},
-    dokumente:prev?.dokumente||[],maxRisiko:prev?.maxRisiko??null,
-    lastPruefung:prev?.lastPruefung??null,lastPruefer:prev?.lastPruefer??null,
+    pruefErgebnisse:prev?.pruefErgebnisse||[], pruefHistorie:prev?.pruefHistorie||[],
+    dokumente:prev?.dokumente||[], maxRisiko:prev?.maxRisiko??null,
+    lastPruefung:prev?.lastPruefung??null, lastPruefer:prev?.lastPruefer??null,
     createdAt:prev?.createdAt||new Date().toISOString(),
   };
-  if(currentTab==='maschine'){
+  var t=currentTab;
+  if(t==='beauftragte'){
     Object.assign(obj,{
+      funktion:document.getElementById('f-funktion')?.value,
+      tel:document.getElementById('f-tel')?.value.trim(),
+      email:document.getElementById('f-email')?.value.trim(),
+      qualifikation:document.getElementById('f-quali')?.value.trim(),
+      bestelltBis:document.getElementById('f-bestellt-bis')?.value,
+      bereich:document.getElementById('f-bereich')?.value.trim(),
+      kostenstelle:document.getElementById('f-kst')?.value.trim(),
+    });
+  } else if(t==='bereiche'){
+    Object.assign(obj,{
+      funktion:document.getElementById('f-funktion')?.value.trim(),
+      kostenstelle:document.getElementById('f-kst')?.value.trim(),
+      verantwortlichId:document.getElementById('f-verantwortlich')?.value,
+    });
+  } else if(t==='maschine'){
+    Object.assign(obj,{
+      id_nr:document.getElementById('f-id-nr')?.value.trim(),
       hersteller:document.getElementById('f-hersteller')?.value.trim(),
       baujahr:document.getElementById('f-baujahr')?.value.trim(),
       standort:document.getElementById('f-standort')?.value.trim(),
       sn:document.getElementById('f-sn')?.value.trim(),
       naechsteP:document.getElementById('f-uvv')?.value,
-      verantwortlich:document.getElementById('f-verantwortlich')?.value.trim(),
+      verantwortlichId:document.getElementById('f-verantwortlich')?.value||'',
+      bereichId:document.getElementById('f-bereichId')?.value||'',
+      piktos:getSelectedPiktos('#asr-picker'),
     });
-  } else if(currentTab==='gefahrstoff'){
+  } else if(t==='gefahrstoff'){
     Object.assign(obj,{
+      id_nr:document.getElementById('f-id-nr')?.value.trim(),
       cas:document.getElementById('f-cas')?.value.trim(),
       sdb_bezeichnung:document.getElementById('f-sdb-bez')?.value.trim(),
       lieferant:document.getElementById('f-lieferant')?.value.trim(),
@@ -789,7 +1052,6 @@ function saveObj(){
       verwendung:document.getElementById('f-verwendung')?.value.trim(),
       sdb_ueberarbeitung:document.getElementById('f-sdb-ueberarbeitung')?.value,
       sdb_status:document.getElementById('f-sdb-status')?.value,
-      ghs:[...document.querySelectorAll('#ghs-picker .ghs-btn[data-sel="true"]')].map(b=>b.dataset.ghs),
       signalwort:document.getElementById('f-signalwort')?.value,
       hsaetze:document.getElementById('f-hsaetze')?.value.trim(),
       flammpunkt:document.getElementById('f-flammpunkt')?.value.trim(),
@@ -800,24 +1062,25 @@ function saveObj(){
       lagerklasse:document.getElementById('f-lagerklasse')?.value.trim(),
       lagerort:document.getElementById('f-lagerort')?.value.trim(),
       lagermenge:document.getElementById('f-lagermenge')?.value.trim(),
-      sdb_datei:prev?.sdb_datei||null,sdb_name:prev?.sdb_name||null,sdb_datum:prev?.sdb_datum||null,
+      verantwortlichId:document.getElementById('f-verantwortlich')?.value||'',
+      piktos:getSelectedPiktos('#ghs-picker'),
+      sdb_datei:prev?.sdb_datei||null, sdb_name:prev?.sdb_name||null, sdb_datum:prev?.sdb_datum||null,
     });
   } else {
     Object.assign(obj,{
+      id_nr:document.getElementById('f-id-nr')?.value.trim(),
       kategorie:document.getElementById('f-kategorie')?.value,
       naechsteP:document.getElementById('f-naechste')?.value,
       letzteP:document.getElementById('f-letzte')?.value,
       pruefgrund:document.getElementById('f-pruefgrund')?.value.trim(),
+      verantwortlichId:document.getElementById('f-verantwortlich')?.value||'',
+      piktos:getSelectedPiktos('#asr-picker'),
     });
   }
-  // Attach pending object piktos for new objects
-  if(!prev&&window._pendingPiktos&&window._pendingPiktos.length){
-    obj.piktos=window._pendingPiktos;window._pendingPiktos=null;
-  }
-  if(!prev&&currentTab==='gefahrstoff'&&pendingSDB){
+  if(!prev&&t==='gefahrstoff'&&pendingSDB){
     obj.sdb_datei=pendingSDB.dataUrl;obj.sdb_name=pendingSDB.name;obj.sdb_datum=pendingSDB.datum;pendingSDB=null;
   }
-  if(prev){arr[arr.indexOf(prev)]=obj;}else arr.push(obj);
+  if(prev)arr[arr.indexOf(prev)]=obj; else arr.push(obj);
   saveArr();closeM('m-obj');renderList();toast(typeLabel()+' gespeichert ✓','ok');
 }
 function deleteObj(id){
@@ -827,103 +1090,88 @@ function deleteObj(id){
   saveArr();renderList();toast('Gelöscht');
 }
 
-// ── Documents ────────────────────────────────────────────
-function uploadDok(e,machineId){
+// ── Dokumente ─────────────────────────────────────────────
+function renderDokChips(obj){
+  return (obj.dokumente||[]).map(d=>'<span class="doc-chip" onclick="openDok(\''+d.id+'\',\''+obj.id+'\')">'
+    +'📄 '+(d.name.length>22?d.name.slice(0,19)+'…':d.name)
+    +'<button onclick="event.stopPropagation();deleteDok(\''+d.id+'\',\''+obj.id+'\')" style="background:none;border:none;color:var(--nok);cursor:pointer">✕</button></span>').join('');
+}
+function uploadDok(e,mid){
   var files=[...e.target.files];if(!files.length)return;
-  var machine=DB.maschinen.find(m=>m.id===machineId);if(!machine)return;
+  var m=DB.maschinen.find(x=>x.id===mid);if(!m)return;
   files.forEach(function(f){
     if(f.size>10*1024*1024){toast(f.name+' zu groß','err');return;}
     var r=new FileReader();
     r.onload=function(ev){
-      if(!machine.dokumente)machine.dokumente=[];
-      machine.dokumente.push({id:uid('D'),name:f.name,size:f.size,date:new Date().toISOString(),dataUrl:ev.target.result});
+      if(!m.dokumente)m.dokumente=[];
+      m.dokumente.push({id:uid('D'),name:f.name,date:new Date().toISOString(),dataUrl:ev.target.result});
       DB.save('maschinen');
-      var el=document.getElementById('dok-list-'+machineId);
-      if(el)el.innerHTML=renderDokChips(machine);
+      var el=document.getElementById('dok-list-'+mid);if(el)el.innerHTML=renderDokChips(m);
       toast(f.name+' hochgeladen ✓','ok');
-    };
-    r.readAsDataURL(f);
-  });
-  e.target.value='';
+    };r.readAsDataURL(f);
+  });e.target.value='';
 }
-function openDok(docId,machineId){
-  var m=DB.maschinen.find(x=>x.id===machineId);
-  var d=m&&m.dokumente&&m.dokumente.find(x=>x.id===docId);
-  if(!d||!d.dataUrl)return;
-  var w=window.open();w.document.write('<iframe src="'+d.dataUrl+'" style="width:100%;height:100vh;border:none"></iframe>');
-}
-function deleteDok(docId,machineId){
-  if(!confirm('Dokument löschen?'))return;
-  var m=DB.maschinen.find(x=>x.id===machineId);if(!m)return;
-  m.dokumente=(m.dokumente||[]).filter(d=>d.id!==docId);
-  DB.save('maschinen');
-  var el=document.getElementById('dok-list-'+machineId);
-  if(el)el.innerHTML=renderDokChips(m);
-  toast('Gelöscht');
-}
-async function askDok(machineId){
-  var m=DB.maschinen.find(x=>x.id===machineId);
-  var docs=(m&&m.dokumente||[]).filter(d=>d.dataUrl&&d.name.endsWith('.pdf'));
-  if(!docs.length){toast('Keine PDF-Dokumente hochgeladen','err');return;}
+function openDok(docId,mid){var m=DB.maschinen.find(x=>x.id===mid);var d=m&&m.dokumente&&m.dokumente.find(x=>x.id===docId);if(!d?.dataUrl)return;var w=window.open();w.document.write('<iframe src="'+d.dataUrl+'" style="width:100%;height:100vh;border:none"></iframe>');}
+function deleteDok(docId,mid){if(!confirm('Dokument löschen?'))return;var m=DB.maschinen.find(x=>x.id===mid);if(!m)return;m.dokumente=(m.dokumente||[]).filter(d=>d.id!==docId);DB.save('maschinen');var el=document.getElementById('dok-list-'+mid);if(el)el.innerHTML=renderDokChips(m);}
+async function askDok(mid){
+  var m=DB.maschinen.find(x=>x.id===mid);var docs=(m?.dokumente||[]).filter(d=>d.dataUrl&&d.name.endsWith('.pdf'));
+  if(!docs.length){toast('Keine PDFs hochgeladen','err');return;}
   var frage=prompt('Frage an die Bedienungsanleitung:');if(!frage)return;
-  toast('KI analysiert Dokument…');
+  toast('KI analysiert…');
   try{
-    var b64=docs[0].dataUrl.split(',')[1];
     var res=await claudeFetch({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:[
-        {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
-        {type:'text',text:'Beantworte folgende Frage zur Bedienungsanleitung in 2-4 Sätzen auf Deutsch:\n\n'+frage},
-      ]}]});
+      {type:'document',source:{type:'base64',media_type:'application/pdf',data:docs[0].dataUrl.split(',')[1]}},
+      {type:'text',text:'Beantworte auf Deutsch (2–4 Sätze):\n\n'+frage}
+    ]}]});
     var data=await res.json();
     var answer=(data.content||[]).map(b=>b.text||'').join('')||'Keine Antwort';
-    var el=document.getElementById('dok-ki-'+machineId);
+    var el=document.getElementById('dok-ki-'+mid);
     if(el){el.style.display='block';el.innerHTML='<div style="font-weight:600;color:var(--a2);margin-bottom:6px">🤖 Antwort</div><div style="font-size:13px;line-height:1.6">'+answer+'</div>';}
   }catch(e){toast('Fehler: '+e.message,'err');}
 }
 
-// ── SDB Upload & AI extraction ───────────────────────────
-function openSDB(objId){
-  var obj=DB.gefahrstoffe.find(x=>x.id===objId);
-  if(!obj||!obj.sdb_datei)return;
-  var w=window.open();w.document.write('<iframe src="'+obj.sdb_datei+'" style="width:100%;height:100vh;border:none"></iframe>');
-}
+// ── SDB ───────────────────────────────────────────────────
+function openSDB(id){var obj=DB.gefahrstoffe.find(x=>x.id===id);if(!obj?.sdb_datei)return;var w=window.open();w.document.write('<iframe src="'+obj.sdb_datei+'" style="width:100%;height:100vh;border:none"></iframe>');}
 function uploadSDB(e,objId){
   var file=e.target.files[0];if(!file)return;
   if(file.size>10*1024*1024){toast('Max. 10 MB','err');return;}
-  if(!file.name.toLowerCase().endsWith('.pdf')){toast('Nur PDF-Dateien','err');return;}
   var r=new FileReader();
   r.onload=function(ev){
     if(objId){
       var obj=DB.gefahrstoffe.find(x=>x.id===objId);
       if(obj){obj.sdb_datei=ev.target.result;obj.sdb_name=file.name;obj.sdb_datum=new Date().toISOString();DB.save('gefahrstoffe');toast(file.name+' gespeichert ✓','ok');openEdit(objId);}
-    } else {
+    }else{
       pendingSDB={dataUrl:ev.target.result,name:file.name,datum:new Date().toISOString()};
       var st=document.getElementById('sdb-ki-status');
-      if(st){st.style.display='block';st.innerHTML='<span style="color:var(--ok)">✓ "'+file.name+'" bereit – nach dem Speichern wird das SDB angehängt.</span>';}
+      if(st){st.style.display='block';st.innerHTML='<span style="color:var(--ok)">✓ "'+file.name+'" bereit</span>';}
       toast(file.name+' bereit ✓','ok');
     }
-  };
-  r.readAsDataURL(file);e.target.value='';
+  };r.readAsDataURL(file);e.target.value='';
 }
 async function extractSDB(objId){
   var obj=DB.gefahrstoffe.find(x=>x.id===objId);
-  if(!obj||!obj.sdb_datei){toast('Kein SDB hochgeladen','err');return;}
+  if(!obj?.sdb_datei){toast('Kein SDB hochgeladen','err');return;}
   var st=document.getElementById('sdb-ki-status');
-  if(st){st.style.display='block';st.innerHTML='<span style="color:var(--a2)">🤖 KI liest SDB aus… (10–20 Sekunden)</span>';}
-  toast('SDB wird ausgelesen…');
+  if(st){st.style.display='block';st.innerHTML='<span style="color:var(--a2)">🤖 SDB wird ausgelesen… (10–20 Sek.)</span>';}
+  toast('SDB wird analysiert…');
   try{
-    var b64=obj.sdb_datei.split(',')[1];
-    var prompt='Lies dieses Sicherheitsdatenblatt aus und extrahiere folgende Informationen. Antworte NUR mit JSON, kein Markdown:\n'
-      +'{"bezeichnung":"Produktname aus Abschnitt 1","cas":"CAS-Nummer (nur Zahlen, z.B. 67-63-0)","lieferant":"Firmenname des Lieferanten","lieferant_mail":"E-Mail oder Notfalltelefon","verwendung":"Verwendungszweck aus Abschn. 1.2","ueberarbeitung":"Überarbeitungsdatum im Format YYYY-MM-DD","signalwort":"Gefahr oder Achtung","ghs":["GHS01","GHS02"],"hsaetze":"Alle H-Sätze als Text","agw":"Arbeitsplatzgrenzwert aus Abschn. 8.1","wgk":"Wassergefährdungsklasse: nwg, 1, 2 oder 3","flammpunkt":"Flammpunkt mit Einheit","siedepunkt":"Siedepunkt mit Einheit","dampfdruck":"Dampfdruck mit Einheit","lagerklasse":"Lagerklasse nach TRGS 510, z.B. LK 3"}\nWenn ein Wert nicht gefunden werden kann, setze null.';
+    var firma=getFirmaKontext();
+    var prompt='Du bist ein EHS-Experte. Lies dieses Sicherheitsdatenblatt aus.\n\nBETRIEBSKONTEXT:\n'+firma+'\n\nExtrahiere folgende Informationen und antworte NUR mit JSON (kein Markdown):\n'
+      +'{"bezeichnung":"Produktname aus Abschn. 1","cas":"CAS-Nummer","lieferant":"Firmenname","lieferant_mail":"E-Mail/Notfall",'
+      +'"verwendung":"Verwendungszweck","ueberarbeitung":"YYYY-MM-DD","signalwort":"Gefahr oder Achtung",'
+      +'"ghs":["GHS01","GHS02"],"hsaetze":"H-Sätze als Text","agw":"AGW-Wert",'
+      +'"wgk":"nwg/1/2/3","flammpunkt":"mit Einheit","siedepunkt":"mit Einheit","dampfdruck":"mit Einheit","lagerklasse":"LK-Nummer"}\n'
+      +'Wenn nicht gefunden: null setzen.';
     var res=await claudeFetch({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:[
-        {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
-        {type:'text',text:prompt},
-      ]}]});
+      {type:'document',source:{type:'base64',media_type:'application/pdf',data:obj.sdb_datei.split(',')[1]}},
+      {type:'text',text:prompt}
+    ]}]});
     var data=await res.json();
-    if(!res.ok){if(st)st.innerHTML='<span style="color:var(--nok)">⚠ '+( data.error&&data.error.message||'API-Fehler')+'</span>';return;}
+    if(!res.ok){if(st)st.innerHTML='<span style="color:var(--nok)">Fehler: '+(data.error?.message||'API')+'</span>';return;}
     var text=(data.content||[]).map(b=>b.text||'').join('');
     var parsed;
     try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}
-    catch(e){if(st)st.innerHTML='<span style="color:var(--nok)">Konnte Antwort nicht verarbeiten. Bitte manuell ausfüllen.</span>';return;}
+    catch(e){if(st)st.innerHTML='<span style="color:var(--nok)">Antwort konnte nicht verarbeitet werden. Bitte manuell ausfüllen.</span>';return;}
     var set=function(id,val){var el=document.getElementById(id);if(el&&val!=null)el.value=val;};
     set('f-sdb-bez',parsed.bezeichnung);set('f-cas',parsed.cas);
     set('f-lieferant',parsed.lieferant);set('f-lieferant-mail',parsed.lieferant_mail);
@@ -933,48 +1181,45 @@ async function extractSDB(objId){
     set('f-siedepunkt',parsed.siedepunkt);set('f-dampfdruck',parsed.dampfdruck);
     set('f-lagerklasse',parsed.lagerklasse);
     if(parsed.wgk)document.getElementById('f-wgk').value=String(parsed.wgk);
+    // Auto-select matching GHS piktos
     if(parsed.ghs&&parsed.ghs.length){
-      document.querySelectorAll('#ghs-picker .ghs-btn').forEach(function(el){
-        var s=parsed.ghs.includes(el.dataset.ghs);
-        el.dataset.sel=s.toString();el.classList.toggle('sel',s);
+      document.querySelectorAll('#ghs-picker .pikto-item').forEach(function(el){
+        var id=el.dataset.id;
+        if(parsed.ghs.includes(id.replace('ghs_0','GHS0').replace('ghs_','GHS'))){
+          el.classList.add('sel-ghs');
+        }
       });
     }
     var old=parsed.ueberarbeitung&&(new Date()-new Date(parsed.ueberarbeitung))>2*365*24*60*60*1000;
     var found=Object.values(parsed).filter(v=>v!=null&&v!==''&&!(Array.isArray(v)&&!v.length)).length;
-    if(st)st.innerHTML='<div style="color:var(--ok);font-weight:600;margin-bottom:4px">✓ '+found+' Felder befüllt</div>'
-      +(old?'<div style="color:var(--nok);margin-bottom:4px">⚠ SDB älter als 2 Jahre – neues SDB anfordern!</div>':'')
-      +'<div class="ts">Bitte alle Angaben prüfen und korrigieren, dann speichern.</div>';
-    toast('SDB ausgelesen – '+found+' Felder ✓','ok');
-  }catch(e){
-    if(st)st.innerHTML='<span style="color:var(--nok)">Fehler: '+e.message+'</span>';
-    toast('Fehler: '+e.message,'err');
-  }
+    if(st)st.innerHTML='<div style="color:var(--ok);font-weight:600">✓ '+found+' Felder befüllt</div>'
+      +(old?'<div style="color:var(--nok)">⚠ SDB älter als 2 Jahre!</div>':'')
+      +'<div class="ts">Bitte prüfen und dann speichern.</div>';
+    toast(found+' Felder aus SDB befüllt ✓','ok');
+  }catch(e){if(st)st.innerHTML='<span style="color:var(--nok)">'+e.message+'</span>';toast('Fehler: '+e.message,'err');}
 }
 
-// ── Prüfung ──────────────────────────────────────────────
+// ── Prüfung ───────────────────────────────────────────────
 function openPruefung(id){
   pruefId=id;pruefType=currentTab;
   var obj=getArr().find(x=>x.id===id);if(!obj)return;
   pruefStates={};
   (obj.pruefErgebnisse||[]).forEach(r=>{pruefStates[r.id]={status:r.status,nohl_s:r.nohl_s||null,nohl_w:r.nohl_w||null,remark:r.remark||''};});
   document.getElementById('pruef-name').textContent=obj.name;
-  document.getElementById('pruef-sub').textContent=[obj.id_nr,typeLabel(),'Letzte: '+fmt(obj.lastPruefung)].filter(x=>x&&x!=='Letzte: –').join(' · ');
+  document.getElementById('pruef-sub').textContent=[obj.id_nr,typeLabel()].filter(Boolean).join(' · ');
   document.getElementById('voice-status').style.display='none';
   document.getElementById('voice-result').style.display='none';
   renderChecklist();updateProgress();openM('m-pruef');
 }
 function closePruefung(){if(isRec)stopVoice();closeM('m-pruef');}
-
 function renderChecklist(){
   var fragen=getFragen(pruefType);
   document.getElementById('pruef-checklist').innerHTML=fragen.map(function(cat,ci){
-    return '<div class="cat-block">'
-      +'<div class="cat-hd" onclick="this.nextElementSibling.classList.toggle(\'hidden\')">'
+    return '<div class="cat-block"><div class="cat-hd" onclick="this.nextElementSibling.classList.toggle(\'hidden\')">'
       +'<span style="font-size:13px;font-weight:500">'+cat.cat+'</span>'
       +'<span class="ts" id="cprog-'+ci+'">0/'+cat.items.length+'</span></div>'
-      +'<div id="ccat-'+ci+'">'+cat.items.map(it=>itemHTML(it)).join('')+'</div></div>';
-  }).join('');
-  updateCatProgress();
+      +'<div>'+cat.items.map(it=>itemHTML(it)).join('')+'</div></div>';
+  }).join('');updateCatProgress();
 }
 function itemHTML(it){
   var st=pruefStates[it.id]||{};
@@ -984,8 +1229,7 @@ function itemHTML(it){
   return '<div class="pruef-item '+row+'" id="pi-'+it.id+'">'
     +'<div><div style="font-size:13px;line-height:1.55">'+it.l+'</div>'
     +'<div class="ts" style="font-family:var(--fm);margin-top:2px">⚖ '+it.s+' · 🔁 '+it.iv+'</div>'
-    +(nc?'<div style="margin-top:3px"><span class="badge '+nc.badge+'" style="font-size:10px;color:'+nc.color+'">Nohl: '+nc.label+' (S'+st.nohl_s+'×W'+st.nohl_w+')</span></div>':'')
-    +'</div>'
+    +(nc?'<span class="badge '+nc.badge+'" style="font-size:10px;color:'+nc.color+'">Nohl: '+nc.label+' S'+st.nohl_s+'×W'+st.nohl_w+'</span>':'')+'</div>'
     +'<div style="display:flex;flex-direction:column;gap:7px;align-items:flex-end;flex-shrink:0;min-width:148px">'
     +'<div class="tgl">'
     +'<button class="tgl-btn'+(st.status==='ok'?' a-ok':'')+'" onclick="setSt(\''+it.id+'\',\'ok\')">✓ OK</button>'
@@ -993,56 +1237,33 @@ function itemHTML(it){
     +'<button class="tgl-btn'+(st.status==='nok'?' a-nok':'')+'" onclick="setSt(\''+it.id+'\',\'nok\')">✗ NOK</button>'
     +'</div>'
     +(showNohl&&(st.status==='nok'||st.status==='warn')?nohlPickerHTML(it.id,st):'')
-    +'<input style="width:148px;padding:5px 8px;font-size:11px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2)" placeholder="Notiz / Maßnahme…" value="'+esc(st.remark)+'" onchange="setRemark(\''+it.id+'\',this.value)">'
+    +'<input style="width:148px;padding:5px 8px;font-size:11px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2)" placeholder="Notiz…" value="'+esc(st.remark)+'" onchange="setRemark(\''+it.id+'\',this.value)">'
     +'</div></div>';
 }
 function nohlPickerHTML(id,st){
   var rows=[4,3,2,1],cols=[1,2,3,4];
-  var sL=['','Erste Hilfe','Behandlung nötig','Schwerverletzte','Tödlich'];
-  var wL=['','Sehr selten','Selten','Gelegentlich','Häufig'];
-  var html='<div class="nohl-wrap"><div class="ts" style="text-align:right;font-size:10px;margin-bottom:3px">Nohl: S × W</div>'
-    +'<div class="nohl-grid"><div class="nohl-hdr" style="font-size:9px">S↓W→</div>'
-    +cols.map(w=>'<div class="nohl-hdr" title="'+wL[w]+'">W'+w+'</div>').join('');
+  var html='<div style="margin-top:6px"><div class="nohl-grid"><div class="nohl-hdr" style="font-size:9px">S↓W→</div>'
+    +cols.map(w=>'<div class="nohl-hdr">W'+w+'</div>').join('');
   rows.forEach(function(s){
-    html+='<div class="nohl-hdr" title="'+sL[s]+'">S'+s+'</div>';
+    html+='<div class="nohl-hdr">S'+s+'</div>';
     cols.forEach(function(w){
       var nc=nohlClass(s,w),inf=NI[nc],sel=st.nohl_s===s&&st.nohl_w===w;
-      html+='<div class="nohl-cell '+inf.cls+(sel?' sel':'')+'" onclick="setNohl(\''+id+'\','+s+','+w+')" title="S'+s+'×W'+w+' = '+inf.label+'">'+nc+'</div>';
+      html+='<div class="nohl-cell '+inf.cls+(sel?' sel':'')+'" onclick="setNohl(\''+id+'\','+s+','+w+')" title="'+inf.label+'">'+nc+'</div>';
     });
   });
-  html+='</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:3px">'
-    +[1,2,3,4].map(n=>'<span style="font-size:9px;color:'+NI[n].color+'">●'+NI[n].label+'</span>').join('')
-    +'</div></div>';
-  return html;
+  html+='</div></div>';return html;
 }
-function setSt(id,val){
-  if(!pruefStates[id])pruefStates[id]={status:null,nohl_s:null,nohl_w:null,remark:''};
-  pruefStates[id].status=pruefStates[id].status===val?null:val;
-  refreshItem(id);updateProgress();
-}
-function setNohl(id,s,w){
-  if(!pruefStates[id])pruefStates[id]={status:'nok',nohl_s:null,nohl_w:null,remark:''};
-  if(pruefStates[id].nohl_s===s&&pruefStates[id].nohl_w===w){pruefStates[id].nohl_s=null;pruefStates[id].nohl_w=null;}
-  else{pruefStates[id].nohl_s=s;pruefStates[id].nohl_w=w;}
-  refreshItem(id);
-}
+function setSt(id,val){if(!pruefStates[id])pruefStates[id]={status:null,nohl_s:null,nohl_w:null,remark:''};pruefStates[id].status=pruefStates[id].status===val?null:val;refreshItem(id);updateProgress();}
+function setNohl(id,s,w){if(!pruefStates[id])pruefStates[id]={status:'nok',nohl_s:null,nohl_w:null,remark:''};if(pruefStates[id].nohl_s===s&&pruefStates[id].nohl_w===w){pruefStates[id].nohl_s=null;pruefStates[id].nohl_w=null;}else{pruefStates[id].nohl_s=s;pruefStates[id].nohl_w=w;}refreshItem(id);}
 function setRemark(id,v){if(!pruefStates[id])pruefStates[id]={status:null,nohl_s:null,nohl_w:null,remark:''};pruefStates[id].remark=v;}
-function refreshItem(id){
-  var item=getFragen(pruefType).flatMap(c=>c.items).find(it=>it.id===id);if(!item)return;
-  var el=document.getElementById('pi-'+id);if(el)el.outerHTML=itemHTML(item);updateCatProgress();
-}
-function updateCatProgress(){
-  getFragen(pruefType).forEach(function(cat,ci){
-    var done=cat.items.filter(it=>pruefStates[it.id]&&pruefStates[it.id].status).length;
-    var el=document.getElementById('cprog-'+ci);if(el)el.textContent=done+'/'+cat.items.length;
-  });
-}
+function refreshItem(id){var item=getFragen(pruefType).flatMap(c=>c.items).find(it=>it.id===id);if(!item)return;var el=document.getElementById('pi-'+id);if(el)el.outerHTML=itemHTML(item);updateCatProgress();}
+function updateCatProgress(){getFragen(pruefType).forEach(function(cat,ci){var done=cat.items.filter(it=>pruefStates[it.id]?.status).length;var el=document.getElementById('cprog-'+ci);if(el)el.textContent=done+'/'+cat.items.length;});}
 function updateProgress(){
   var all=getFragen(pruefType).flatMap(c=>c.items);
-  var done=all.filter(it=>pruefStates[it.id]&&pruefStates[it.id].status).length;
-  var ok=all.filter(it=>pruefStates[it.id]&&pruefStates[it.id].status==='ok').length;
-  var nok=all.filter(it=>pruefStates[it.id]&&pruefStates[it.id].status==='nok').length;
-  var warn=all.filter(it=>pruefStates[it.id]&&pruefStates[it.id].status==='warn').length;
+  var done=all.filter(it=>pruefStates[it.id]?.status).length;
+  var nok=all.filter(it=>pruefStates[it.id]?.status==='nok').length;
+  var warn=all.filter(it=>pruefStates[it.id]?.status==='warn').length;
+  var ok=all.filter(it=>pruefStates[it.id]?.status==='ok').length;
   var pct=all.length?Math.round(done/all.length*100):0;
   var pf=document.getElementById('pruef-fill');if(pf){pf.style.width=pct+'%';pf.className='prog-fill'+(nok===0&&done>0?' ok':'');}
   var pt=document.getElementById('pruef-prog');if(pt)pt.textContent=done+'/'+all.length+' · ✓'+ok+' ⚠'+warn+' ✗'+nok;
@@ -1052,12 +1273,12 @@ function savePruefung(){
   var arr=getArr(pruefType),obj=arr.find(x=>x.id===pruefId);if(!obj)return;
   var results=getFragen(pruefType).flatMap(c=>c.items).map(it=>({
     id:it.id,label:it.l,src:it.s,iv:it.iv,
-    status:pruefStates[it.id]?.status||null,
-    nohl_s:pruefStates[it.id]?.nohl_s||null,nohl_w:pruefStates[it.id]?.nohl_w||null,
-    remark:pruefStates[it.id]?.remark||'',date:new Date().toISOString(),
+    status:pruefStates[it.id]?.status||null,nohl_s:pruefStates[it.id]?.nohl_s||null,
+    nohl_w:pruefStates[it.id]?.nohl_w||null,remark:pruefStates[it.id]?.remark||'',
+    date:new Date().toISOString(),
   }));
   var nohlVals=results.filter(r=>r.nohl_s&&r.nohl_w).map(r=>nohlClass(r.nohl_s,r.nohl_w));
-  if(obj.pruefErgebnisse&&obj.pruefErgebnisse.length){
+  if(obj.pruefErgebnisse?.length){
     if(!obj.pruefHistorie)obj.pruefHistorie=[];
     obj.pruefHistorie.push({date:obj.lastPruefung,pruefer:obj.lastPruefer,results:obj.pruefErgebnisse,maxRisiko:obj.maxRisiko});
     if(obj.pruefHistorie.length>10)obj.pruefHistorie.shift();
@@ -1067,7 +1288,7 @@ function savePruefung(){
   saveArr(pruefType);closePruefung();renderList();toast('Prüfung gespeichert ✓','ok');
 }
 
-// ── Verlauf ──────────────────────────────────────────────
+// ── Verlauf ───────────────────────────────────────────────
 function openVerlauf(id){
   var obj=getArr().find(x=>x.id===id);if(!obj)return;
   document.getElementById('verlauf-title').textContent='Verlauf: '+obj.name;
@@ -1085,220 +1306,63 @@ function openVerlauf(id){
       +'<div style="font-size:14px;font-weight:500">'+fmtDT(h.date)+(h.current?' <span class="badge b-info" style="font-size:10px">Aktuell</span>':'')+'</div>'
       +'<div class="ts">Prüfer: '+(h.pruefer||'–')+'</div>'
       +'</div><div class="gap">'
-      +(rc?'<span class="badge '+rc.badge+'" style="font-size:11px;color:'+rc.color+'">⚑ '+rc.label+'</span>':'')
+      +(rc?'<span class="badge '+rc.badge+'" style="color:'+rc.color+'">⚑ '+rc.label+'</span>':'')
       +(nok>0?'<span class="badge b-nok">✗ '+nok+'</span>':'')
       +(warn>0?'<span class="badge b-warn">⚠ '+warn+'</span>':'')
       +(nok===0&&warn===0&&ok>0?'<span class="badge b-ok">✓ OK</span>':'')
       +'</div></div>'
-      +((h.results||[]).filter(r=>r.status==='nok'||r.status==='warn').length?'<div style="margin-top:8px">'
-        +(h.results||[]).filter(r=>r.status==='nok'||r.status==='warn').map(r=>
-          '<div class="ts" style="color:'+(r.status==='nok'?'var(--nok)':'var(--warn)')+'">'+( r.status==='nok'?'✗':'⚠')+' '+r.label+(r.remark?' <em style="color:var(--t3)">– '+r.remark+'</em>':'')+'</div>'
-        ).join('')+'</div>':'')
+      +((h.results||[]).filter(r=>r.status==='nok'||r.status==='warn').length
+        ?'<div style="margin-top:8px">'+(h.results||[]).filter(r=>r.status==='nok'||r.status==='warn').map(r=>
+          '<div class="ts" style="color:'+(r.status==='nok'?'var(--nok)':'var(--warn)')+'">'+( r.status==='nok'?'✗':'⚠')+' '+r.label+(r.remark?' – '+r.remark:'')+'</div>').join('')+'</div>':'')
       +'</div>';
   }).join('');
   openM('m-verlauf');
 }
 
-// ── BA Export ────────────────────────────────────────────
-function openBA(id){
-  baId=id;baType=currentTab;baPiktos=[];
-  var obj=getArr().find(x=>x.id===id);if(!obj)return;
-  document.getElementById('ba-obj-name').textContent=obj.name;
-  document.getElementById('ba-version-tag').textContent='v'+((obj.baVersionen||[]).length+1)+'.0';
-  var m=obj.baManual||{};
-  ['taetigkeit','gefahren','schutzmassnahmen','stoerfall','erstehilfe','aenderungsgrund'].forEach(k=>{
-    var el=document.getElementById('ba-'+k);if(el)el.value=m[k]||'';
-  });
-  switchBATab('piktos');
-  var grid=document.getElementById('ba-pikto-grid');
-  var empty=document.getElementById('ba-pikto-empty');
-  // Use object-specific piktos + global piktos
-  var objRef=getArr(baType).find(x=>x.id===baId);
-  var allPiktos=[...(objRef&&objRef.piktos||[]),...DB.piktos];
-  // Deduplicate by id
-  var seen={};allPiktos=allPiktos.filter(p=>{if(seen[p.id])return false;seen[p.id]=true;return true;});
-  if(!allPiktos.length){grid.style.display='none';empty.style.display='block';}
-  else{
-    grid.style.display='grid';empty.style.display='none';
-    grid.innerHTML=allPiktos.map(p=>'<div onclick="toggleBaPikto(this,\''+p.id+'\')" data-sel="false" style="border-radius:8px;padding:8px;cursor:pointer;text-align:center;border:2px solid var(--border);background:var(--s1);transition:all .2s">'
-      +'<img src="'+p.dataUrl+'" style="width:50px;height:50px;object-fit:contain;display:block;margin:0 auto 4px" onerror="this.style.display=\'none\'">'
-      +'<div style="font-size:9px;color:var(--t3);word-break:break-word;line-height:1.3">'+p.name+'</div></div>').join('');
-  }
-  renderBAVersions(obj);openM('m-ba');
+// ── Fragenkatalog ─────────────────────────────────────────
+function openFragenEditor(){
+  fkType=currentTab;fkDraft=JSON.parse(JSON.stringify(getFragen(currentTab)));
+  document.getElementById('fk-type-label').textContent='Fragenkatalog: '+{maschine:'Maschinen',gefahrstoff:'Gefahrstoffe',arbeitsmittel:'Arbeitsmittel'}[currentTab];
+  renderFKList();openM('m-fragen');
 }
-function toggleBaPikto(el,id){
-  var sel=el.dataset.sel==='true';el.dataset.sel=(!sel).toString();
-  el.style.borderColor=!sel?'var(--a2)':'var(--border)';el.style.background=!sel?'rgba(0,229,195,.08)':'var(--s1)';
-  if(!sel)baPiktos.push(id);else baPiktos=baPiktos.filter(x=>x!==id);
-  document.getElementById('ba-pikto-count').textContent=baPiktos.length?baPiktos.length+' ausgewählt':'';
-}
-function switchBATab(tab){
-  ['piktos','inhalt','versionen'].forEach(t=>{document.getElementById('ba-'+t).style.display=t===tab?'block':'none';document.getElementById('batab-'+t).classList.toggle('on',t===tab);});
-}
-function renderBAVersions(obj){
-  var el=document.getElementById('ba-versionen-list');if(!el)return;
-  var vs=[...(obj&&obj.baVersionen||[])].reverse();
-  if(!vs.length){el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Versionen.</p></div>';return;}
-  el.innerHTML=vs.map(function(v,i){
-    return '<div class="card" style="margin-bottom:8px;padding:12px"><div class="fb">'
-      +'<div><div style="display:flex;align-items:center;gap:8px"><span class="badge b-info">'+v.version+'</span>'
-      +'<span style="font-size:13px;font-weight:500">'+fmt(v.date)+'</span>'
-      +(i===0?'<span class="badge b-ok" style="font-size:10px">Aktuell</span>':'')
-      +'</div><div class="ts" style="margin-top:3px">von '+v.pruefer+(v.aenderungsgrund?' · '+v.aenderungsgrund:'')+'</div></div>'
-      +(v.maxRisiko?'<span class="badge '+NI[v.maxRisiko].badge+'" style="color:'+NI[v.maxRisiko].color+'">⚑ '+NI[v.maxRisiko].label+'</span>':'')
-      +'</div></div>';
+function renderFKList(){
+  document.getElementById('fk-list').innerHTML=fkDraft.map(function(cat,ci){
+    return '<div style="margin-bottom:10px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'
+      +'<div style="padding:10px 14px;background:var(--s2);display:flex;align-items:center;gap:8px">'
+      +'<input value="'+esc(cat.cat)+'" onchange="fkDraft['+ci+'].cat=this.value" style="flex:1;padding:6px 10px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px">'
+      +'<button onclick="fkAddItem('+ci+')" class="btn btn-p btn-sm">+ Frage</button>'
+      +'<button onclick="fkDelCat('+ci+')" class="btn btn-d btn-sm">🗑</button></div>'
+      +cat.items.map(function(it,ii){
+        return '<div style="padding:10px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr auto;gap:8px">'
+          +'<div style="display:flex;flex-direction:column;gap:6px">'
+          +'<input value="'+esc(it.l)+'" placeholder="Prüffrage *" onchange="fkDraft['+ci+'].items['+ii+'].l=this.value" style="padding:7px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px">'
+          +'<div style="display:flex;gap:8px">'
+          +'<input value="'+esc(it.s)+'" placeholder="Quelle/Norm" onchange="fkDraft['+ci+'].items['+ii+'].s=this.value" style="flex:1;padding:6px 8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--fm)">'
+          +'<select onchange="fkDraft['+ci+'].items['+ii+'].iv=this.value" style="padding:6px 8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2);font-size:11px">'
+          +['Täglich','Wöchentlich','Monatlich','Halbjährlich','Jährlich','Vor Nutzung','Bei Änderung'].map(v=>'<option'+(it.iv===v?' selected':'')+'>'+v+'</option>').join('')
+          +'</select></div></div>'
+          +'<div style="display:flex;flex-direction:column;gap:3px">'
+          +'<button onclick="fkMove('+ci+','+ii+',-1)" class="btn btn-o btn-sm"'+(ii===0?' disabled':'')+' style="padding:5px 9px">↑</button>'
+          +'<button onclick="fkMove('+ci+','+ii+',1)" class="btn btn-o btn-sm"'+(ii===cat.items.length-1?' disabled':'')+' style="padding:5px 9px">↓</button>'
+          +'<button onclick="fkDelItem('+ci+','+ii+')" class="btn btn-d btn-sm" style="padding:5px 9px">🗑</button></div>'
+          +'</div>';
+      }).join('')+'</div>';
   }).join('');
 }
-async function exportBA(withPiktos){
-  closeM('m-ba');
-  var arr=getArr(baType),obj=arr.find(x=>x.id===baId);if(!obj)return;
-  var piktos=withPiktos?baPiktos.map(id=>DB.piktos.find(p=>p.id===id)).filter(Boolean):[];
-  var manual={
-    taetigkeit:document.getElementById('ba-taetigkeit')?.value.trim()||'',
-    gefahren:document.getElementById('ba-gefahren')?.value.trim()||'',
-    schutzmassnahmen:document.getElementById('ba-schutzmassnahmen')?.value.trim()||'',
-    stoerfall:document.getElementById('ba-stoerfall')?.value.trim()||'',
-    erstehilfe:document.getElementById('ba-erstehilfe')?.value.trim()||'',
-    aenderungsgrund:document.getElementById('ba-aenderungsgrund')?.value.trim()||'',
-  };
-  if(!obj.baVersionen)obj.baVersionen=[];
-  obj.baVersionen.push({version:'v'+obj.baVersionen.length+'.0'+1,date:new Date().toISOString(),pruefer:DB.activeUser?.name||'–',aenderungsgrund:manual.aenderungsgrund||'Erstellt',maxRisiko:obj.maxRisiko});
-  obj.baManual=manual;saveArr(baType);
-  await generateBApdf(obj,baType,piktos,manual);
-}
-async function generateBApdf(obj,type,piktos,manual){
-  toast('Betriebsanweisung wird erstellt…');
-  var {jsPDF}=window.jspdf;
-  var doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  var W=210,ml=15,mr=15,cw=W-ml-mr,today=new Date().toLocaleDateString('de-DE');
-  var sf=function(sz,st,col){col=col||[20,30,60];doc.setFontSize(sz);doc.setFont('helvetica',st||'normal');doc.setTextColor(col[0],col[1],col[2]);};
-  var fr=function(x,y,w,h){for(var i=4;i<arguments.length;i+=3){doc.setFillColor(arguments[i],arguments[i+1],arguments[i+2]);}doc.rect(x,y,w,h,'F');};
-  var hC=type==='maschine'?[15,40,90]:type==='gefahrstoff'?[110,15,15]:[100,70,10];
-  var hCLight=hC.map(c=>Math.min(c+60,255));
-  doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(0,0,W,38,'F');
-  doc.setFillColor(hCLight[0],hCLight[1],hCLight[2]);doc.rect(0,38,W,2,'F');
-  sf(8,'bold',[200,220,255]);
-  doc.text(type==='gefahrstoff'?'BETRIEBSANWEISUNG  ·  gem. §14 GefStoffV · TRGS 555':'BETRIEBSANWEISUNG  ·  gem. §12 BetrSichV · DGUV V1',ml,10);
-  sf(17,'bold',[255,255,255]);doc.text(obj.name,ml,22);
-  sf(9,'normal',[160,200,240]);doc.text(typeLabel(type)+' · '+(obj.id_nr||'')+' · '+(obj.lastPruefer||'–'),ml,31);
-  sf(8,'normal',[120,160,210]);doc.text(today,W-mr,31,{align:'right'});
-  var y=46;
-  // Stammdaten
-  doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,255,255]);doc.text('1  STAMMDATEN',ml+4,y+5);y+=7;
-  var info=type==='maschine'
-    ?[['Hersteller',obj.hersteller],['Baujahr',obj.baujahr],['Maschinen-ID',obj.id_nr],['Standort',obj.standort],['Seriennummer',obj.sn],['Verantwortliche/r',obj.verantwortlich],['Nächste UVV',fmt(obj.naechsteP)],['Letzte Prüfung',fmt(obj.lastPruefung)]]
-    :type==='gefahrstoff'
-    ?[['Bezeichnung (SDB)',obj.sdb_bezeichnung||obj.name],['CAS-Nummer',obj.cas||'–'],['Lieferant',obj.lieferant||'–'],['Kontakt / Notfall',obj.lieferant_mail||'–'],['Verwendungszweck',obj.verwendung||'–'],['SDB-Überarbeitung',obj.sdb_ueberarbeitung?fmt(obj.sdb_ueberarbeitung)+(isSdbOld(obj)?' ⚠ > 2 Jahre!':''):'–'],['Signalwort',obj.signalwort||'–'],['AGW (TRGS 900)',obj.agw||'–'],['WGK',obj.wgk?'WGK '+obj.wgk:'–'],['Flammpunkt',obj.flammpunkt||'–'],['Siedepunkt',obj.siedepunkt||'–'],['Dampfdruck',obj.dampfdruck||'–'],['Lagerklasse',obj.lagerklasse||'–'],['Lagerort / Menge',[obj.lagerort,obj.lagermenge].filter(Boolean).join(' · ')||'–'],['Letzte Prüfung',fmt(obj.lastPruefung)]]
-    :[['Kategorie',obj.kategorie],['Inventar-Nr.',obj.id_nr],['Prüfgrundlage',obj.pruefgrund],['Letzte Prüfung',fmt(obj.letzteP)],['Nächste Prüfung',fmt(obj.naechsteP)]];
-  info.forEach(function(r,i){
-    if(y+7>275){doc.addPage();y=15;}
-    if(i%2===0){doc.setFillColor(245,248,255);doc.rect(ml,y,cw,7,'F');}
-    sf(7,'bold',[60,80,130]);doc.text(r[0],ml+3,y+5);
-    sf(7,'normal',[30,40,80]);doc.text(String(r[1]||'–'),ml+50,y+5);y+=7;
-  });
-  // GHS block for Gefahrstoffe
-  if(type==='gefahrstoff'&&(obj.ghs&&obj.ghs.length||obj.signalwort||obj.hsaetze)){
-    y+=4;if(y>260){doc.addPage();y=15;}
-    doc.setFillColor(140,20,20);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,220,220]);doc.text('2  GEFAHRENKENNZEICHNUNG (GHS / CLP)',ml+4,y+5);y+=7;
-    if(obj.signalwort){
-      doc.setFillColor(obj.signalwort==='Gefahr'?255:255,obj.signalwort==='Gefahr'?230:252,obj.signalwort==='Gefahr'?230:220);doc.rect(ml,y,cw,8,'F');
-      sf(9,'bold',obj.signalwort==='Gefahr'?[160,20,20]:[140,100,0]);doc.text('Signalwort: '+obj.signalwort.toUpperCase(),ml+4,y+5.5);y+=8;
-    }
-    if(obj.ghs&&obj.ghs.length){
-      if(y+7>275){doc.addPage();y=15;}
-      doc.setFillColor(255,242,242);doc.rect(ml,y,cw,7,'F');
-      sf(7,'bold',[100,10,10]);doc.text('GHS-Piktogramme:',ml+3,y+5);
-      sf(7,'normal',[80,10,10]);doc.text(obj.ghs.map(g=>(GHS_LIST.find(x=>x.id===g)||{l:g}).l).join('  ·  '),ml+38,y+5);y+=7;
-    }
-    if(obj.hsaetze){
-      y+=2;if(y>268){doc.addPage();y=15;}
-      sf(7,'bold',[80,10,10]);doc.text('H-Sätze:',ml+3,y+5);y+=6;
-      sf(6.5,'normal',[60,20,20]);
-      var hLines=doc.splitTextToSize(obj.hsaetze,cw-6);
-      hLines.slice(0,4).forEach(function(l){if(y+6>275){doc.addPage();y=15;}doc.text(l,ml+3,y+4);y+=6;});
-    }
-    var physData=[['AGW',obj.agw],['WGK',obj.wgk?'WGK '+obj.wgk:null],['Flammpunkt',obj.flammpunkt],['Siedepunkt',obj.siedepunkt],['Dampfdruck',obj.dampfdruck]].filter(r=>r[1]);
-    if(physData.length){
-      y+=2;if(y+7>275){doc.addPage();y=15;}
-      doc.setFillColor(245,248,255);doc.rect(ml,y,cw,7,'F');
-      sf(6.5,'bold',[40,60,120]);doc.text(physData.map(r=>r[0]+': '+r[1]).join('   |   '),ml+3,y+5);y+=7;
-    }
-    y+=3;
-  }
-  // Manual sections
-  var secN=type==='gefahrstoff'?3:2;
-  var sections=[['Tätigkeit / Anwendungsbereich',manual.taetigkeit,hC,[245,248,255]],['Gefahren',manual.gefahren,[130,20,20],[255,245,245]],['Schutzmaßnahmen',manual.schutzmassnahmen,[0,100,60],[240,255,248]],['Verhalten im Störfall',manual.stoerfall,[150,90,0],[255,252,230]],['Erste Hilfe',manual.erstehilfe,[20,80,160],[240,245,255]]];
-  sections.forEach(function(s){
-    if(!s[1])return;
-    y+=4;if(y>265){doc.addPage();y=15;}
-    doc.setFillColor(s[2][0],s[2][1],s[2][2]);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,255,255]);doc.text(secN+'  '+s[0].toUpperCase(),ml+4,y+5);y+=7;secN++;
-    doc.setFillColor(s[3][0],s[3][1],s[3][2]);doc.rect(ml,y,cw,16,'F');sf(8,'normal',[30,40,80]);
-    var lines=doc.splitTextToSize(s[1],cw-6);lines.slice(0,2).forEach(function(l,i){doc.text(l,ml+3,y+6+i*6);});
-    y+=Math.min(lines.length,2)*6+6;
-  });
-  // NOK items
-  var erg=obj.pruefErgebnisse||[],nokWarn=erg.filter(r=>r.status==='nok'||r.status==='warn');
-  if(nokWarn.length){
-    y+=4;if(y>260){doc.addPage();y=15;}
-    doc.setFillColor(140,20,20);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,220,220]);doc.text(secN+'  FESTGESTELLTE MÄNGEL ('+nokWarn.length+')',ml+4,y+5);y+=7;secN++;
-    nokWarn.forEach(function(r,i){
-      var lh=r.remark?11:8;if(y+lh>275){doc.addPage();y=15;}
-      if(i%2===0){doc.setFillColor(255,242,242);doc.rect(ml,y,cw,lh,'F');}
-      if(r.nohl_s&&r.nohl_w){var nc=nohlClass(r.nohl_s,r.nohl_w),inf=NI[nc],cc=nc===1?[0,140,80]:nc===2?[160,110,0]:nc===3?[180,80,0]:[160,20,20];doc.setFillColor(cc[0],cc[1],cc[2]);doc.rect(ml,y,15,lh,'F');doc.setTextColor(255,255,255);doc.setFontSize(6);doc.setFont('helvetica','bold');doc.text(inf.label,ml+7.5,y+lh/2+2,{align:'center'});}
-      sf(7,'normal',[80,20,20]);doc.text(doc.splitTextToSize(r.label,cw-(r.nohl_s?22:5))[0],ml+(r.nohl_s?18:3),y+6);
-      if(r.remark){sf(6,'italic',[160,80,50]);doc.text('→ '+r.remark,ml+(r.nohl_s?18:3),y+10);}
-      y+=lh;
-    });y+=4;
-  }
-  // Checklist
-  if(y+14>270){doc.addPage();y=15;}
-  doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,255,255]);doc.text(secN+'  PRÜFLISTE',ml+4,y+5);y+=7;secN++;
-  doc.setFillColor(35,50,90);doc.rect(ml,y,cw,6,'F');sf(6.5,'bold',[180,200,240]);doc.text('Nr.',ml+2,y+4.3);doc.text('Prüfpunkt',ml+12,y+4.3);doc.text('Status',W-mr-18,y+4.3);y+=6;
-  getFragen(type).forEach(function(cat){
-    if(y+7>270){doc.addPage();y=15;}
-    doc.setFillColor(30,45,85);doc.rect(ml,y,cw,6,'F');sf(7,'bold',[160,190,240]);doc.text(cat.cat,ml+3,y+4.3);y+=6;
-    cat.items.forEach(function(it){
-      if(y+7>275){doc.addPage();y=15;}
-      var res=erg.find(r=>r.id===it.id),st=res&&res.status;
-      var bg=st==='ok'?[240,255,248]:st==='nok'?[255,240,240]:st==='warn'?[255,252,225]:[248,249,252];
-      doc.setFillColor(bg[0],bg[1],bg[2]);doc.rect(ml,y,cw,7,'F');
-      var stCol=st==='ok'?[0,150,70]:st==='nok'?[170,25,25]:st==='warn'?[155,105,0]:[150,160,180];
-      sf(6.5,'bold',stCol);doc.text(st==='ok'?'✓ OK':st==='nok'?'✗ NOK':st==='warn'?'⚠':'-',W-mr-3,y+4.8,{align:'right'});
-      sf(6.5,'bold',[60,80,130]);doc.text(it.id,ml+2,y+4.8);
-      sf(6.5,'normal',[30,40,70]);doc.text(doc.splitTextToSize(it.l,cw-30)[0],ml+12,y+4.8);y+=7;
-    });
-  });
-  // Piktogramme
-  if(piktos.length){
-    if(y+30>270){doc.addPage();y=15;}y+=4;
-    doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,255,255]);doc.text(secN+'  SICHERHEITSPIKTOGRAMME',ml+4,y+5);y+=9;secN++;
-    var cw5=cw/5;
-    piktos.forEach(function(pk,i){
-      var col=i%5,row=Math.floor(i/5),px=ml+col*cw5,py=y+row*36;
-      if(py+36>275){y+=row*36+6;doc.addPage();y=15;}
-      doc.setFillColor(245,248,255);doc.rect(px+1,py,cw5-2,34,'F');
-      doc.setDrawColor(200,210,230);doc.setLineWidth(0.3);doc.rect(px+1,py,cw5-2,34);
-      try{doc.addImage(pk.dataUrl,'',px+3,py+3,24,24);}catch(e){}
-      sf(6,'normal',[40,50,80]);doc.text(doc.splitTextToSize(pk.name,cw5-30)[0]||'',px+30,py+12);
-    });
-    y+=Math.ceil(piktos.length/5)*36+6;
-  }
-  // Freigabe
-  if(y+28>270){doc.addPage();y=15;}y+=6;
-  doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(ml,y,cw,7,'F');sf(8,'bold',[255,255,255]);doc.text(secN+'  FREIGABE',ml+4,y+5);y+=9;
-  sf(8,'normal',[30,40,80]);doc.text('Erstellt von: '+(DB.activeUser&&DB.activeUser.name||'–')+'  ·  Datum: '+today,ml,y+4);y+=10;
-  doc.text('Unterschrift: _____________________________',ml,y+4);doc.text('Freigabe: _____________________________',ml+95,y+4);
-  // Footer
-  var pg=doc.internal.getNumberOfPages();
-  for(var i=1;i<=pg;i++){
-    doc.setPage(i);doc.setFillColor(hC[0],hC[1],hC[2]);doc.rect(0,288,W,10,'F');
-    sf(7,'normal',[160,200,240]);doc.text(obj.name+' · '+typeLabel(type)+' · '+today,ml,294);doc.text('Seite '+i+'/'+pg,W-mr,294,{align:'right'});
-  }
-  doc.save('BA_'+obj.name.replace(/\s+/g,'_')+'_'+today.replace(/\./g,'-')+'.pdf');
-  toast('Betriebsanweisung exportiert ✓','ok');
+function fkAddCat(){fkDraft.push({cat:'Neue Kategorie',items:[]});renderFKList();}
+function fkDelCat(ci){if(!confirm('Löschen?'))return;fkDraft.splice(ci,1);renderFKList();}
+function fkAddItem(ci){fkDraft[ci].items.push({id:uid('Q'),l:'',s:'Intern',iv:'Monatlich'});renderFKList();}
+function fkDelItem(ci,ii){fkDraft[ci].items.splice(ii,1);renderFKList();}
+function fkMove(ci,ii,dir){var items=fkDraft[ci].items,t=ii+dir;if(t<0||t>=items.length)return;var tmp=items[ii];items[ii]=items[t];items[t]=tmp;renderFKList();}
+function fkReset(){if(!confirm('Auf Standard zurücksetzen?'))return;fkDraft=JSON.parse(JSON.stringify(DEFAULT_FRAGEN[fkType]||[]));renderFKList();}
+function fkSave(){
+  fkDraft.forEach(cat=>{cat.items=cat.items.filter(it=>it.l.trim());cat.items.forEach(it=>{if(!it.id)it.id=uid('Q');});});
+  var clean=fkDraft.filter(cat=>cat.items.length>0);
+  if(!clean.length){toast('Mindestens eine Frage erforderlich','err');return;}
+  DB.fragen[fkType]=clean;DB.save('fragen');closeM('m-fragen');renderList();toast('Gespeichert ✓','ok');
 }
 
-// ── Voice note ───────────────────────────────────────────
+// ── Voice note ────────────────────────────────────────────
 function getMime(){var types=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4'];return types.find(t=>MediaRecorder.isTypeSupported(t))||'';}
 async function toggleVoice(){if(isRec)stopVoice();else await startVoice();}
 async function startVoice(){
@@ -1308,9 +1372,8 @@ async function startVoice(){
     mediaRec.ondataavailable=function(e){if(e.data.size>0)audioChunks.push(e.data);};
     mediaRec.start(200);isRec=true;
     document.getElementById('voice-status').style.display='flex';
-    document.getElementById('voice-result').style.display='none';
     document.getElementById('voice-btn').style.cssText='border-color:var(--nok);color:var(--nok)';
-  }catch(e){toast('Mikrofon nicht verfügbar: '+e.message,'err');}
+  }catch(e){toast('Mikrofon nicht verfügbar','err');}
 }
 function stopVoice(){
   if(!mediaRec||!isRec)return;
@@ -1325,30 +1388,30 @@ async function analyzeVoice(){
   document.getElementById('voice-result').style.display='block';
   rb.innerHTML='<div style="color:var(--t3);font-style:italic">🤖 KI analysiert…</div>';
   try{
-    var blob=new Blob(audioChunks,{type:audioChunks[0]&&audioChunks[0].type||'audio/webm'});
-    var b64=await new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(fr.result.split(',')[1]);};fr.onerror=function(){rej(new Error('read'));};fr.readAsDataURL(blob);});
+    var blob=new Blob(audioChunks,{type:audioChunks[0]?.type||'audio/webm'});
+    var b64=await new Promise(function(res,rej){var fr=new FileReader();fr.onload=()=>res(fr.result.split(',')[1]);fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(blob);});
     var itemList=getFragen(pruefType).flatMap(c=>c.items).map(it=>it.id+': '+it.l).join('\n');
-    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[
-        {type:'document',source:{type:'base64',media_type:blob.type||'audio/webm',data:b64}},
-        {type:'text',text:'Du bist ein Sicherheitsinspektor-Assistent. Der Prüfer hat eine Sprachnotiz während einer '+typeLabel(pruefType)+'-Prüfung aufgenommen.\n\nVERFÜGBARE PRÜFPUNKTE:\n'+itemList+'\n\nAnalysiere und antworte NUR mit JSON:\n{"transkription":"vollständiger Text","erkannte_punkte":[{"id":"ID","status":"nok|warn","bemerkung":"Notiz","nohl_s":1-4 oder null,"nohl_w":1-4 oder null,"massnahme":"Vorschlag"}],"allgemeine_notiz":"sonstige Beobachtungen"}'},
-      ]}]})});
+    var firma=getFirmaKontext();
+    var res=await claudeFetch({model:'claude-sonnet-4-20250514',max_tokens:1500,messages:[{role:'user',content:[
+      {type:'document',source:{type:'base64',media_type:blob.type||'audio/webm',data:b64}},
+      {type:'text',text:'EHS-Inspektor-Assistent.\nBETRIEBSKONTEXT:\n'+firma+'\n\nPRÜFPUNKTE:\n'+itemList+'\n\nAntworte NUR mit JSON:\n{"transkription":"Text","erkannte_punkte":[{"id":"ID","status":"nok|warn","bemerkung":"Text","nohl_s":null,"nohl_w":null,"massnahme":"Text"}],"allgemeine_notiz":"Text"}'},
+    ]}]});
     var data=await res.json();
-    if(!res.ok){rb.innerHTML='<div style="color:var(--nok)">⚠ '+(data.error&&data.error.message||'Fehler')+'</div>';return;}
+    if(!res.ok){rb.innerHTML='<div style="color:var(--nok)">Fehler: '+(data.error?.message||'API')+'</div>';return;}
     var text=(data.content||[]).map(b=>b.text||'').join('');
     try{pendingVoice=JSON.parse(text.replace(/```json|```/g,'').trim());}
-    catch(e){rb.innerHTML='<div style="color:var(--nok)">Konnte Antwort nicht verarbeiten.<br><div class="ts">'+text.slice(0,200)+'</div></div>';return;}
-    var p=pendingVoice;
-    var h='';
-    if(p.transkription)h+='<div style="margin-bottom:10px;padding:8px 10px;background:var(--s3);border-radius:6px;font-size:12px;color:var(--t2);font-style:italic">💬 "'+p.transkription+'"</div>';
-    if(p.erkannte_punkte&&p.erkannte_punkte.length){
-      h+='<div style="font-size:12px;font-weight:600;margin-bottom:6px">'+p.erkannte_punkte.length+' Prüfpunkt(e) erkannt:</div>';
+    catch(e){rb.innerHTML='<div style="color:var(--nok)">Konnte Antwort nicht verarbeiten</div>';return;}
+    var p=pendingVoice, h='';
+    if(p.transkription)h+='<div style="margin-bottom:8px;padding:8px;background:var(--s3);border-radius:6px;font-size:12px;color:var(--t2);font-style:italic">💬 "'+p.transkription+'"</div>';
+    if(p.erkannte_punkte?.length){
+      h+='<div style="font-size:12px;font-weight:600;margin-bottom:6px">'+p.erkannte_punkte.length+' Prüfpunkt(e):</div>';
       p.erkannte_punkte.forEach(function(pt){
         var nc=pt.nohl_s&&pt.nohl_w?NI[nohlClass(pt.nohl_s,pt.nohl_w)]:null;
-        h+='<div style="padding:8px 10px;margin-bottom:5px;border-radius:6px;background:'+(pt.status==='nok'?'rgba(255,71,87,.1)':'rgba(255,193,7,.1)')+';border-left:3px solid '+(pt.status==='nok'?'var(--nok)':'var(--warn)')+'"><div style="display:flex;align-items:center;gap:6px;margin-bottom:2px"><span class="ts font-mono">'+pt.id+'</span><span style="color:'+(pt.status==='nok'?'var(--nok)':'var(--warn)')+';font-size:12px">'+(pt.status==='nok'?'✗ NOK':'⚠ Warnung')+'</span>'+(nc?'<span class="badge '+nc.badge+'" style="font-size:10px;color:'+nc.color+'">Nohl: '+nc.label+'</span>':'')+'</div>'+(pt.bemerkung?'<div class="ts">'+pt.bemerkung+'</div>':'')+(pt.massnahme?'<div class="ts" style="color:var(--a2)">→ '+pt.massnahme+'</div>':'')+'</div>';
+        h+='<div style="padding:8px;margin-bottom:4px;border-radius:6px;background:'+(pt.status==='nok'?'rgba(255,71,87,.1)':'rgba(255,193,7,.1)')+';border-left:3px solid '+(pt.status==='nok'?'var(--nok)':'var(--warn)')+'"><div style="font-size:12px;font-family:var(--fm)">'+pt.id+'</div>'
+          +(pt.bemerkung?'<div class="ts">'+pt.bemerkung+'</div>':'')+(pt.massnahme?'<div class="ts" style="color:var(--a2)">→ '+pt.massnahme+'</div>':'')+'</div>';
       });
-    }else{h+='<div class="ts">Keine konkreten Mängel erkannt.</div>';}
-    if(p.allgemeine_notiz)h+='<div style="margin-top:6px;padding:8px 10px;background:var(--s2);border-radius:6px;font-size:12px;color:var(--t2)">📝 '+p.allgemeine_notiz+'</div>';
+    }
+    if(p.allgemeine_notiz)h+='<div style="margin-top:6px;padding:8px;background:var(--s2);border-radius:6px;font-size:12px;color:var(--t2)">📝 '+p.allgemeine_notiz+'</div>';
     rb.innerHTML=h;
   }catch(e){rb.innerHTML='<div style="color:var(--nok)">Fehler: '+e.message+'</div>';}
 }
@@ -1363,237 +1426,46 @@ function applyVoice(){
     if(p.bemerkung||p.massnahme)pruefStates[p.id].remark=p.bemerkung||p.massnahme;
     applied++;
   });
-  if(pendingVoice.allgemeine_notiz&&pruefId){
-    var arr=getArr(pruefType),obj=arr.find(x=>x.id===pruefId);
-    if(obj){if(!obj.sprachnotizen)obj.sprachnotizen=[];obj.sprachnotizen.push({date:new Date().toISOString(),text:pendingVoice.allgemeine_notiz});saveArr(pruefType);}
-  }
   renderChecklist();updateProgress();
   document.getElementById('voice-result').style.display='none';pendingVoice=null;
   toast(applied+' Punkt(e) übernommen ✓','ok');
 }
 
-// ── Fragenkatalog ─────────────────────────────────────────
-function openFragenEditor(){
-  fkType=currentTab;fkDraft=JSON.parse(JSON.stringify(getFragen(currentTab)));
-  document.getElementById('fk-type-label').textContent='Fragenkatalog für: '+{maschine:'Maschinen',gefahrstoff:'Gefahrstoffe',arbeitsmittel:'Arbeitsmittel'}[currentTab];
-  renderFKList();openM('m-fragen');
-}
-function renderFKList(){
-  document.getElementById('fk-list').innerHTML=fkDraft.map(function(cat,ci){
-    return '<div style="margin-bottom:10px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'
-      +'<div style="padding:10px 14px;background:var(--s2);display:flex;align-items:center;gap:8px">'
-      +'<input value="'+esc(cat.cat)+'" onchange="fkDraft['+ci+'].cat=this.value" style="flex:1;padding:6px 10px;background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;font-weight:500">'
-      +'<button onclick="fkAddItem('+ci+')" class="btn btn-p btn-sm">+ Frage</button>'
-      +'<button onclick="fkDelCat('+ci+')" class="btn btn-d btn-sm">🗑</button></div>'
-      +cat.items.map(function(it,ii){
-        return '<div style="padding:10px 14px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start">'
-          +'<div style="display:flex;flex-direction:column;gap:6px">'
-          +'<input value="'+esc(it.l)+'" placeholder="Prüffrage *" onchange="fkDraft['+ci+'].items['+ii+'].l=this.value" style="padding:7px 10px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;width:100%">'
-          +'<div style="display:flex;gap:8px">'
-          +'<input value="'+esc(it.s)+'" placeholder="Quelle" onchange="fkDraft['+ci+'].items['+ii+'].s=this.value" style="flex:1;padding:6px 8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2);font-size:11px;font-family:var(--fm)">'
-          +'<select onchange="fkDraft['+ci+'].items['+ii+'].iv=this.value" style="padding:6px 8px;background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--t2);font-size:11px">'
-          +['Täglich','Wöchentlich','Monatlich','Halbjährlich','Jährlich','Vor Nutzung','Bei Änderung','Bei Defekt'].map(v=>'<option'+(it.iv===v?' selected':'')+'>'+v+'</option>').join('')
-          +'</select></div></div>'
-          +'<div style="display:flex;flex-direction:column;gap:3px">'
-          +'<button onclick="fkMove('+ci+','+ii+',-1)" class="btn btn-o btn-sm"'+(ii===0?' disabled':'')+' style="padding:5px 9px">↑</button>'
-          +'<button onclick="fkMove('+ci+','+ii+',1)" class="btn btn-o btn-sm"'+(ii===cat.items.length-1?' disabled':'')+' style="padding:5px 9px">↓</button>'
-          +'<button onclick="fkDelItem('+ci+','+ii+')" class="btn btn-d btn-sm" style="padding:5px 9px">🗑</button></div>'
-          +'</div>';
-      }).join('')
-      +'</div>';
-  }).join('');
-}
-function fkAddCat(){fkDraft.push({cat:'Neue Kategorie',items:[]});renderFKList();setTimeout(function(){document.getElementById('fk-list').lastElementChild&&document.getElementById('fk-list').lastElementChild.scrollIntoView({behavior:'smooth'});},80);}
-function fkDelCat(ci){if(!confirm('Kategorie "'+fkDraft[ci].cat+'" löschen?'))return;fkDraft.splice(ci,1);renderFKList();}
-function fkAddItem(ci){fkDraft[ci].items.push({id:uid('Q'),l:'',s:'Intern',iv:'Monatlich'});renderFKList();}
-function fkDelItem(ci,ii){fkDraft[ci].items.splice(ii,1);renderFKList();}
-function fkMove(ci,ii,dir){var items=fkDraft[ci].items,t=ii+dir;if(t<0||t>=items.length)return;var tmp=items[ii];items[ii]=items[t];items[t]=tmp;renderFKList();}
-function fkReset(){if(!confirm('Auf Standardfragen zurücksetzen?'))return;fkDraft=JSON.parse(JSON.stringify(DEFAULT_FRAGEN[fkType]||[]));renderFKList();toast('Standard wiederhergestellt');}
-function fkSave(){
-  fkDraft.forEach(function(cat){cat.items=cat.items.filter(it=>it.l.trim());cat.items.forEach(it=>{if(!it.id)it.id=uid('Q');});});
-  var clean=fkDraft.filter(cat=>cat.items.length>0);
-  if(!clean.length){toast('Mindestens eine Frage erforderlich','err');return;}
-  DB.fragen[fkType]=clean;DB.save('fragen');closeM('m-fragen');renderList();toast('Fragenkatalog gespeichert ✓','ok');
-}
-
-// ── Piktogramme ──────────────────────────────────────────
-function uploadPiktos(e){
-  var files=[...e.target.files];if(!files.length)return;var done=0;
-  files.forEach(function(f){
-    if(f.size>1.5*1024*1024){toast(f.name+' zu groß','err');done++;return;}
-    var r=new FileReader();
-    r.onload=function(ev){
-      var name=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
-      if(!DB.piktos.find(p=>p.name===name))DB.piktos.push({id:uid('PK'),name,dataUrl:ev.target.result});
-      done++;if(done===files.length){DB.save('piktos');toast(files.length+' Piktogramm(e) hochgeladen ✓','ok');}
-    };
-    r.readAsDataURL(f);
-  });
-  e.target.value='';
-}
-
-
-// ── API Key management ───────────────────────────────────
-function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
-function saveApiKey(){
-  var k=document.getElementById('inp-api-key').value.trim();
-  localStorage.setItem('ehs_api_key',k);
-  document.getElementById('api-key-status').textContent=k?'✓ API-Key gespeichert':'API-Key gelöscht';
-  toast('API-Key gespeichert ✓','ok');
-}
-function openSettings(){
-  var el=document.getElementById('inp-api-key');
-  if(el) el.value=getApiKey();
-  renderGlobalPiktoPreview();
-  openM('m-settings');
-}
-function renderGlobalPiktoPreview(){
-  var el=document.getElementById('global-pikto-preview');
-  if(!el)return;
-  if(!DB.piktos.length){el.innerHTML='<div class="ts">Noch keine globalen Piktogramme.</div>';return;}
-  el.innerHTML=DB.piktos.map(function(p){
-    return '<div style="text-align:center;width:64px">'
-    +'<img src="'+p.dataUrl+'" style="width:52px;height:52px;object-fit:contain;border-radius:6px;border:1px solid var(--border)">'
-    +'<div style="font-size:9px;color:var(--t3);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+p.name+'</div>'
-    +'<button onclick="deleteGlobalPikto(\'' +p.id+ '\')" style="background:none;border:none;color:var(--nok);cursor:pointer;font-size:10px">✕</button>'
-    +'</div>';}).join('');
-}
-function deleteGlobalPikto(id){DB.piktos=DB.piktos.filter(p=>p.id!==id);DB.save('piktos');renderGlobalPiktoPreview();}
-function clearGlobalPiktos(){if(!confirm('Alle globalen Piktogramme löschen?'))return;DB.piktos=[];DB.save('piktos');renderGlobalPiktoPreview();toast('Gelöscht');}
-
-// ── Object-specific Piktogramme ──────────────────────────
-function renderObjPiktos(obj){
-  if(!obj||!obj.piktos||!obj.piktos.length)return '';
-  var t=(obj.type)||currentTab, oid=obj.id||'';
-  return obj.piktos.map(function(p){
-    return '<div style="position:relative;display:inline-block">'
-    +'<img src="'+p.dataUrl+'" style="width:52px;height:52px;object-fit:contain;border-radius:6px;border:1px solid var(--border)" title="'+p.name+'">'
-    +'<button data-pid="'+p.id+'" data-oid="'+oid+'" data-type="'+t+'" onclick="removeObjPiktoBtn(this)" style="position:absolute;top:-4px;right:-4px;background:var(--nok);border:none;border-radius:50%;width:16px;height:16px;color:#fff;cursor:pointer;font-size:10px;line-height:1">✕</button>'
-    +'</div>';
-  }).join('');
-}
-function removeObjPiktoBtn(btn){removeObjPikto(btn.dataset.pid,btn.dataset.oid,btn.dataset.type);}
-function uploadObjPikto(e,type,editIdField){
-  var objId=document.getElementById(editIdField)&&document.getElementById(editIdField).value;
-  var files=[...e.target.files];if(!files.length)return;
-  var arr=type==='maschine'?DB.maschinen:type==='gefahrstoff'?DB.gefahrstoffe:DB.arbeitsmittel;
-  var obj=objId?arr.find(x=>x.id===objId):null;
-  // If new object, store pending
-  if(!obj){
-    if(!window._pendingPiktos)window._pendingPiktos=[];
-    files.forEach(function(f){
-      var r=new FileReader();
-      r.onload=function(ev){window._pendingPiktos.push({id:uid('PK'),name:f.name.replace(/\.[^.]+$/,''),dataUrl:ev.target.result});
-        var el=document.getElementById('pikto-list-NEW');
-        if(el)el.innerHTML=renderObjPiktos({piktos:window._pendingPiktos});
-        toast(f.name+' bereit ✓','ok');};
-      r.readAsDataURL(f);
-    });
-    e.target.value='';return;
-  }
-  if(!obj.piktos)obj.piktos=[];
-  var done=0;
-  files.forEach(function(f){
-    if(f.size>2*1024*1024){toast(f.name+' zu groß (max. 2 MB)','err');done++;return;}
-    var r=new FileReader();
-    r.onload=function(ev){
-      obj.piktos.push({id:uid('PK'),name:f.name.replace(/\.[^.]+$/,''),dataUrl:ev.target.result});
-      done++;
-      if(done===files.length){
-        DB.save(type==='maschine'?'maschinen':type==='gefahrstoff'?'gefahrstoffe':'arbeitsmittel');
-        var el=document.getElementById('pikto-list-'+obj.id);
-        if(el)el.innerHTML=renderObjPiktos(obj);
-        toast(files.length+' Piktogramm(e) hochgeladen ✓','ok');
-      }
-    };
-    r.readAsDataURL(f);
-  });
-  e.target.value='';
-}
-function removeObjPikto(piktoId,objId,type){
-  var arr=type==='maschine'?DB.maschinen:type==='gefahrstoff'?DB.gefahrstoffe:DB.arbeitsmittel;
-  var obj=arr.find(x=>x.id===objId);if(!obj)return;
-  obj.piktos=(obj.piktos||[]).filter(p=>p.id!==piktoId);
-  DB.save(type==='maschine'?'maschinen':type==='gefahrstoff'?'gefahrstoffe':'arbeitsmittel');
-  var el=document.getElementById('pikto-list-'+objId);
-  if(el)el.innerHTML=renderObjPiktos(obj);
-  toast('Piktogramm entfernt');
-}
-
-// ── BA-Vorlage je Objekt ──────────────────────────────────
-function uploadObjTemplate(e,type,editIdField){
-  var objId=document.getElementById(editIdField)&&document.getElementById(editIdField).value;
-  var f=e.target.files[0];if(!f)return;
-  if(!f.name.endsWith('.docx')){toast('Nur .docx Dateien','err');return;}
-  if(f.size>5*1024*1024){toast('Max. 5 MB','err');return;}
-  var r=new FileReader();
-  r.onload=function(ev){
-    var key='obj_tmpl_'+type+'_'+objId;
-    localStorage.setItem(key,ev.target.result);
-    localStorage.setItem(key+'_name',f.name);
-    var el=document.getElementById('tmpl-status-'+objId);
-    if(el){el.textContent='✓ '+f.name;el.style.color='var(--ok)';}
-    toast('Vorlage "'+f.name+'" gespeichert ✓','ok');
+// ── Excel Import/Export ───────────────────────────────────
+function downloadExcelTemplate(){
+  // Simple CSV template
+  var templates={
+    maschine:'Bezeichnung,Maschinen-ID,Hersteller,Baujahr,Standort,Seriennummer,Nächste UVV-Prüfung,Notizen\nArburg 370S,SGM-01,Arburg,2019,Halle 3,SN-100001,15.03.2026,',
+    gefahrstoff:'Bezeichnung,Stoff-Nr.,CAS-Nummer,GHS-Symbole,Signalwort,Verwendungszweck,Lagerort,Max.Lagermenge,Notizen\nPP-Granulat,GS-001,9003-07-0,GHS07,Achtung,Rohmaterial,Lager A,,',
+    arbeitsmittel:'Bezeichnung,Inventar-Nr.,Kategorie,Prüfgrundlage,Letzte Prüfung,Nächste Prüfung,Notizen\nAnlegeleiter 4m,AM-001,Leiter / Aufstiegshilfe,DGUV V54,01.01.2025,01.01.2026,',
+    beauftragte:'Name,Funktion,Telefon,E-Mail,Qualifikation,Bestellt bis,Bereich\nMax Mustermann,Ersthelfer,+49 821 123456,m.mustermann@firma.de,Ersthelfer-Kurs 2024,31.12.2025,Produktion',
+    bereiche:'Bereichsname,Funktion,Kostenstelle,Notizen\nHalle 3 Spritzguss,Produktionsbereich,KST-4711,',
   };
-  r.readAsDataURL(f);
+  var csv=templates[currentTab]||'Bezeichnung\nBeispiel';
+  var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download='EHS_Vorlage_'+typeLabel()+'.csv';a.click();
+  URL.revokeObjectURL(url);
+  toast('Excel-Vorlage heruntergeladen ✓','ok');
+}
+function importExcel(e){
+  var f=e.target.files[0];if(!f)return;
+  toast('CSV-Import in Entwicklung – bitte JSON-Import verwenden für vollständige Daten','err');
   e.target.value='';
 }
-function getObjTemplateStatus(type,objId){
-  if(!objId)return'';
-  var name=localStorage.getItem('obj_tmpl_'+type+'_'+objId+'_name');
-  return name?'✓ '+name:'📄 Standard';
-}
 
-// ── claudeFetch (with API key + CORS header) ──────────────
-async function claudeFetch(bodyObj){
-  var key=getApiKey();
-  if(!key){
-    openSettings();
-    throw new Error('Bitte API-Key in den Einstellungen eingeben.');
-  }
-  var res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key':key,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body:JSON.stringify(bodyObj)
-  });
-  return res;
-}
-
-// ── Voice note: claudeFetch wrapper fix in analyzeVoice ───
-// (analyzeVoice and extractSDB/askDok now use claudeFetch)
-
-// ── Export / Import all data ──────────────────────────────
+// ── Export / Import ───────────────────────────────────────
 function exportAllData(){
   toast('Export wird vorbereitet…');
-  var data={
-    version:2,
-    exportDate:new Date().toISOString(),
-    maschinen:DB.maschinen,
-    gefahrstoffe:DB.gefahrstoffe,
-    arbeitsmittel:DB.arbeitsmittel,
-    users:DB.users,
-    piktos:DB.piktos,
-    fragen:DB.fragen,
-  };
-  // Also gather obj templates from localStorage
-  var templates={};
-  for(var i=0;i<localStorage.length;i++){
-    var k=localStorage.key(i);
-    if(k&&k.startsWith('obj_tmpl_'))templates[k]=localStorage.getItem(k);
-  }
-  data.templates=templates;
+  var data={version:3,exportDate:new Date().toISOString(),
+    maschinen:DB.maschinen,gefahrstoffe:DB.gefahrstoffe,arbeitsmittel:DB.arbeitsmittel,
+    beauftragte:DB.beauftragte,bereiche:DB.bereiche,
+    users:DB.users,fragen:DB.fragen,firma:DB.firma};
   var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
+  var a=document.createElement('a');a.href=url;
   a.download='EHS_Daten_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.json';
-  a.click();
-  URL.revokeObjectURL(url);
+  a.click();URL.revokeObjectURL(url);
   toast('Export abgeschlossen ✓','ok');
 }
 function importAllData(e){
@@ -1603,22 +1475,22 @@ function importAllData(e){
   r.onload=function(ev){
     try{
       var data=JSON.parse(ev.target.result);
-      if(data.maschinen)   {DB.maschinen=data.maschinen;    DB.save('maschinen');}
+      if(data.maschinen){DB.maschinen=data.maschinen;DB.save('maschinen');}
       if(data.gefahrstoffe){DB.gefahrstoffe=data.gefahrstoffe;DB.save('gefahrstoffe');}
       if(data.arbeitsmittel){DB.arbeitsmittel=data.arbeitsmittel;DB.save('arbeitsmittel');}
-      if(data.users)       {DB.users=data.users;            DB.save('users');}
-      if(data.piktos)      {DB.piktos=data.piktos;          DB.save('piktos');}
-      if(data.fragen)      {DB.fragen=data.fragen;          DB.save('fragen');}
-      if(data.templates)   {Object.entries(data.templates).forEach(([k,v])=>localStorage.setItem(k,v));}
+      if(data.beauftragte){DB.beauftragte=data.beauftragte;DB.save('beauftragte');}
+      if(data.bereiche){DB.bereiche=data.bereiche;DB.save('bereiche');}
+      if(data.users){DB.users=data.users;DB.save('users');}
+      if(data.fragen){DB.fragen=data.fragen;DB.save('fragen');}
+      if(data.firma){DB.firma=data.firma;DB.save('firma');}
       updateUserUI();renderList();
-      toast('Import erfolgreich – '+( (data.maschinen||[]).length)+' Maschinen, '+((data.gefahrstoffe||[]).length)+' Gefahrstoffe, '+((data.arbeitsmittel||[]).length)+' Arbeitsmittel','ok');
+      toast('Import erfolgreich ✓','ok');
     }catch(err){toast('Import fehlgeschlagen: '+err.message,'err');}
   };
-  r.readAsText(f);
-  e.target.value='';
+  r.readAsText(f);e.target.value='';
 }
 
-// ── Init ─────────────────────────────────────────────────
+// ── INIT ──────────────────────────────────────────────────
 updateUserUI();
 renderList();
 </script>
