@@ -3,30 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>EHS Datenbank</title>
+<title>EHS Datenbank – Oak Engineering</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0f14;--s1:#13161f;--s2:#1a1e2a;--s3:#222840;
-  --border:#252c42;--b2:#2e3750;
-  --accent:#4f8ef7;--a2:#00e5c3;
-  --ok:#00c97b;--nok:#ff4757;--warn:#ffc107;
-  --text:#dde4f0;--t2:#8a97b0;--t3:#4a5570;
-  --r:10px;--ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;--fh:'Syne',sans-serif;
+  --bg:#f5f5f3;--s1:#ffffff;--s2:#f0efec;--s3:#e8e7e3;
+  --border:#d8d7d2;--b2:#c0bfba;
+  --accent:#1a1a1a;--a2:#4a4a4a;
+  --ok:#2d6a2d;--nok:#c0392b;--warn:#b7860a;
+  --text:#1a1a1a;--t2:#555550;--t3:#999990;
+  --r:8px;--ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;--fh:'Barlow',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
-.topnav{height:52px;background:rgba(13,15,20,.97);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0}
-.logo{font-family:var(--fh);font-size:16px;font-weight:800;background:linear-gradient(120deg,var(--a2),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.user-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;background:var(--s2);border:1px solid var(--border);cursor:pointer;font-size:12px;color:var(--t2)}
-.user-av{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--a2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.topnav{height:56px;background:#1a1a1a;border-bottom:2px solid #1a1a1a;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-img{height:30px;width:auto;display:block;filter:invert(1)}
+.logo-divider{width:1px;height:22px;background:rgba(255,255,255,.2)}
+.logo-module{font-family:var(--ff);font-size:12px;font-weight:500;color:rgba(255,255,255,.55);letter-spacing:.05em;text-transform:uppercase}
+.user-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.75)}
+.user-chip:hover{background:rgba(255,255,255,.15)}
+.user-av{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1a1a1a}
 .app{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .main{flex:1;overflow-y:auto;padding:16px;max-width:960px;margin:0 auto;width:100%;padding-bottom:80px}
-.type-tabs{display:flex;gap:4px;background:var(--s2);border-radius:10px;padding:4px;border:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
-.type-tab{flex:1;min-width:120px;padding:9px 12px;border-radius:7px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;cursor:pointer;transition:all .2s;text-align:center;font-weight:400}
-.type-tab.on{background:var(--s3);color:var(--text);font-weight:500}
+.type-tabs{display:flex;gap:4px;background:var(--s2);border-radius:8px;padding:4px;border:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
+.type-tab{flex:1;min-width:120px;padding:8px 12px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400}
+.type-tab.on{background:#1a1a1a;color:#fff;font-weight:600}
 .card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
 .obj-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
 .obj-card:hover{border-color:var(--b2)}
@@ -34,33 +38,33 @@ body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;f
 .obj-card-nok{padding:8px 16px;border-top:1px solid rgba(37,44,66,.4);background:rgba(255,71,87,.04)}
 label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;font-weight:500}
 input,select,textarea{width:100%;padding:11px 13px;background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input:focus,select:focus,textarea:focus{border-color:#1a1a1a;outline:none}
 textarea{resize:vertical;min-height:70px}
 select option{background:var(--s2)}
 input[type=file]{display:none}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 @media(max-width:560px){.g2,.g3{grid-template-columns:1fr}}
-.btn{padding:11px 20px;border-radius:8px;border:none;cursor:pointer;font-family:var(--ff);font-size:14px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
-.btn-p{background:var(--accent);color:#fff}.btn-p:hover{background:#3a7af0}
-.btn-ok{background:var(--ok);color:#fff}
-.btn-o{background:transparent;border:1px solid var(--b2);color:var(--t2)}.btn-o:hover{border-color:var(--accent);color:var(--text)}
-.btn-d{background:transparent;border:1px solid rgba(255,71,87,.4);color:var(--nok)}.btn-d:hover{background:rgba(255,71,87,.08)}
-.btn-warn{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.3);color:var(--warn)}
-.btn-sm{padding:7px 13px;font-size:12px}
+.btn{padding:10px 18px;border-radius:6px;border:none;cursor:pointer;font-family:var(--ff);font-size:13px;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-p{background:#1a1a1a;color:#fff;border:1px solid #1a1a1a}.btn-p:hover{background:#333}
+.btn-ok{background:var(--ok);color:#fff;border:1px solid var(--ok)}
+.btn-o{background:transparent;border:1px solid var(--border);color:var(--t2)}.btn-o:hover{border-color:var(--accent);color:var(--text)}
+.btn-d{background:transparent;border:1px solid rgba(192,57,43,.35);color:var(--nok)}.btn-d:hover{background:rgba(192,57,43,.07)}
+.btn-warn{background:rgba(183,134,10,.1);border:1px solid rgba(183,134,10,.3);color:var(--warn)}
+.btn-sm{padding:6px 12px;font-size:12px}
 .gap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .fb{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-family:var(--fm)}
-.b-ok{background:rgba(0,201,123,.12);color:var(--ok);border:1px solid rgba(0,201,123,.25)}
-.b-nok{background:rgba(255,71,87,.12);color:var(--nok);border:1px solid rgba(255,71,87,.25)}
-.b-warn{background:rgba(255,193,7,.12);color:var(--warn);border:1px solid rgba(255,193,7,.25)}
-.b-info{background:rgba(79,142,247,.12);color:var(--accent);border:1px solid rgba(79,142,247,.25)}
+.b-ok{background:rgba(45,106,45,.1);color:var(--ok);border:1px solid rgba(45,106,45,.25)}
+.b-nok{background:rgba(192,57,43,.1);color:var(--nok);border:1px solid rgba(192,57,43,.25)}
+.b-warn{background:rgba(183,134,10,.1);color:var(--warn);border:1px solid rgba(183,134,10,.25)}
+.b-info{background:rgba(26,26,26,.07);color:var(--accent);border:1px solid rgba(26,26,26,.15)}
 .prog-wrap{background:var(--s3);border-radius:4px;height:5px;overflow:hidden}
-.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--a2));transition:width .4s}
-.prog-fill.ok{background:linear-gradient(90deg,var(--ok),var(--a2))}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(5px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.prog-fill{height:100%;border-radius:3px;background:#1a1a1a;transition:width .4s}
+.prog-fill.ok{background:var(--ok)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .overlay.on{display:flex}
-.modal{background:var(--s1);border:1px solid var(--b2);border-radius:14px;padding:24px;width:100%;max-width:600px;margin:auto}
+.modal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:600px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,.12)}
 .modal-wide{max-width:760px}
 .modal-xl{max-width:900px}
 .modal-t{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:18px}
@@ -81,43 +85,48 @@ input[type=file]{display:none}
 .nohl-hdr{display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--t3);font-family:var(--fm);padding:2px}
 .nohl-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;cursor:pointer;transition:all .15s;border:2px solid transparent}
 .nohl-cell:hover{filter:brightness(1.3);transform:scale(1.1)}
-.nohl-cell.sel{border-color:#fff;box-shadow:0 0 0 2px var(--accent)}
-.n1{background:rgba(0,201,123,.3);color:var(--ok)}.n2{background:rgba(255,193,7,.3);color:var(--warn)}.n3{background:rgba(255,120,50,.3);color:#ff7832}.n4{background:rgba(255,71,87,.3);color:var(--nok)}
+.nohl-cell.sel{border-color:#1a1a1a;box-shadow:0 0 0 2px #1a1a1a}
+.n1{background:rgba(45,106,45,.2);color:var(--ok)}.n2{background:rgba(183,134,10,.2);color:var(--warn)}.n3{background:rgba(180,80,20,.25);color:#b45014}.n4{background:rgba(192,57,43,.2);color:var(--nok)}
 .ts{font-size:12px;color:var(--t3)}
 .font-mono{font-family:var(--fm)}
 .divider{height:1px;background:var(--border);margin:14px 0}
 .empty{text-align:center;padding:50px 20px;color:var(--t3)}
 .empty-i{font-size:44px;margin-bottom:12px}
-.doc-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.25);color:var(--accent);font-size:12px;cursor:pointer}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:11px 22px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.doc-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:5px;background:rgba(26,26,26,.07);border:1px solid rgba(26,26,26,.18);color:var(--text);font-size:12px;cursor:pointer}
+.doc-chip:hover{background:rgba(26,26,26,.12)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid #333;border-radius:7px;padding:10px 20px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;color:#fff}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{border-color:var(--ok);color:var(--ok)}.toast.err{border-color:var(--nok);color:var(--nok)}
+.toast.ok{border-color:var(--ok);background:var(--ok)}.toast.err{border-color:var(--nok);background:var(--nok)}
 .stab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
 .stab{padding:8px 14px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--ff);font-size:13px;border-bottom:2px solid transparent;transition:all .2s}
-.stab.on{color:var(--text);border-bottom-color:var(--a2)}
-.section-block{background:var(--s2);border-radius:8px;padding:14px;margin-bottom:12px}
+.stab.on{color:var(--text);border-bottom-color:#1a1a1a}
+.section-block{background:var(--s2);border-radius:7px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
 .section-label{font-family:var(--fm);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;color:var(--t2)}
 .pikto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px;margin-top:8px}
 .pikto-item{cursor:pointer;border-radius:8px;padding:6px;text-align:center;border:2px solid var(--border);background:var(--s2);transition:all .2s}
 .pikto-item:hover{border-color:var(--b2)}
-.pikto-item.sel-ghs{border-color:var(--nok);background:rgba(255,71,87,.1)}
-.pikto-item.sel-asr{border-color:var(--accent);background:rgba(79,142,247,.1)}
+.pikto-item.sel-ghs{border-color:var(--nok);background:rgba(192,57,43,.08)}
+.pikto-item.sel-asr{border-color:#1a1a1a;background:rgba(26,26,26,.08)}
 .pikto-item img{width:46px;height:46px;object-fit:contain;display:block;margin:0 auto 3px}
 .pikto-item .pikto-label{font-size:8px;color:var(--t3);line-height:1.2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .pikto-cat-hdr{font-size:11px;font-weight:600;color:var(--t2);margin:10px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .rec-dot{width:10px;height:10px;border-radius:50%;background:var(--nok);animation:pulse 1s infinite;display:inline-block}
-.sdb-block{background:rgba(255,71,87,.06);border:1px solid rgba(255,71,87,.2);border-radius:10px;padding:14px;margin-bottom:12px}
-.sdb-block.ok{background:rgba(0,201,123,.06);border-color:rgba(0,201,123,.2)}
+.sdb-block{background:rgba(192,57,43,.04);border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:14px;margin-bottom:12px}
+.sdb-block.ok{background:rgba(45,106,45,.04);border-color:rgba(45,106,45,.2)}
 </style>
 </head>
 <body>
 <nav class="topnav">
-  <div class="logo">EHS · Datenbank</div>
+  <div class="logo-wrap">
+    <img src="logo.png" alt="Oak Engineering" class="logo-img">
+    <div class="logo-divider"></div>
+    <span class="logo-module">EHS · Datenbank</span>
+  </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <button class="btn btn-o btn-sm" onclick="openSettings()">⚙</button>
-    <button class="btn btn-o btn-sm" onclick="exportAllData()">⬇ Export</button>
-    <button class="btn btn-o btn-sm" onclick="document.getElementById('inp-import').click()">⬆ Import</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85)" onclick="openSettings()">⚙</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85)" onclick="exportAllData()">⬇ Export</button>
+    <button class="btn btn-sm" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85)" onclick="document.getElementById('inp-import').click()">⬆ Import</button>
     <input type="file" id="inp-import" accept=".json" onchange="importAllData(event)">
     <div class="user-chip" onclick="openUserPicker()">
       <div class="user-av" id="u-av">?</div>
@@ -167,7 +176,7 @@ input[type=file]{display:none}
 <!-- MODAL: Prüfung -->
 <div class="overlay" id="m-pruef" style="padding:0;align-items:stretch">
 <div style="background:var(--bg);width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh">
-  <div style="position:sticky;top:0;z-index:10;background:var(--s1);border-bottom:1px solid var(--border);padding:14px 16px">
+  <div style="position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--border);padding:14px 16px">
     <div class="fb" style="margin-bottom:8px">
       <div>
         <div style="font-family:var(--fh);font-size:17px;font-weight:700" id="pruef-name"></div>
@@ -180,13 +189,13 @@ input[type=file]{display:none}
     </div>
     <div class="prog-wrap" style="margin-bottom:4px"><div class="prog-fill" id="pruef-fill" style="width:0%"></div></div>
     <div class="ts" id="pruef-prog">0/0</div>
-    <div id="voice-status" style="display:none;margin-top:8px;padding:9px 12px;background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);border-radius:8px;align-items:center;gap:8px">
+    <div id="voice-status" style="display:none;margin-top:8px;padding:9px 12px;background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.25);border-radius:7px;align-items:center;gap:8px">
       <span class="rec-dot"></span>
       <span style="font-size:13px;color:var(--nok)">Aufnahme läuft…</span>
       <button class="btn btn-d btn-sm" style="margin-left:auto" onclick="stopVoice()">■ Stopp & Auswerten</button>
     </div>
-    <div id="voice-result" style="display:none;margin-top:8px;padding:12px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px">
-      <div style="font-size:12px;font-weight:600;color:var(--a2);margin-bottom:8px">🤖 KI-Auswertung</div>
+    <div id="voice-result" style="display:none;margin-top:8px;padding:12px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px">
+      <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">🤖 KI-Auswertung</div>
       <div id="voice-result-body"></div>
       <div class="gap" style="margin-top:10px">
         <button class="btn btn-ok btn-sm" onclick="applyVoice()">✓ Übernehmen</button>
@@ -195,7 +204,7 @@ input[type=file]{display:none}
     </div>
   </div>
   <div style="flex:1;overflow-y:auto;padding:16px 16px 100px" id="pruef-checklist"></div>
-  <div style="position:sticky;bottom:0;background:var(--s1);border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:8px;justify-content:flex-end">
+  <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:8px;justify-content:flex-end">
     <button class="btn btn-o" onclick="closePruefung()">Abbrechen</button>
     <button class="btn btn-ok" onclick="savePruefung()">✓ Prüfung speichern</button>
   </div>
@@ -267,7 +276,7 @@ input[type=file]{display:none}
         <button class="btn btn-p btn-sm" onclick="saveApiKey()">Speichern</button>
       </div>
       <div id="api-key-status" class="ts" style="margin-top:6px"></div>
-      <p class="ts" style="margin-top:8px"><a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">API-Key erstellen →</a></p>
+      <p class="ts" style="margin-top:8px"><a href="https://console.anthropic.com" target="_blank" style="color:var(--accent);text-decoration:underline">API-Key erstellen →</a></p>
     </div>
   </div>
   <!-- Firma -->
@@ -300,7 +309,7 @@ input[type=file]{display:none}
       <div><label>Anwendbare Normen / Vorschriften (kommagetrennt)</label>
         <input id="f-firma-normen" placeholder="BetrSichV, GefStoffV, DGUV V1, TRGS 510, EN ISO 20430"></div>
       <div style="margin-top:12px">
-        <div class="section-label" style="color:var(--a2)">Rechtsquellen-Kontext für KI</div>
+        <div class="section-label" style="color:var(--accent)">Rechtsquellen-Kontext für KI</div>
         <p class="ts" style="margin-bottom:8px">Diese Quellen werden der KI als verbindliche Grundlage genannt:</p>
         <div style="padding:10px;background:var(--s3);border-radius:8px;font-size:12px;line-height:1.8;color:var(--t2)" id="firma-rechtsquellen-preview">
           Wird nach dem Speichern angezeigt.
@@ -950,7 +959,7 @@ function renderFields(obj){
           +'<button type="button" class="btn btn-o btn-sm" onclick="document.getElementById(\'inp-dok-'+obj.id+'\').click()">+ PDF hochladen</button>'
           +'<input type="file" id="inp-dok-'+obj.id+'" accept=".pdf" multiple onchange="uploadDok(event,\''+obj.id+'\')">'
           +((obj.dokumente||[]).length?'<button type="button" class="btn btn-o btn-sm" style="margin-left:8px" onclick="askDok(\''+obj.id+'\')">🤖 KI-Frage</button>':'')
-          +'<div id="dok-ki-'+obj.id+'" style="display:none;margin-top:8px;padding:10px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px"></div>'
+          +'<div id="dok-ki-'+obj.id+'" style="display:none;margin-top:8px;padding:10px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px"></div>'
           +'</div>';
       }
       // ASR Piktogramme
@@ -973,10 +982,10 @@ function renderFields(obj){
             +'<button type="button" class="btn btn-ok btn-sm" onclick="extractSDB(\''+obj.id+'\')">🤖 Auslesen</button>'
             +'<button type="button" class="btn btn-o btn-sm" onclick="openSDB(\''+obj.id+'\')">📖</button></div>'
           :'<div style="padding:10px;text-align:center;color:var(--t3);font-size:13px">Noch kein SDB hochgeladen</div>')
-        +'<div id="sdb-ki-status" style="display:none;margin-top:8px;padding:10px;background:rgba(0,229,195,.08);border:1px solid rgba(0,229,195,.25);border-radius:8px;font-size:13px"></div>'
+        +'<div id="sdb-ki-status" style="display:none;margin-top:8px;padding:10px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px;font-size:13px"></div>'
         +'</div>';
       // Stammdaten
-      h+='<div class="section-block"><div class="section-label" style="color:var(--a2)">Stammdaten</div>'
+      h+='<div class="section-block"><div class="section-label" style="color:var(--accent);font-weight:700">Stammdaten</div>'
         +'<div class="g2">'
         +'<div><label>Bezeichnung laut SDB</label><input id="f-sdb-bez" value="'+esc(obj.sdb_bezeichnung)+'" placeholder="Produktname im SDB"></div>'
         +'<div><label>CAS-Nummer</label><input id="f-cas" style="font-family:var(--fm)" value="'+esc(obj.cas)+'" placeholder="9003-07-0"></div></div>'
@@ -1155,7 +1164,7 @@ async function askDok(mid){
     var data=await res.json();
     var answer=(data.content||[]).map(b=>b.text||'').join('')||'Keine Antwort';
     var el=document.getElementById('dok-ki-'+mid);
-    if(el){el.style.display='block';el.innerHTML='<div style="font-weight:600;color:var(--a2);margin-bottom:6px">🤖 Antwort</div><div style="font-size:13px;line-height:1.6">'+answer+'</div>';}
+    if(el){el.style.display='block';el.innerHTML='<div style="font-weight:600;color:var(--text);margin-bottom:6px">🤖 Antwort</div><div style="font-size:13px;line-height:1.6">'+answer+'</div>';}
   }catch(e){toast('Fehler: '+e.message,'err');}
 }
 
@@ -1181,7 +1190,7 @@ async function extractSDB(objId){
   var obj=DB.gefahrstoffe.find(x=>x.id===objId);
   if(!obj?.sdb_datei){toast('Kein SDB hochgeladen','err');return;}
   var st=document.getElementById('sdb-ki-status');
-  if(st){st.style.display='block';st.innerHTML='<span style="color:var(--a2)">🤖 SDB wird ausgelesen… (10–20 Sek.)</span>';}
+  if(st){st.style.display='block';st.innerHTML='<span style="color:var(--t2)">🤖 SDB wird ausgelesen… (10–20 Sek.)</span>';}
   toast('SDB wird analysiert…');
   try{
     var firma=getFirmaKontext();
@@ -1415,7 +1424,7 @@ async function analyzeVoice(){
   if(!audioChunks.length)return;
   var rb=document.getElementById('voice-result-body');
   document.getElementById('voice-result').style.display='block';
-  rb.innerHTML='<div style="color:var(--t3);font-style:italic">🤖 KI analysiert…</div>';
+  rb.innerHTML='<div style="color:var(--t2);font-style:italic">🤖 KI analysiert…</div>';
   try{
     var blob=new Blob(audioChunks,{type:audioChunks[0]?.type||'audio/webm'});
     var b64=await new Promise(function(res,rej){var fr=new FileReader();fr.onload=()=>res(fr.result.split(',')[1]);fr.onerror=()=>rej(new Error('read'));fr.readAsDataURL(blob);});
@@ -1437,7 +1446,7 @@ async function analyzeVoice(){
       p.erkannte_punkte.forEach(function(pt){
         var nc=pt.nohl_s&&pt.nohl_w?NI[nohlClass(pt.nohl_s,pt.nohl_w)]:null;
         h+='<div style="padding:8px;margin-bottom:4px;border-radius:6px;background:'+(pt.status==='nok'?'rgba(255,71,87,.1)':'rgba(255,193,7,.1)')+';border-left:3px solid '+(pt.status==='nok'?'var(--nok)':'var(--warn)')+'"><div style="font-size:12px;font-family:var(--fm)">'+pt.id+'</div>'
-          +(pt.bemerkung?'<div class="ts">'+pt.bemerkung+'</div>':'')+(pt.massnahme?'<div class="ts" style="color:var(--a2)">→ '+pt.massnahme+'</div>':'')+'</div>';
+          +(pt.bemerkung?'<div class="ts">'+pt.bemerkung+'</div>':'')+(pt.massnahme?'<div class="ts" style="color:var(--t2)">→ '+pt.massnahme+'</div>':'')+'</div>';
       });
     }
     if(p.allgemeine_notiz)h+='<div style="margin-top:6px;padding:8px;background:var(--s2);border-radius:6px;font-size:12px;color:var(--t2)">📝 '+p.allgemeine_notiz+'</div>';
