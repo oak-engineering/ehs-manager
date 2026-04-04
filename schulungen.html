@@ -1426,11 +1426,8 @@ async function submitInvite() {
 // TEILEN (QR / LINK / MAIL)
 // ═══════════════════════════════════════════════════════════
 function buildShareURL(schulungId) {
-  const s = allSchulungen.find(x => x.id === schulungId); if (!s) return '';
-  const slim = {id:s.id,titel:s.titel,kategorie:s.kategorie,beschreibung:s.beschreibung,
-    bestehensgrenze:s.bestehensgrenze,fragen:s.fragen,pdf_name:s.pdf_name};
-  const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(slim))));
-  return window.location.href.split('?')[0] + '?share=' + encodeURIComponent(b64);
+  const base = window.location.href.split('/').slice(0,-1).join('/');
+  return base + '/schulung-extern.html?id=' + encodeURIComponent(schulungId);
 }
 
 function openShareModal(id) {
