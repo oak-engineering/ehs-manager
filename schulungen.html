@@ -138,6 +138,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     <button class="view-tab on" onclick="switchView('online')" id="vtab-online">🖥 Online-Schulungen</button>
     <button class="view-tab" onclick="switchView('praesenz')" id="vtab-praesenz">📅 Präsenzschulungen</button>
     <button class="view-tab" onclick="switchView('protokoll')" id="vtab-protokoll">📋 Protokoll</button>
+    <button class="view-tab" onclick="switchView('buchung')" id="vtab-buchung">🛒 Oak Schulungen buchen</button>
     <button class="view-tab admin-only" onclick="switchView('nutzer')" id="vtab-nutzer" style="display:none">👥 Nutzer</button>
   </div>
 
@@ -182,6 +183,21 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     <div id="protokoll-list"></div>
   </div>
 
+  <!-- BUCHUNG OAK ENGINEERING -->
+  <div id="view-buchung" style="display:none">
+    <div class="fb" style="margin-bottom:16px">
+      <div>
+        <h2 style="font-family:var(--fh);font-size:20px">🛒 Oak Engineering – Schulungsangebot</h2>
+        <div class="ts">Externe Schulungen direkt buchen · Preise zzgl. MwSt.</div>
+      </div>
+      <div class="gap">
+        <button class="btn btn-o btn-sm admin-only" onclick="openKatalogModal()" id="btn-katalog-admin" style="display:none">⚙ Katalog verwalten</button>
+        <button class="btn btn-o btn-sm admin-only" onclick="openBuchungsanfragenModal()" id="btn-anfragen-admin" style="display:none">📋 Buchungsanfragen</button>
+      </div>
+    </div>
+    <div id="buchung-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
+  </div>
+
   <!-- NUTZER-VERWALTUNG (nur Admin) -->
   <div id="view-nutzer" style="display:none">
     <div class="fb" style="margin-bottom:16px">
@@ -198,7 +214,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div><!-- /app-content -->
 
 <!-- MODAL: Online-Schulung anlegen/bearbeiten -->
-<div class="overlay" id="m-schulung">
+<div class="overlay" id="m-schulung" onclick="if(event.target===this)closeM('m-schulung')">
 <div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
   <div class="fb" style="margin-bottom:16px">
     <div class="modal-t" style="margin:0" id="m-schulung-title">Schulung anlegen</div>
@@ -264,7 +280,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: Präsenzschulung anlegen -->
-<div class="overlay" id="m-praesenz">
+<div class="overlay" id="m-praesenz" onclick="if(event.target===this)closeM('m-praesenz')">
 <div class="modal modal-wide">
   <div class="fb" style="margin-bottom:16px">
     <div class="modal-t" style="margin:0" id="m-praesenz-title">Präsenzschulung anlegen</div>
@@ -319,7 +335,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: Präsenz-Anmeldung (Mitarbeiter) -->
-<div class="overlay" id="m-anmeldung">
+<div class="overlay" id="m-anmeldung" onclick="if(event.target===this)closeM('m-anmeldung')">
 <div class="modal">
   <div class="fb" style="margin-bottom:4px">
     <div class="modal-t" style="margin:0" id="m-anmeldung-title">Anmelden</div>
@@ -339,7 +355,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: Teilnehmerliste (Admin) -->
-<div class="overlay" id="m-teilnehmer">
+<div class="overlay" id="m-teilnehmer" onclick="if(event.target===this)closeM('m-teilnehmer')">
 <div class="modal modal-wide">
   <div class="fb" style="margin-bottom:16px">
     <div class="modal-t" style="margin:0" id="m-teilnehmer-title">Teilnehmerliste</div>
@@ -353,7 +369,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: Schulung teilen -->
-<div class="overlay" id="m-share">
+<div class="overlay" id="m-share" onclick="if(event.target===this)closeM('m-share')">
 <div class="modal" style="max-width:500px">
   <div class="fb" style="margin-bottom:4px">
     <div class="modal-t" style="margin:0" id="m-share-title">Schulung teilen</div>
@@ -396,7 +412,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: Nutzer einladen -->
-<div class="overlay" id="m-invite">
+<div class="overlay" id="m-invite" onclick="if(event.target===this)closeM('m-invite')">
 <div class="modal">
   <div class="fb" style="margin-bottom:16px">
     <div class="modal-t" style="margin:0">Nutzer einladen</div>
@@ -426,12 +442,24 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </div></div>
 
 <!-- MODAL: User-Menü -->
-<div class="overlay" id="m-usermenu">
-<div class="modal" style="max-width:340px">
-  <div class="modal-t" id="usermenu-name">Mein Konto</div>
+<div class="overlay" id="m-usermenu" onclick="if(event.target===this)closeM('m-usermenu')">
+<div class="modal" style="max-width:360px">
+  <div class="fb" style="margin-bottom:4px">
+    <div class="modal-t" style="margin:0" id="usermenu-name">Mein Konto</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-usermenu')">✕</button>
+  </div>
   <div class="ts" id="usermenu-rolle" style="margin-bottom:16px"></div>
   <div class="divider"></div>
-  <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doSignOut()">Abmelden</button>
+  <div style="margin-bottom:14px">
+    <label>Claude API-Key (für KI-Funktionen)</label>
+    <div style="display:flex;gap:8px">
+      <input id="um-api-key" type="password" placeholder="sk-ant-…" style="font-size:12px;font-family:var(--fm)">
+      <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">Speichern</button>
+    </div>
+    <div class="ts" style="margin-top:4px" id="um-api-status"></div>
+  </div>
+  <div class="divider"></div>
+  <button class="btn btn-d" style="width:100%;justify-content:center;margin-top:8px" onclick="doSignOut()">↩ Abmelden</button>
 </div></div>
 
 <!-- MODAL: Player -->
@@ -456,6 +484,150 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     <div class="ts" id="player-nav-info"></div>
     <button class="btn btn-p" id="player-next-btn" onclick="playerNext()">Weiter →</button>
   </div>
+</div></div>
+
+<!-- MODAL: Buchungsanfrage -->
+<div class="overlay" id="m-buchung" onclick="if(event.target===this)closeM('m-buchung')">
+<div class="modal modal-wide">
+  <div class="fb" style="margin-bottom:4px">
+    <div class="modal-t" style="margin:0" id="m-buchung-titel">Schulung buchen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-buchung')">✕</button>
+  </div>
+  <div class="ts" style="margin-bottom:16px" id="m-buchung-sub"></div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <input type="hidden" id="buchung-katalog-id">
+    <div class="g2">
+      <div><label>Firma / Organisation *</label><input id="b-firma" placeholder="Musterfirma GmbH"></div>
+      <div><label>Ansprechpartner *</label><input id="b-kontakt" placeholder="Max Mustermann"></div>
+    </div>
+    <div class="g2">
+      <div><label>E-Mail *</label><input id="b-email" type="email" placeholder="max@musterfirma.de"></div>
+      <div><label>Telefon</label><input id="b-tel" placeholder="+49 821…"></div>
+    </div>
+    <div class="g2">
+      <div><label>Anzahl Teilnehmer *</label><input id="b-tn" type="number" min="1" placeholder="10"></div>
+      <div><label>Wunschtermin</label><input id="b-termin" type="date"></div>
+    </div>
+    <div>
+      <label>Alternativer Termin</label>
+      <input id="b-termin2" type="date">
+    </div>
+    <div><label>Nachricht / besondere Anforderungen</label>
+      <textarea id="b-nachricht" rows="3" placeholder="Schulungsort, spezifische Themen, Branche…"></textarea>
+    </div>
+    <div style="padding:10px 14px;background:rgba(45,106,45,.06);border:1px solid rgba(45,106,45,.2);border-radius:7px;font-size:12px;color:#2d6a2d">
+      ✓ Nach Absenden erhalten Sie innerhalb von 24 Stunden eine Bestätigung von Oak Engineering.
+    </div>
+  </div>
+  <div class="modal-act">
+    <button class="btn btn-o" onclick="closeM('m-buchung')">Abbrechen</button>
+    <button class="btn btn-ok" onclick="submitBuchung()">
+      <span class="spinner" id="buchung-spinner" style="display:none"></span>
+      📩 Verbindlich anfragen
+    </button>
+  </div>
+</div></div>
+
+<!-- MODAL: Katalog verwalten (Admin) -->
+<div class="overlay" id="m-katalog" onclick="if(event.target===this)closeM('m-katalog')">
+<div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
+  <div class="fb" style="margin-bottom:16px;position:sticky;top:0;background:#fff;z-index:5;padding-bottom:10px;border-bottom:1px solid var(--border)">
+    <div class="modal-t" style="margin:0">⚙ Schulungskatalog verwalten</div>
+    <div class="gap">
+      <button class="btn btn-p btn-sm" onclick="openKatalogItemModal(null)">+ Schulung anlegen</button>
+      <button class="btn btn-o btn-sm" onclick="closeM('m-katalog')">✕</button>
+    </div>
+  </div>
+  <div id="katalog-admin-list"></div>
+</div></div>
+
+<!-- MODAL: Katalog-Eintrag anlegen/bearbeiten -->
+<div class="overlay" id="m-katalog-item" onclick="if(event.target===this)closeM('m-katalog-item')">
+<div class="modal modal-wide">
+  <div class="fb" style="margin-bottom:16px">
+    <div class="modal-t" style="margin:0" id="m-ki-title">Schulung anlegen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-katalog-item')">✕</button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <input type="hidden" id="ki-edit-id">
+    <div class="g2">
+      <div><label>Titel *</label><input id="ki-titel" placeholder="z.B. Brandschutzbeauftragter Ausbildung"></div>
+      <div><label>Kategorie</label>
+        <select id="ki-kategorie">
+          <option>Brandschutz</option><option>Erste Hilfe</option>
+          <option>Arbeitssicherheit</option><option>Gefahrstoffe</option>
+          <option>Führung & Organisation</option><option>Elektrische Sicherheit</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+    </div>
+    <div><label>Kurzbeschreibung *</label>
+      <textarea id="ki-beschreibung" rows="3" placeholder="Was wird vermittelt? Zielgruppe? Gesetzliche Grundlage?"></textarea>
+    </div>
+    <div class="g2">
+      <div><label>Dauer</label><input id="ki-dauer" placeholder="1 Tag, 2 × 4 Std., 8 UE…"></div>
+      <div><label>Max. Teilnehmerzahl</label><input id="ki-maxtn" type="number" placeholder="15"></div>
+    </div>
+    <div class="g3">
+      <div><label>Preis pro Person (€, netto) *</label><input id="ki-preis-pp" type="number" step="0.01" placeholder="149.00"></div>
+      <div><label>Pauschalpreis Gruppe (€, netto)</label><input id="ki-preis-gruppe" type="number" step="0.01" placeholder="990.00"></div>
+      <div><label>Ab Teilnehmerzahl</label><input id="ki-preis-ab" type="number" placeholder="8"></div>
+    </div>
+    <div class="g2">
+      <div><label>Format</label>
+        <select id="ki-format">
+          <option>Vor Ort beim Kunden</option>
+          <option>Online / Webinar</option>
+          <option>In unserem Schulungszentrum</option>
+          <option>Hybrid</option>
+        </select>
+      </div>
+      <div><label>Zertifikat nach Abschluss</label>
+        <select id="ki-zertifikat">
+          <option value="ja">Ja – Teilnahmezertifikat</option>
+          <option value="nein">Nein</option>
+        </select>
+      </div>
+    </div>
+    <div><label>Inhalte / Agenda (stichpunktartig)</label>
+      <textarea id="ki-inhalte" rows="4" placeholder="• Grundlagen Brandschutz&#10;• Rechtliche Grundlagen&#10;• Praktische Übungen&#10;• Abschlussprüfung"></textarea>
+    </div>
+    <div><label>Zielgruppe</label>
+      <input id="ki-zielgruppe" placeholder="Brandschutzbeauftragte, Führungskräfte, alle Mitarbeiter…">
+    </div>
+    <div class="g2">
+      <div><label>Rechtsgrundlage</label><input id="ki-rechtsgrundlage" placeholder="ArbSchG §12, DGUV V1, ASR A2.2…"></div>
+      <div><label>Wiederholungsintervall</label>
+        <select id="ki-intervall">
+          <option value="">– keine Wiederholung –</option>
+          <option value="1">Jährlich</option>
+          <option value="2">Alle 2 Jahre</option>
+          <option value="3">Alle 3 Jahre</option>
+          <option value="5">Alle 5 Jahre</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="ki-aktiv" checked style="width:auto;accent-color:#1a1a1a">
+      <label style="margin:0;font-weight:400">Im Katalog sichtbar (aktiv)</label>
+    </div>
+  </div>
+  <div class="modal-act">
+    <button class="btn btn-o" onclick="closeM('m-katalog-item')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveKatalogItem()">
+      <span class="spinner" id="ki-spinner" style="display:none"></span>Speichern
+    </button>
+  </div>
+</div></div>
+
+<!-- MODAL: Buchungsanfragen (Admin) -->
+<div class="overlay" id="m-anfragen" onclick="if(event.target===this)closeM('m-anfragen')">
+<div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
+  <div class="fb" style="margin-bottom:16px;position:sticky;top:0;background:#fff;z-index:5;padding-bottom:10px;border-bottom:1px solid var(--border)">
+    <div class="modal-t" style="margin:0">📋 Buchungsanfragen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-anfragen')">✕</button>
+  </div>
+  <div id="anfragen-list"></div>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -537,8 +709,18 @@ function openUserMenu() {
   const p = currentProfile;
   document.getElementById('usermenu-name').textContent = p?.name || 'Mein Konto';
   document.getElementById('usermenu-rolle').textContent =
-    (p?.rolle === 'admin' ? '👑 Administrator' : '👤 Mitarbeiter') + ' · ' + (p?.kuerzel || '');
+    (p?.rolle === 'admin' ? '👑 Administrator' : '👤 Mitarbeiter') + (p?.kuerzel ? ' · ' + p.kuerzel : '');
+  const keyEl = document.getElementById('um-api-key');
+  if (keyEl) keyEl.value = localStorage.getItem('ehs_api_key') || '';
+  document.getElementById('um-api-status').textContent = '';
   openM('m-usermenu');
+}
+
+function saveApiKeyUM() {
+  const k = document.getElementById('um-api-key').value.trim();
+  localStorage.setItem('ehs_api_key', k);
+  document.getElementById('um-api-status').textContent = k ? '✓ Gespeichert' : 'Gelöscht';
+  toast('API-Key gespeichert ✓', 'ok');
 }
 
 async function doSignOut() {
@@ -549,14 +731,15 @@ async function doSignOut() {
 // ── View-Switching ─────────────────────────────────────────
 function switchView(v) {
   currentView = v;
-  ['online','praesenz','protokoll','nutzer'].forEach(t => {
+  ['online','praesenz','protokoll','nutzer','buchung'].forEach(t => {
     document.getElementById('view-'+t).style.display = t===v ? 'block' : 'none';
     document.getElementById('vtab-'+t)?.classList.toggle('on', t===v);
   });
-  if (v==='online') renderSchulungList();
-  if (v==='praesenz') renderPraesenzList();
+  if (v==='online')    renderSchulungList();
+  if (v==='praesenz')  renderPraesenzList();
   if (v==='protokoll') renderProtokoll();
-  if (v==='nutzer') renderNutzer();
+  if (v==='nutzer')    renderNutzer();
+  if (v==='buchung')   renderBuchungList();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1321,8 +1504,329 @@ function sendShareMail() {
   window.location.href = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(body+'\n\n'+url)}`;
 }
 
+// ═══════════════════════════════════════════════════════════
+// BUCHUNGSMODUL – OAK ENGINEERING SCHULUNGSKATALOG
+// ═══════════════════════════════════════════════════════════
+let allKatalog = [];
+let allAnfragen = [];
+
+async function renderBuchungList() {
+  const el = document.getElementById('buchung-list');
+  el.innerHTML = '<div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div>';
+  const admin = currentProfile?.rolle === 'admin';
+  // Admin-Buttons zeigen
+  document.getElementById('btn-katalog-admin').style.display = admin ? 'inline-flex' : 'none';
+  document.getElementById('btn-anfragen-admin').style.display = admin ? 'inline-flex' : 'none';
+  try {
+    const { data } = await getSB().from('oak_katalog')
+      .select('id,data,aktiv')
+      .eq('aktiv', true)
+      .order('created_at', { ascending: false });
+    allKatalog = (data || []).map(r => ({ ...r.data, id: r.id, aktiv: r.aktiv }));
+  } catch(e) {
+    el.innerHTML = `<div class="empty"><div class="empty-i">⚠</div><p>Fehler: ${esc(e.message)}</p></div>`;
+    return;
+  }
+  if (!allKatalog.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-i">🛒</div>
+      <p style="margin-bottom:14px">Noch keine Schulungen im Katalog.</p>
+      ${admin ? '<button class="btn btn-p" onclick="openKatalogModal()">+ Erste Schulung anlegen</button>' : ''}
+    </div>`;
+    return;
+  }
+  // Gruppieren nach Kategorie
+  const kategorien = [...new Set(allKatalog.map(k => k.kategorie))];
+  const catColors = {
+    Brandschutz:'#c0392b','Erste Hilfe':'#2980b9','Arbeitssicherheit':'#2d6a2d',
+    Gefahrstoffe:'#e67e22','Führung & Organisation':'#8e44ad',
+    'Elektrische Sicherheit':'#f39c12',Sonstiges:'#555'
+  };
+  el.innerHTML = kategorien.map(kat => {
+    const items = allKatalog.filter(k => k.kategorie === kat);
+    const cc = catColors[kat] || '#555';
+    return `<div style="margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="height:2px;width:20px;background:${cc};border-radius:2px"></div>
+        <h3 style="font-family:var(--fh);font-size:16px;font-weight:700;color:${cc}">${esc(kat)}</h3>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+        ${items.map(k => katalogCard(k, cc, admin)).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function katalogCard(k, cc, admin) {
+  const preisInfo = k.preis_gruppe && k.preis_ab
+    ? `${(k.preis_pp||0).toFixed(2)} € / Person · ab ${k.preis_ab} Pers. ${(k.preis_gruppe||0).toFixed(2)} € pauschal`
+    : `${(k.preis_pp||0).toFixed(2)} € / Person (netto)`;
+  return `<div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
+    <div style="padding:16px;flex:1">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
+        <div>
+          <div style="font-size:15px;font-weight:600;line-height:1.3;margin-bottom:4px">${esc(k.titel)}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${k.format?`<span class="badge b-info">${esc(k.format)}</span>`:''}
+            ${k.dauer?`<span class="badge b-info">⏱ ${esc(k.dauer)}</span>`:''}
+            ${k.zertifikat==='ja'?'<span class="badge b-ok">🏆 Zertifikat</span>':''}
+          </div>
+        </div>
+        ${admin?`<div style="display:flex;gap:4px;flex-shrink:0">
+          <button class="btn btn-o btn-sm" onclick="openKatalogItemModal('${k.id}')" style="padding:4px 8px">✏</button>
+          <button class="btn btn-d btn-sm" onclick="deleteKatalogItem('${k.id}')" style="padding:4px 8px">🗑</button>
+        </div>`:''}
+      </div>
+      <p style="font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:10px">${esc((k.beschreibung||'').slice(0,120))}${(k.beschreibung||'').length>120?'…':''}</p>
+      ${k.inhalte?`<div style="font-size:12px;color:var(--t3);white-space:pre-line;margin-bottom:10px">${esc(k.inhalte.split('\n').slice(0,3).join('\n'))}${k.inhalte.split('\n').length>3?'\n…':''}</div>`:''}
+      ${k.zielgruppe?`<div class="ts" style="margin-bottom:6px">👥 ${esc(k.zielgruppe)}</div>`:''}
+      ${k.rechtsgrundlage?`<div class="ts" style="margin-bottom:6px">⚖ ${esc(k.rechtsgrundlage)}</div>`:''}
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:10px">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:${cc}">${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} €<span style="font-size:11px;font-weight:400;color:var(--t2)"> / Person</span></div>
+        ${k.preis_gruppe&&k.preis_ab?`<div style="font-size:11px;color:var(--t3)">Ab ${k.preis_ab} Pers.: ${(k.preis_gruppe||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € pauschal</div>`:''}
+        <div style="font-size:10px;color:var(--t3)">zzgl. MwSt.</div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="openBuchungModal('${k.id}')">📩 Jetzt buchen</button>
+    </div>
+  </div>`;
+}
+
+function openBuchungModal(katalogId) {
+  const k = allKatalog.find(x => x.id === katalogId); if (!k) return;
+  document.getElementById('buchung-katalog-id').value = katalogId;
+  document.getElementById('m-buchung-titel').textContent = k.titel;
+  document.getElementById('m-buchung-sub').textContent =
+    `${k.kategorie} · ${k.dauer||''} · ${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person zzgl. MwSt.`;
+  // Vorausfüllen mit aktuellem Nutzer
+  if (currentProfile) {
+    document.getElementById('b-kontakt').value = currentProfile.name || '';
+  }
+  ['b-firma','b-email','b-tel','b-tn','b-termin','b-termin2','b-nachricht'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && id !== 'b-kontakt') el.value = '';
+  });
+  openM('m-buchung');
+  setTimeout(() => document.getElementById('b-firma')?.focus(), 120);
+}
+
+async function submitBuchung() {
+  const firma    = document.getElementById('b-firma')?.value.trim();
+  const kontakt  = document.getElementById('b-kontakt')?.value.trim();
+  const email    = document.getElementById('b-email')?.value.trim();
+  if (!firma || !kontakt || !email) { toast('Firma, Ansprechpartner und E-Mail erforderlich','err'); return; }
+  const sp = document.getElementById('buchung-spinner');
+  sp.style.display = 'inline-block';
+  const katalogId = document.getElementById('buchung-katalog-id').value;
+  const k = allKatalog.find(x => x.id === katalogId);
+  const anfrage = {
+    id: 'ANF' + Date.now(),
+    katalog_id: katalogId,
+    firma, ansprechpartner: kontakt, email,
+    telefon:        document.getElementById('b-tel')?.value.trim() || null,
+    teilnehmerzahl: parseInt(document.getElementById('b-tn')?.value) || null,
+    wunschtermin:   document.getElementById('b-termin')?.value || null,
+    wunschtermin_alternativ: document.getElementById('b-termin2')?.value || null,
+    nachricht:      document.getElementById('b-nachricht')?.value.trim() || null,
+    status: 'offen'
+  };
+  try {
+    const { error } = await getSB().from('buchungsanfragen').insert(anfrage);
+    if (error) throw error;
+    closeM('m-buchung');
+    // Bestätigungsmail per mailto öffnen
+    sendBuchungsBestaetigung(k, anfrage);
+    toast('Buchungsanfrage gesendet ✓', 'ok');
+  } catch(e) {
+    toast('Fehler: ' + e.message, 'err');
+  } finally { sp.style.display = 'none'; }
+}
+
+function sendBuchungsBestaetigung(k, a) {
+  const betreff = encodeURIComponent(`Buchungsanfrage: ${k?.titel || 'EHS-Schulung'}`);
+  const tn = a.teilnehmerzahl ? a.teilnehmerzahl + ' Teilnehmer' : 'Anzahl offen';
+  const preisGesamt = k?.preis_pp && a.teilnehmerzahl
+    ? `\nGeschätzter Preis: ${(k.preis_pp * a.teilnehmerzahl).toLocaleString('de-DE',{minimumFractionDigits:2})} € (netto, zzgl. MwSt.)`
+    : '';
+  const body = encodeURIComponent(
+    `Guten Tag,\n\nhiermit senden wir Ihnen unsere Buchungsanfrage:\n\n` +
+    `Schulung: ${k?.titel || '–'}\n` +
+    `Firma: ${a.firma}\n` +
+    `Ansprechpartner: ${a.ansprechpartner}\n` +
+    `E-Mail: ${a.email}\n` +
+    (a.telefon ? `Telefon: ${a.telefon}\n` : '') +
+    `Teilnehmerzahl: ${tn}` +
+    preisGesamt + '\n' +
+    (a.wunschtermin ? `Wunschtermin: ${new Date(a.wunschtermin).toLocaleDateString('de-DE')}\n` : '') +
+    (a.wunschtermin_alternativ ? `Alternativtermin: ${new Date(a.wunschtermin_alternativ).toLocaleDateString('de-DE')}\n` : '') +
+    (a.nachricht ? `\nNachricht: ${a.nachricht}\n` : '') +
+    `\nMit freundlichen Grüßen\n${a.ansprechpartner}\n${a.firma}`
+  );
+  window.location.href = `mailto:info@oak-engineering.de?subject=${betreff}&body=${body}`;
+}
+
+// ── Katalog verwalten (Admin) ─────────────────────────────
+async function openKatalogModal() {
+  openM('m-katalog');
+  await renderKatalogAdminList();
+}
+
+async function renderKatalogAdminList() {
+  const el = document.getElementById('katalog-admin-list');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
+  try {
+    const { data } = await getSB().from('oak_katalog').select('id,data,aktiv').order('created_at',{ascending:false});
+    const all = (data||[]).map(r=>({...r.data,id:r.id,aktiv:r.aktiv}));
+    if (!all.length) { el.innerHTML='<div class="empty"><div class="empty-i">📚</div><p>Noch keine Einträge.</p></div>'; return; }
+    el.innerHTML = all.map(k => `<div class="card" style="margin-bottom:8px;padding:12px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-weight:600;font-size:14px">${esc(k.titel)}</div>
+          <div class="ts">${esc(k.kategorie)} · ${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person · ${esc(k.format||'')}</div>
+        </div>
+        <div class="gap">
+          <span class="badge ${k.aktiv?'b-ok':'b-info'}">${k.aktiv?'Aktiv':'Inaktiv'}</span>
+          <button class="btn btn-o btn-sm" onclick="openKatalogItemModal('${k.id}')">✏</button>
+          <button class="btn btn-d btn-sm" onclick="deleteKatalogItem('${k.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+  } catch(e) { el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`; }
+}
+
+function openKatalogItemModal(id) {
+  const k = id ? allKatalog.find(x=>x.id===id) : null;
+  document.getElementById('ki-edit-id').value = id||'';
+  document.getElementById('m-ki-title').textContent = k ? 'Schulung bearbeiten' : 'Schulung anlegen';
+  const set = (elId,val) => { const el=document.getElementById(elId); if(el&&val!=null) el.value=val; };
+  set('ki-titel', k?.titel||'');
+  set('ki-kategorie', k?.kategorie||'Brandschutz');
+  set('ki-beschreibung', k?.beschreibung||'');
+  set('ki-dauer', k?.dauer||'');
+  set('ki-maxtn', k?.maxTn||'');
+  set('ki-preis-pp', k?.preis_pp||'');
+  set('ki-preis-gruppe', k?.preis_gruppe||'');
+  set('ki-preis-ab', k?.preis_ab||'');
+  set('ki-format', k?.format||'Vor Ort beim Kunden');
+  set('ki-zertifikat', k?.zertifikat||'ja');
+  set('ki-inhalte', k?.inhalte||'');
+  set('ki-zielgruppe', k?.zielgruppe||'');
+  set('ki-rechtsgrundlage', k?.rechtsgrundlage||'');
+  set('ki-intervall', k?.intervall||'');
+  const cb = document.getElementById('ki-aktiv');
+  if (cb) cb.checked = k ? k.aktiv !== false : true;
+  closeM('m-katalog');
+  openM('m-katalog-item');
+  setTimeout(() => document.getElementById('ki-titel')?.focus(), 120);
+}
+
+async function saveKatalogItem() {
+  const titel = document.getElementById('ki-titel')?.value.trim();
+  const preisPP = parseFloat(document.getElementById('ki-preis-pp')?.value);
+  if (!titel) { toast('Titel erforderlich','err'); return; }
+  if (isNaN(preisPP) || preisPP <= 0) { toast('Preis pro Person erforderlich','err'); return; }
+  const sp = document.getElementById('ki-spinner');
+  sp.style.display = 'inline-block';
+  const editId = document.getElementById('ki-edit-id').value;
+  const data = {
+    id: editId || 'KAT'+Date.now(),
+    titel,
+    kategorie:      document.getElementById('ki-kategorie')?.value,
+    beschreibung:   document.getElementById('ki-beschreibung')?.value.trim(),
+    dauer:          document.getElementById('ki-dauer')?.value.trim(),
+    maxTn:          parseInt(document.getElementById('ki-maxtn')?.value)||null,
+    preis_pp:       preisPP,
+    preis_gruppe:   parseFloat(document.getElementById('ki-preis-gruppe')?.value)||null,
+    preis_ab:       parseInt(document.getElementById('ki-preis-ab')?.value)||null,
+    format:         document.getElementById('ki-format')?.value,
+    zertifikat:     document.getElementById('ki-zertifikat')?.value,
+    inhalte:        document.getElementById('ki-inhalte')?.value.trim(),
+    zielgruppe:     document.getElementById('ki-zielgruppe')?.value.trim(),
+    rechtsgrundlage:document.getElementById('ki-rechtsgrundlage')?.value.trim(),
+    intervall:      document.getElementById('ki-intervall')?.value||null,
+  };
+  const aktiv = document.getElementById('ki-aktiv')?.checked ?? true;
+  try {
+    const { error } = await getSB().from('oak_katalog').upsert(
+      { id: data.id, data, aktiv, updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
+    );
+    if (error) throw error;
+    closeM('m-katalog-item');
+    openM('m-katalog');
+    await renderKatalogAdminList();
+    // Katalog auch in der Ansicht neu laden
+    renderBuchungList();
+    toast('Schulung gespeichert ✓','ok');
+  } catch(e) { toast('Fehler: '+e.message,'err'); }
+  finally { sp.style.display='none'; }
+}
+
+async function deleteKatalogItem(id) {
+  if (!confirm('Schulung aus dem Katalog löschen?')) return;
+  const { error } = await getSB().from('oak_katalog').delete().eq('id',id);
+  if (error) { toast('Fehler: '+error.message,'err'); return; }
+  await renderKatalogAdminList();
+  renderBuchungList();
+  toast('Gelöscht');
+}
+
+// ── Buchungsanfragen (Admin) ──────────────────────────────
+async function openBuchungsanfragenModal() {
+  openM('m-anfragen');
+  const el = document.getElementById('anfragen-list');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
+  try {
+    const { data } = await getSB().from('buchungsanfragen')
+      .select('*').order('created_at',{ascending:false});
+    allAnfragen = data || [];
+    if (!allAnfragen.length) { el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Buchungsanfragen.</p></div>'; return; }
+    const statusColor = {offen:'var(--warn)',bestaetigt:'var(--ok)',abgesagt:'var(--nok)'};
+    const statusLabel = {offen:'⏳ Offen',bestaetigt:'✓ Bestätigt',abgesagt:'✗ Abgesagt'};
+    el.innerHTML = allAnfragen.map(a => {
+      const k = allKatalog.find(x=>x.id===a.katalog_id);
+      return `<div class="card" style="margin-bottom:10px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:4px">${esc(a.firma)} – ${esc(a.ansprechpartner)}</div>
+            <div class="ts">${k?esc(k.titel):'Unbekannte Schulung'}</div>
+            <div class="ts">✉ ${esc(a.email)}${a.telefon?' · 📞 '+esc(a.telefon):''}</div>
+            <div class="ts">👥 ${a.teilnehmerzahl||'–'} Pers.${a.wunschtermin?' · Wunsch: '+new Date(a.wunschtermin).toLocaleDateString('de-DE'):''}</div>
+            ${a.nachricht?`<div class="ts" style="margin-top:4px;font-style:italic">"${esc(a.nachricht.slice(0,100))}${a.nachricht.length>100?'…':''}"</div>`:''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+            <select style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:var(--s2);color:${statusColor[a.status]||'var(--text)'};font-family:var(--ff)" onchange="updateAnfrageStatus('${a.id}',this.value)">
+              ${['offen','bestaetigt','abgesagt'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+            </select>
+            <button class="btn btn-p btn-sm" onclick="antwortMail('${a.id}')">✉ Antworten</button>
+          </div>
+        </div>
+        <div class="ts" style="margin-top:8px">Eingang: ${new Date(a.created_at).toLocaleString('de-DE')}</div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`; }
+}
+
+async function updateAnfrageStatus(id, status) {
+  const { error } = await getSB().from('buchungsanfragen').update({status}).eq('id',id);
+  if (error) { toast('Fehler: '+error.message,'err'); return; }
+  toast('Status aktualisiert ✓','ok');
+}
+
+function antwortMail(id) {
+  const a = allAnfragen.find(x=>x.id===id); if (!a) return;
+  const k = allKatalog.find(x=>x.id===a.katalog_id);
+  const betreff = encodeURIComponent(`Ihre Buchungsanfrage: ${k?.titel||'EHS-Schulung'}`);
+  const body = encodeURIComponent(
+    `Sehr geehrte/r ${a.ansprechpartner},\n\n` +
+    `vielen Dank für Ihre Buchungsanfrage zur Schulung „${k?.titel||'–'}".\n\n` +
+    `[Hier Ihre Antwort einfügen]\n\n` +
+    `Mit freundlichen Grüßen\nOak Engineering\nEHS-Team`
+  );
+  window.location.href = `mailto:${a.email}?subject=${betreff}&body=${body}`;
+}
+
 function checkURLShare() {
-  const params = new URLSearchParams(window.location.search);
   const shareParam = params.get('share'); if (!shareParam) return;
   try {
     const slim = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
