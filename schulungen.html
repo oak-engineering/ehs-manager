@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>EHS Schulungen – Oak Engineering</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
   --bg:#f5f5f3;--s1:#ffffff;--s2:#f0efec;--s3:#e8e7e3;
@@ -110,6 +111,12 @@ input[type=file]{display:none}
 .proto-head{background:var(--s2);font-weight:600;font-size:12px;color:var(--t2)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+/* QR-Code Styling */
+#qr-canvas{display:flex;justify-content:center;padding:16px 0}
+#qr-canvas canvas,#qr-canvas img{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
+.share-tab{padding:7px 14px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--ff);font-size:13px;border-bottom:2px solid transparent;transition:all .2s}
+.share-tab.on{color:var(--text);border-bottom-color:#1a1a1a}
+.share-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -289,6 +296,87 @@ input[type=file]{display:none}
   </div>
 </div></div>
 
+<!-- MODAL: Schulung teilen -->
+<div class="overlay" id="m-share">
+<div class="modal" style="max-width:500px">
+  <div class="fb" style="margin-bottom:4px">
+    <div class="modal-t" style="margin:0" id="m-share-title">Schulung teilen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-share')">✕</button>
+  </div>
+  <p class="ts" style="margin-bottom:14px" id="m-share-sub"></p>
+
+  <div class="share-tabs">
+    <button class="share-tab on" onclick="switchShareTab('qr')" id="stab-qr">📱 QR-Code</button>
+    <button class="share-tab" onclick="switchShareTab('link')" id="stab-link">🔗 Link</button>
+    <button class="share-tab" onclick="switchShareTab('mail')" id="stab-mail">✉ E-Mail</button>
+  </div>
+
+  <!-- QR Tab -->
+  <div id="share-qr">
+    <div id="qr-canvas"></div>
+    <p class="ts" style="text-align:center;margin-bottom:12px">Aushängen im Werk – Mitarbeiter scannt und startet direkt die Schulung</p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-p btn-sm" onclick="downloadQR()">⬇ QR als PNG laden</button>
+      <button class="btn btn-o btn-sm" onclick="printQR()">🖨 Drucken</button>
+    </div>
+    <div style="margin-top:14px;padding:10px 14px;background:var(--s2);border-radius:8px;font-size:12px;color:var(--t2)">
+      <strong>Hinweis:</strong> Der QR-Code enthält die vollständige Schulung (Fragen + Inhalte). Mitarbeiter brauchen keinen Zugang zur Datenbank – nur einen Browser.
+    </div>
+  </div>
+
+  <!-- Link Tab -->
+  <div id="share-link" style="display:none">
+    <div style="margin-bottom:12px">
+      <label>Direktlink zur Schulung</label>
+      <div style="display:flex;gap:8px">
+        <input id="share-link-input" readonly style="font-size:11px;font-family:var(--fm);background:var(--s3)">
+        <button class="btn btn-p btn-sm" onclick="copyShareLink()">Kopieren</button>
+      </div>
+    </div>
+    <div style="padding:10px 14px;background:var(--s2);border-radius:8px;font-size:12px;color:var(--t2)">
+      <strong>So funktioniert es:</strong> Jeder mit diesem Link öffnet direkt die Schulung. Die Schulungsdaten sind im Link eingebettet – kein Login, kein Zugang zur Datenbank nötig. Protokoll wird lokal im Browser des Teilnehmers gespeichert.
+    </div>
+  </div>
+
+  <!-- Mail Tab -->
+  <div id="share-mail" style="display:none">
+    <div style="margin-bottom:12px">
+      <label>Empfänger-E-Mail (optional – kann auch leer bleiben)</label>
+      <input id="share-mail-to" type="email" placeholder="besucher@firma.de">
+    </div>
+    <div style="margin-bottom:12px">
+      <label>Betreff</label>
+      <input id="share-mail-subject" value="EHS-Unterweisung – bitte durchführen">
+    </div>
+    <div style="margin-bottom:14px">
+      <label>Nachricht (wird automatisch mit Link ergänzt)</label>
+      <textarea id="share-mail-body" rows="4">Guten Tag,
+
+bitte führen Sie die folgende EHS-Unterweisung durch und bestätigen Sie Ihre Teilnahme.
+
+Die Schulung dauert ca. 5–10 Minuten und kann direkt im Browser geöffnet werden:</textarea>
+    </div>
+    <button class="btn btn-p" onclick="sendShareMail()" style="width:100%">✉ E-Mail öffnen (Mail-Client)</button>
+    <p class="ts" style="margin-top:8px;text-align:center">Öffnet Ihren Standard-Mail-Client mit vorausgefüllter Nachricht und Schulungslink.</p>
+  </div>
+</div></div>
+
+<!-- MODAL: Standalone-Abschluss (bei geteilter Schulung) -->
+<div class="overlay" id="m-standalone-done">
+<div class="modal" style="text-align:center;max-width:440px">
+  <div style="font-size:48px;margin-bottom:12px" id="sd-icon">🎉</div>
+  <div class="modal-t" id="sd-title">Schulung abgeschlossen</div>
+  <p style="color:var(--t2);font-size:14px;margin-bottom:16px" id="sd-text"></p>
+  <div id="sd-mail-block" style="display:none;margin-bottom:16px">
+    <label style="text-align:left">Ergebnis per Mail an den Verantwortlichen senden:</label>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input id="sd-mail-to" type="email" placeholder="admin@firma.de" style="flex:1">
+      <button class="btn btn-p btn-sm" onclick="sendErgebnisMail()">Senden</button>
+    </div>
+  </div>
+  <button class="btn btn-p" style="width:100%" onclick="closeM('m-standalone-done')">Schließen</button>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -408,6 +496,7 @@ function renderSchulungList(){
       +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">'
       +'<button class="btn btn-p btn-sm" onclick="startSchulungPlayer(\''+s.id+'\')">▶ Starten</button>'
       +'<div style="display:flex;gap:5px">'
+      +'<button class="btn btn-o btn-sm" onclick="openShareModal(\''+s.id+'\')" title="Teilen / QR-Code">📤</button>'
       +'<button class="btn btn-o btn-sm" onclick="editSchulung(\''+s.id+'\')" title="Bearbeiten">✏</button>'
       +'<button class="btn btn-d btn-sm" onclick="deleteSchulung(\''+s.id+'\')" title="Löschen">🗑</button>'
       +'</div></div></div></div>';
@@ -849,8 +938,231 @@ function exportProtokolleCSV(){
   toast('CSV exportiert ✓','ok');
 }
 
+// ═══════════════════════════════════════════════════════════
+// TEILEN – QR-CODE / LINK / MAIL
+// ═══════════════════════════════════════════════════════════
+
+var shareSchulungId = null;
+
+function buildShareURL(schulungId) {
+  var s = DB.schulungen.find(x => x.id === schulungId);
+  if (!s) return '';
+  // Schulung ohne PDF-Daten für URL (zu groß) – nur Metadaten + Fragen
+  var slim = {
+    id: s.id, titel: s.titel, kategorie: s.kategorie,
+    beschreibung: s.beschreibung, bestehensgrenze: s.bestehensgrenze,
+    gueltigBis: s.gueltigBis, fragen: s.fragen,
+    // PDF weglassen – zu groß für URL. Link zum PDF separat wenn vorhanden
+    pdf_name: s.pdf_name || null
+  };
+  var json = JSON.stringify(slim);
+  var b64 = btoa(unescape(encodeURIComponent(json)));
+  var base = window.location.href.split('?')[0];
+  return base + '?share=' + encodeURIComponent(b64);
+}
+
+function openShareModal(id) {
+  shareSchulungId = id;
+  var s = DB.schulungen.find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('m-share-title').textContent = '📤 Teilen: ' + s.titel;
+  document.getElementById('m-share-sub').textContent = s.kategorie + ' · ' + (s.fragen?.length || 0) + ' Fragen · Bestehen: ' + s.bestehensgrenze + '%';
+  switchShareTab('qr');
+  openM('m-share');
+}
+
+function switchShareTab(tab) {
+  ['qr', 'link', 'mail'].forEach(t => {
+    document.getElementById('share-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('stab-' + t).classList.toggle('on', t === tab);
+  });
+  if (tab === 'qr') buildQRCode();
+  if (tab === 'link') {
+    var url = buildShareURL(shareSchulungId);
+    document.getElementById('share-link-input').value = url;
+  }
+  if (tab === 'mail') {
+    var s = DB.schulungen.find(x => x.id === shareSchulungId);
+    if (s) {
+      document.getElementById('share-mail-subject').value = 'EHS-Unterweisung: ' + s.titel + ' – bitte durchführen';
+    }
+  }
+}
+
+function buildQRCode() {
+  var el = document.getElementById('qr-canvas');
+  el.innerHTML = '';
+  var url = buildShareURL(shareSchulungId);
+  if (!url) { el.innerHTML = '<p class="ts">Fehler beim Erstellen des Links.</p>'; return; }
+  if (url.length > 2953) {
+    // QR-Code Limit überschritten (zu viele Fragen/Text) – gekürzte URL zeigen
+    el.innerHTML = '<p class="ts" style="color:var(--warn);text-align:center;padding:16px">⚠ Schulung zu groß für QR-Code. Bitte Link-Tab verwenden.</p>';
+    return;
+  }
+  try {
+    new QRCode(el, {
+      text: url,
+      width: 220,
+      height: 220,
+      colorDark: '#1a1a1a',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e) {
+    el.innerHTML = '<p class="ts" style="color:var(--nok)">QR-Code konnte nicht erstellt werden.</p>';
+  }
+}
+
+function downloadQR() {
+  var canvas = document.querySelector('#qr-canvas canvas');
+  if (!canvas) { toast('QR-Code noch nicht bereit','err'); return; }
+  var s = DB.schulungen.find(x => x.id === shareSchulungId);
+  var a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'QR_' + (s?.titel || 'Schulung').replace(/[^a-zA-Z0-9]/g,'_') + '.png';
+  a.click();
+  toast('QR-Code heruntergeladen ✓', 'ok');
+}
+
+function printQR() {
+  var canvas = document.querySelector('#qr-canvas canvas');
+  if (!canvas) { toast('QR-Code noch nicht bereit','err'); return; }
+  var s = DB.schulungen.find(x => x.id === shareSchulungId);
+  var img = canvas.toDataURL('image/png');
+  var w = window.open('', '_blank');
+  w.document.write(`
+    <html><head><title>QR-Code – ${s?.titel||'Schulung'}</title>
+    <style>
+      body{font-family:sans-serif;text-align:center;padding:40px;max-width:500px;margin:0 auto}
+      h2{font-size:20px;margin-bottom:8px}
+      p{color:#666;font-size:13px;margin-bottom:24px}
+      img{border:1px solid #ddd;padding:12px;border-radius:8px}
+      .footer{margin-top:20px;font-size:12px;color:#999}
+      @media print{button{display:none}}
+    </style></head><body>
+    <h2>EHS Unterweisung</h2>
+    <h3>${s?.titel||'Schulung'}</h3>
+    <p>${s?.kategorie||''} · Bitte mit dem Smartphone scannen und Schulung durchführen.</p>
+    <img src="${img}" width="220" height="220">
+    <div class="footer">Oak Engineering · EHS Management System</div>
+    <br><button onclick="window.print()">🖨 Drucken</button>
+    </body></html>
+  `);
+  w.document.close();
+}
+
+function copyShareLink() {
+  var url = document.getElementById('share-link-input').value;
+  navigator.clipboard.writeText(url).then(() => toast('Link kopiert ✓', 'ok')).catch(() => {
+    document.getElementById('share-link-input').select();
+    document.execCommand('copy');
+    toast('Link kopiert ✓', 'ok');
+  });
+}
+
+function sendShareMail() {
+  var s = DB.schulungen.find(x => x.id === shareSchulungId);
+  var to = document.getElementById('share-mail-to').value.trim();
+  var subject = encodeURIComponent(document.getElementById('share-mail-subject').value);
+  var body = document.getElementById('share-mail-body').value;
+  var url = buildShareURL(shareSchulungId);
+  var fullBody = encodeURIComponent(body + '\n\n' + url + '\n\nMit freundlichen Grüßen\nIhr EHS-Team – Oak Engineering');
+  window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + fullBody;
+}
+
+// ═══════════════════════════════════════════════════════════
+// URL-SHARE: Standalone-Modus
+// ═══════════════════════════════════════════════════════════
+
+function checkURLShare() {
+  var params = new URLSearchParams(window.location.search);
+  var shareParam = params.get('share');
+  if (!shareParam) return;
+  try {
+    var json = decodeURIComponent(escape(atob(decodeURIComponent(shareParam))));
+    var slim = JSON.parse(json);
+    // Schulung temporär im Speicher halten (nicht persistent)
+    var existing = DB.schulungen.find(x => x.id === slim.id);
+    if (!existing) {
+      DB.schulungen.push(slim);
+      // Nicht speichern – nur für diese Session
+    }
+    // Standalone-Banner zeigen
+    showStandaloneBanner(slim);
+    // Direkt Player starten nach kurzer Verzögerung
+    setTimeout(() => startSchulungPlayerStandalone(slim), 800);
+  } catch(e) {
+    console.warn('Share-URL ungültig:', e);
+  }
+}
+
+function showStandaloneBanner(s) {
+  var main = document.querySelector('.main');
+  var banner = document.createElement('div');
+  banner.style.cssText = 'background:#1a1a1a;color:#fff;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:center;gap:12px;font-size:13px';
+  banner.innerHTML = '<span style="font-size:20px">📚</span><div><div style="font-weight:600">' + esc(s.titel) + '</div><div style="opacity:.7">Sie wurden zu dieser Schulung eingeladen. Bitte wählen Sie Ihren Namen und starten Sie die Schulung.</div></div>';
+  main.prepend(banner);
+}
+
+function startSchulungPlayerStandalone(s) {
+  // Nutzer auswählen lassen wenn noch keiner aktiv
+  if (!DB.activeUser) {
+    openUserPicker();
+    // Nach User-Auswahl automatisch starten
+    var orig = selectUser;
+    selectUser = function(id) {
+      orig(id);
+      selectUser = orig;
+      setTimeout(() => startSchulungPlayer(s.id), 300);
+    };
+    return;
+  }
+  startSchulungPlayer(s.id);
+}
+
+// Override saveProtokolleintrag für Standalone: zeige Abschluss-Modal mit Mail-Option
+var _origSave = null;
+function patchSaveForStandalone(schulungTitel) {
+  _origSave = saveProtokolleintrag;
+  saveProtokolleintrag = function(s, score, bestanden) {
+    _origSave(s, score, bestanden);
+    saveProtokolleintrag = _origSave; // zurücksetzen
+    showStandaloneDone(s, score, bestanden);
+  };
+}
+
+function showStandaloneDone(s, score, bestanden) {
+  document.getElementById('sd-icon').textContent = bestanden ? '🎉' : '❌';
+  document.getElementById('sd-title').textContent = bestanden ? 'Schulung bestanden!' : 'Schulung abgeschlossen';
+  document.getElementById('sd-text').textContent =
+    (DB.activeUser?.name || 'Teilnehmer') + ' · ' + s.titel + '\n' +
+    'Ergebnis: ' + score + '% · ' + (bestanden ? 'Bestanden ✓' : 'Nicht bestanden – bitte erneut versuchen');
+  // Mail-Block für Ergebnis-Weiterleitung
+  document.getElementById('sd-mail-block').style.display = 'block';
+  document.getElementById('_sd_s_ref') ? null : null;
+  window._sdRef = {s, score, bestanden};
+  openM('m-standalone-done');
+}
+
+function sendErgebnisMail() {
+  var ref = window._sdRef || {};
+  var to = document.getElementById('sd-mail-to').value.trim();
+  var subject = encodeURIComponent('EHS-Schulung Ergebnis: ' + (ref.s?.titel || ''));
+  var body = encodeURIComponent(
+    'Schulungsergebnis\n\n' +
+    'Teilnehmer: ' + (DB.activeUser?.name || '–') + '\n' +
+    'Schulung: ' + (ref.s?.titel || '–') + '\n' +
+    'Datum: ' + new Date().toLocaleString('de-DE') + '\n' +
+    'Ergebnis: ' + ref.score + '%\n' +
+    'Status: ' + (ref.bestanden ? 'Bestanden ✓' : 'Nicht bestanden ✗') + '\n\n' +
+    'Gesendet über EHS Management System – Oak Engineering'
+  );
+  window.location.href = 'mailto:' + to + '?subject=' + subject + '&body=' + body;
+}
+
 // ── INIT ─────────────────────────────────────────────────
 updateUserUI();
+checkURLShare(); // Prüfe ob Standalone-Modus via URL
 renderSchulungList();
 </script>
 </body>
