@@ -34,7 +34,9 @@ body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;f
 .app{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .main{flex:1;overflow-y:auto;padding:16px;max-width:980px;margin:0 auto;width:100%;padding-bottom:80px}
 .type-tabs{display:flex;gap:3px;background:var(--s2);border-radius:8px;padding:4px;border:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
-.type-tab{flex:1;min-width:100px;padding:7px 10px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:12px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400}
+.type-tab{flex:1;min-width:80px;padding:8px 6px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:11px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400;line-height:1.4}
+.type-tab br{display:block}
+.type-tab:first-line{font-size:18px}
 .type-tab.on{background:#1a1a1a;color:#fff;font-weight:600}
 label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;font-weight:500}
 input,select,textarea{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
@@ -104,7 +106,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     <span class="logo-module">EHS · Datenbank</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <a href="schulungen.html" class="nav-link">📚 Schulungen</a>
+    <a href="index.html" class="nav-link">← Übersicht</a>
     <span id="role-display"></span>
     <div class="user-chip" onclick="openUserMenuDB()">
       <div class="user-av" id="u-av">?</div>
@@ -121,15 +123,15 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
   </div>
 
   <div class="type-tabs" id="main-tabs">
-    <button class="type-tab on" onclick="switchTab('maschine')"      id="tab-maschine">🏭 Maschinen</button>
-    <button class="type-tab"    onclick="switchTab('gefahrstoff')"   id="tab-gefahrstoff">☣ Gefahrstoffe</button>
-    <button class="type-tab"    onclick="switchTab('arbeitsmittel')" id="tab-arbeitsmittel">🔧 Arbeitsmittel</button>
-    <button class="type-tab"    onclick="switchTab('psa')"           id="tab-psa">🦺 PSA</button>
-    <button class="type-tab"    onclick="switchTab('taetigkeiten')"  id="tab-taetigkeiten">⚙ Tätigkeiten</button>
-    <button class="type-tab"    onclick="switchTab('beauftragte')"   id="tab-beauftragte">👤 Beauftragte</button>
-    <button class="type-tab"    onclick="switchTab('bereiche')"      id="tab-bereiche">🏢 Bereiche</button>
-    <button class="type-tab"    onclick="switchTab('besucher')"      id="tab-besucher">👁 Besucher</button>
-    <button class="type-tab"    onclick="switchTab('rechtskataster')" id="tab-rechtskataster">📜 Rechtskataster</button>
+    <button class="type-tab on" onclick="switchTab('maschine')"       id="tab-maschine">🏭<br>Maschinen</button>
+    <button class="type-tab"    onclick="switchTab('gefahrstoff')"    id="tab-gefahrstoff">☣<br>Gefahrstoffe</button>
+    <button class="type-tab"    onclick="switchTab('arbeitsmittel')"  id="tab-arbeitsmittel">🔧<br>Arbeitsmittel</button>
+    <button class="type-tab"    onclick="switchTab('psa')"            id="tab-psa">🦺<br>PSA</button>
+    <button class="type-tab"    onclick="switchTab('taetigkeiten')"   id="tab-taetigkeiten">⚙<br>Tätigkeiten</button>
+    <button class="type-tab"    onclick="switchTab('beauftragte')"    id="tab-beauftragte">👤<br>Beauftragte</button>
+    <button class="type-tab"    onclick="switchTab('bereiche')"       id="tab-bereiche">🏢<br>Bereiche</button>
+    <button class="type-tab"    onclick="switchTab('besucher')"       id="tab-besucher">👁<br>Besucher</button>
+    <button class="type-tab"    onclick="switchTab('rechtskataster')" id="tab-rechtskataster">📜<br>Rechtskataster</button>
   </div>
 
   <div class="fb" style="margin-bottom:14px">

@@ -124,7 +124,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     <span class="logo-module">EHS · Schulungen</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <a href="index.html" class="nav-btn">← Datenbank</a>
+    <a href="index.html" class="nav-btn">← Übersicht</a>
     <div id="role-display" style="display:none"></div>
     <div class="user-chip" onclick="openUserMenu()">
       <div class="user-av" id="u-av">?</div>
@@ -1827,6 +1827,7 @@ function antwortMail(id) {
 }
 
 function checkURLShare() {
+  const params = new URLSearchParams(window.location.search);
   const shareParam = params.get('share'); if (!shareParam) return;
   try {
     const slim = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
