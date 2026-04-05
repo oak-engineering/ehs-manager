@@ -669,6 +669,28 @@ const checklisteGetAll    = () => objGetAll('checklisten');
 const checklisteSave      = (o) => objSave('checklisten', o);
 const checklisteDelete    = (id) => objDelete('checklisten', id);
 
+// Checklisten-Protokolle
+async function checklisteProtokolleGetAll(objektId = null) {
+  let q = getSB().from('checklisten_protokolle').select('id,data,created_at')
+    .order('created_at', { ascending: false });
+  const { data, error } = await q;
+  if (error) throw error;
+  const all = (data || []).map(r => ({ ...r.data, id: r.id, _created: r.created_at }));
+  return objektId ? all.filter(p => p.objektId === objektId) : all;
+}
+async function checklisteProtokollSave(p) {
+  const { id, _created, ...data } = p;
+  const { error } = await getSB().from('checklisten_protokolle').upsert(
+    { id, data: { ...data, id }, created_at: _created || new Date().toISOString() },
+    { onConflict: 'id' }
+  );
+  if (error) throw error;
+}
+async function checklisteProtokollDelete(id) {
+  const { error } = await getSB().from('checklisten_protokolle').delete().eq('id', id);
+  if (error) throw error;
+}
+
 // PSA, Besucher, Rechtskataster (bleiben in eigenen Tabellen)
 async function psaGetAll() {
   const { data, error } = await getSB().from('psa').select('id,data,updated_at').order('created_at',{ascending:false});
