@@ -116,7 +116,7 @@ input:focus,select:focus{border-color:#1a1a1a}
         <span style="font-size:20px">👥</span>
         <div><div style="font-weight:600">Nutzerverwaltung</div><div class="ts">Rollen & Zugriffsrechte</div></div>
       </button>
-      <button class="admin-btn" onclick="window.location.href='schulungen.html#buchung'">
+      <button class="admin-btn" onclick="window.location.href='schulungen.html'">
         <span style="font-size:20px">🛒</span>
         <div><div style="font-weight:600">Buchungsanfragen</div><div class="ts">Oak Schulungskatalog</div></div>
       </button>
@@ -222,8 +222,16 @@ const MODULES_CONFIG = [
     desc: 'Gefährdungsbeurteilungen KI-gestützt erstellen, Betriebsanweisungen nach TRGS 555 / BetrSichV §12 generieren und exportieren.',
     href: 'gbu.html',
     accent: '#8e44ad',
-    kommt: true,
-    stats: async () => [{ label: 'In Entwicklung', cls: 'warn' }]
+    stats: async () => {
+      try {
+        const gbuListe = await dbGet('gbu_liste') || [];
+        const freigegeben = gbuListe.filter(g=>g.status==='freigegeben').length;
+        return [
+          { label: gbuListe.length + ' GBU', cls: '' },
+          ...(freigegeben ? [{ label: freigegeben + ' freigegeben', cls: 'ok' }] : []),
+        ];
+      } catch { return []; }
+    }
   },
   {
     id: 'dashboard',

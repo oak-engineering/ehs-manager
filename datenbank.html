@@ -141,6 +141,7 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
     </div>
     <div class="gap" id="list-actions">
       <button class="btn btn-p btn-sm write-only" onclick="openAdd()" id="btn-add" style="display:none">+ Anlegen</button>
+      <button class="btn btn-o btn-sm" onclick="openPSAExport()" id="btn-psa-export" style="display:none">📄 PSA-Plan exportieren</button>
     </div>
   </div>
   <div id="obj-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
@@ -362,6 +363,8 @@ function switchTab(tab) {
   document.getElementById('list-title').textContent = labels[tab] || tab;
   const addBtn = document.getElementById('btn-add');
   if (addBtn) addBtn.style.display = canWriteDB ? 'inline-flex' : 'none';
+  const exportBtn = document.getElementById('btn-psa-export');
+  if (exportBtn) exportBtn.style.display = (tab==='psa') ? 'inline-flex' : 'none';
   renderList();
 }
 
@@ -419,7 +422,7 @@ function renderCard(obj) {
     info = [].concat(obj.funktionen||[obj.funktion]).filter(Boolean).join(', ');
   else if (currentTab==='bereiche') {
     const verantw = DB.beauftragte.find(b=>b.id===obj.verantwortlichId);
-    info = verantw ? '👤 '+verantw.name : '';
+    info = [verantw?'👤 '+verantw.name:'', obj.gebaeude?'🏗 '+obj.gebaeude:'', obj.funktion?'🏷 '+obj.funktion:''].filter(Boolean).join(' · ');
   } else if (currentTab==='besucher')
     info = [obj.firma,obj.anlass,obj.von?fmt(obj.von):''].filter(Boolean).join(' · ');
 
@@ -520,19 +523,50 @@ function renderFields(obj) {
       <div><label>Nächste Weiterbildung</label><input id="f-naechste-wb" type="date" value="${obj.naechsteWeiterbildung||''}"></div>
       <div><label>Kostenstelle</label><input id="f-kst" value="${esc(obj.kostenstelle||'')}" placeholder="KST-4711"></div>
     </div>
-    <div><label>Notizen</label><textarea id="f-notizen" rows="2">${obj.notizen||''}</textarea></div>`;
+    <div class="section-block">
+      <div class="section-label">Zertifikate & Nachweise</div>
+      <div id="zert-info" style="margin-bottom:8px;font-size:13px;color:var(--t3)">${obj.zertifikat_name?'📄 '+esc(obj.zertifikat_name):'Noch kein Zertifikat hochgeladen'}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('inp-zertifikat').click()">⬆ Zertifikat hochladen (PDF)</button>
+        <input type="file" id="inp-zertifikat" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadZertifikat(event)">
+        ${obj.zertifikat_datei?`<button type="button" class="btn btn-o btn-sm" onclick="openZertifikat()">📖 Ansehen</button>`:''}
+      </div>
+    </div>
+    <div><label>Freitext / weitere Informationen</label>
+      <textarea id="f-notizen" rows="3" placeholder="Besondere Qualifikationen, Einschränkungen, Kontakthinweise…">${obj.notizen||''}</textarea></div>`;
 
   } else if (t === 'bereiche') {
     h = `<div class="g2">
       <div><label>Bereichsname *</label><input id="f-name" value="${esc(obj.name||'')}" placeholder="Halle 3 – Spritzguss"></div>
-      <div><label>Funktion</label><input id="f-funktion" value="${esc(obj.funktion||'')}" placeholder="Produktionsbereich"></div>
+      <div><label>Funktion / Typ</label><input id="f-funktion" value="${esc(obj.funktion||'')}" placeholder="Produktionsbereich, Lager…"></div>
     </div>
     <div class="g2">
       <div><label>Kostenstelle</label><input id="f-kst" style="font-family:var(--fm)" value="${esc(obj.kostenstelle||'')}" placeholder="KST-4711"></div>
-      <div><label>Bereichsverantwortliche/r</label><select id="f-verantwortlich">
-        <option value="">– keine/r –</option>
-        ${DB.beauftragte.map(b=>`<option value="${b.id}" ${obj.verantwortlichId===b.id?'selected':''}>${b.name} (${(b.funktionen||[b.funktion])[0]||''})</option>`).join('')}
-      </select>${DB.beauftragte.length===0?'<div class="ts" style="color:var(--warn);margin-top:4px">⚠ Zuerst Beauftragte anlegen</div>':''}</div>
+      <div><label>Gebäude / Stockwerk</label><input id="f-gebaeude" value="${esc(obj.gebaeude||'')}" placeholder="Gebäude A, EG"></div>
+    </div>
+    <div class="section-block">
+      <div class="section-label">Bereichsverantwortliche/r</div>
+      <div id="verantw-existing" style="margin-bottom:10px">
+        <label>Bestehende Person auswählen</label>
+        <select id="f-verantwortlich">
+          <option value="">– keine/r –</option>
+          ${DB.beauftragte.map(b=>`<option value="${b.id}" ${obj.verantwortlichId===b.id?'selected':''}>${b.name}${b.funktionen?.length?' · '+b.funktionen[0]:b.funktion?' · '+b.funktion:''}</option>`).join('')}
+        </select>
+      </div>
+      <div style="text-align:center;font-size:12px;color:var(--t3);margin:8px 0">– oder neu anlegen –</div>
+      <div id="verantw-neu-toggle">
+        <button type="button" class="btn btn-o btn-sm" onclick="toggleVerantwNeu()">+ Neue Person direkt anlegen</button>
+      </div>
+      <div id="verantw-neu" style="display:none;margin-top:10px;padding:12px;background:var(--s3);border-radius:6px;border:1px solid var(--border)">
+        <div class="g2" style="margin-bottom:8px">
+          <div><label>Name *</label><input id="vn-name" placeholder="Max Mustermann"></div>
+          <div><label>Funktion</label><input id="vn-funktion" placeholder="Schichtleiter, Vorarbeiter…"></div>
+        </div>
+        <div class="g2">
+          <div><label>E-Mail</label><input id="vn-email" type="email" placeholder="max@firma.de"></div>
+          <div><label>Telefon</label><input id="vn-tel" placeholder="+49 821…"></div>
+        </div>
+      </div>
     </div>
     <div><label>Notizen</label><textarea id="f-notizen" rows="2">${obj.notizen||''}</textarea></div>`;
 
@@ -578,14 +612,13 @@ function renderFields(obj) {
       <div><label>Nächste Prüfung</label><input id="f-naechste" type="date" value="${obj.naechstePruefung||''}"></div>
     </div>
     <div class="section-block">
-      <div class="section-label">Verwendung</div>
-      <div class="g2">
-        <div><label>Zugeordnete Tätigkeiten</label><select id="f-taetigkeitenIds" multiple style="min-height:80px">
-          ${DB.taetigkeiten.map(t=>`<option value="${t.id}" ${(obj.taetigkeitenIds||[]).includes(t.id)?'selected':''}>${t.name}</option>`).join('')}
-        </select><div class="ts">Strg+Klick für Mehrfachauswahl</div></div>
-        <div><label>Zugeordnete Gefahrstoffe</label><select id="f-gefahrstoffIds" multiple style="min-height:80px">
-          ${DB.gefahrstoffe.map(g=>`<option value="${g.id}" ${(obj.gefahrstoffIds||[]).includes(g.id)?'selected':''}>${g.name}</option>`).join('')}
-        </select><div class="ts">Strg+Klick für Mehrfachauswahl</div></div>
+      <div class="section-label">Externe Datenquelle</div>
+      <div><label>Produktlink (Hersteller / Händler)</label>
+        <div style="display:flex;gap:8px">
+          <input id="f-produktlink" value="${esc(obj.produktlink||'')}" placeholder="https://www.uvex-safety.com/produkt/..." style="flex:1">
+          ${obj.produktlink?`<button type="button" class="btn btn-o btn-sm" onclick="window.open('${esc(obj.produktlink)}','_blank')">🔗 Öffnen</button>`:''}
+        </div>
+        <div class="ts" style="margin-top:4px">Link zum Datenblatt oder Produktseite – für schnellen Zugriff auf aktuelle Herstellerangaben</div>
       </div>
     </div>
     <div><label>Notizen / Anwendungshinweise</label><textarea id="f-notizen" rows="2">${obj.notizen||''}</textarea></div>`;
@@ -733,19 +766,39 @@ function renderMaschineForm(obj) {
 }
 
 // ── Arbeitsmittel-Formular ────────────────────────────────
+const AM_PRUEFGRUND = {
+  'Leiter / Aufstiegshilfe': 'DGUV Regel 108-007, jährlich durch Beauftragten',
+  'Hebezeug / Kran': 'DGUV V54 §23, jährlich durch ZÜS',
+  'Handwerkzeug': 'DGUV V3, nach Bedarf / bei Defekten',
+  'Elektrowerkzeug': 'DGUV V3, jährlich oder nach Instandsetzung',
+  'Förderfahrzeug': 'DGUV V68 §57, jährlich durch Sachkundigen',
+  'Behälter / Kanister': 'BetrSichV Anhang 2, laut Herstellerangabe',
+  'Messgerät': 'MessEG §31, laut Kalibrierplan',
+  'Schutzeinrichtung': 'BetrSichV §14, mindestens jährlich',
+  'Sonstiges': ''
+};
+
+function amSetPruefgrund(kat) {
+  const el = document.getElementById('f-pruefgrund');
+  if (el && !el.dataset.manuell) el.value = AM_PRUEFGRUND[kat] || '';
+}
+
 function renderArbeitsmittelForm(obj) {
+  const defaultPruef = AM_PRUEFGRUND[obj.kategorie || 'Leiter / Aufstiegshilfe'] || '';
   return `<div class="g2">
     <div><label>Bezeichnung *</label><input id="f-name" value="${esc(obj.name||'')}" placeholder="Anlegeleiter 4m"></div>
     <div><label>Inventar-Nr.</label><input id="f-id-nr" style="font-family:var(--fm)" value="${esc(obj.id_nr||'')}" placeholder="AM-001"></div>
   </div>
   <div class="g2">
-    <div><label>Kategorie</label><select id="f-kategorie">
+    <div><label>Kategorie</label><select id="f-kategorie" onchange="amSetPruefgrund(this.value)">
       ${['Leiter / Aufstiegshilfe','Hebezeug / Kran','Handwerkzeug','Elektrowerkzeug','Förderfahrzeug','Behälter / Kanister','Messgerät','Schutzeinrichtung','Sonstiges'].map(k=>`<option ${obj.kategorie===k?'selected':''}>${k}</option>`).join('')}
     </select></div>
     <div><label>Bereich</label><select id="f-bereichId"><option value="">–</option>${DB.bereiche.map(b=>`<option value="${b.id}" ${obj.bereichId===b.id?'selected':''}>${b.name}</option>`).join('')}</select></div>
   </div>
   <div class="g2">
-    <div><label>Prüfgrundlage</label><input id="f-pruefgrund" value="${esc(obj.pruefgrund||'')}" placeholder="DGUV V54"></div>
+    <div><label>Prüfgrundlage <span class="ts">(je Kategorie vorausgefüllt)</span></label>
+      <input id="f-pruefgrund" value="${esc(obj.pruefgrund||defaultPruef)}" placeholder="DGUV V54"
+        oninput="this.dataset.manuell='1'"></div>
     <div><label>Nächste Prüfung</label><input id="f-naechste" type="date" value="${obj.naechsteP||''}"></div>
   </div>
   <div><label>Notizen</label><textarea id="f-notizen" rows="2">${obj.notizen||''}</textarea></div>`;
@@ -787,11 +840,20 @@ async function saveObj() {
         kostenstelle: document.getElementById('f-kst')?.value.trim()
       });
     } else if (t==='bereiche') {
+      // Ggf. neuen Verantwortlichen anlegen
+      let verantwId = document.getElementById('f-verantwortlich')?.value||'';
+      const vnName = document.getElementById('vn-name')?.value.trim();
+      if (vnName) {
+        verantwId = await saveBereichVerantwortlichen();
+      }
       Object.assign(obj, {
         funktion: document.getElementById('f-funktion')?.value.trim(),
+        gebaeude: document.getElementById('f-gebaeude')?.value.trim(),
         kostenstelle: document.getElementById('f-kst')?.value.trim(),
-        verantwortlichId: document.getElementById('f-verantwortlich')?.value
+        verantwortlichId: verantwId,
       });
+      if (prev) arr[arr.indexOf(prev)]=obj; else arr.push(obj);
+      await saveArr(t);
     } else if (t==='besucher') {
       Object.assign(obj, {
         firma: document.getElementById('f-firma')?.value.trim(),
@@ -816,6 +878,7 @@ async function saveObj() {
         taetigkeitenIds: getMulti('f-taetigkeitenIds'),
         gefahrstoffIds: getMulti('f-gefahrstoffIds')
       });
+      obj.produktlink = document.getElementById('f-produktlink')?.value.trim()||null;
       await psaSave(obj);
       DB.psa = await psaGetAll();
     } else if (t==='taetigkeiten') {
@@ -878,7 +941,16 @@ async function saveObj() {
       if (pendingSDB) { obj.sdb_datei=pendingSDB.dataUrl; obj.sdb_name=pendingSDB.name; obj.sdb_datum=pendingSDB.datum; pendingSDB=null; }
       if (prev) arr[arr.indexOf(prev)]=obj; else arr.push(obj);
       await saveArr(t);
-    } else if (t==='beauftragte' || t==='bereiche') {
+    } else if (t==='beauftragte') {
+      // Zertifikat mitgeben falls hochgeladen
+      if (_pendingZertifikat) {
+        obj.zertifikat_datei = _pendingZertifikat.dataUrl;
+        obj.zertifikat_name  = _pendingZertifikat.name;
+        _pendingZertifikat   = null;
+      } else if (prev) {
+        obj.zertifikat_datei = prev.zertifikat_datei || null;
+        obj.zertifikat_name  = prev.zertifikat_name  || null;
+      }
       if (prev) arr[arr.indexOf(prev)]=obj; else arr.push(obj);
       await saveArr(t);
     }
@@ -995,7 +1067,7 @@ function renderRechtskatasterList() {
         <div class="chat-msg chat-ai">Guten Tag! Stellen Sie mir Fragen zu Ihren hochgeladenen Dokumenten, Gesetzen und Normen.</div>
       </div>
       <div style="display:flex;gap:6px">
-        <input id="chat-q" placeholder="Frage eingeben…" style="flex:1;font-size:13px;padding:8px 10px" onkeydown="if(event.key==='Enter')sendChat()">
+        <input id="chat-q" placeholder="Frage eingeben…" autocomplete="off" style="flex:1;font-size:13px;padding:8px 10px" onkeydown="if(event.key==='Enter')sendChat()">
         <button class="btn btn-p btn-sm" onclick="sendChat()"><span class="spinner" id="chat-sp" style="display:none"></span>→</button>
       </div>
     </div>
@@ -1106,6 +1178,120 @@ async function sendChat() {
   } catch(e) {
     msgs.innerHTML += `<div class="chat-msg chat-ai" style="color:var(--nok)">Fehler: ${esc(e.message)}</div>`;
   } finally { sp.style.display='none'; }
+}
+
+// ── Bereiche: Neuen Verantwortlichen anlegen ──────────────
+function toggleVerantwNeu() {
+  const el = document.getElementById('verantw-neu');
+  const btn = document.getElementById('verantw-neu-toggle');
+  const visible = el.style.display !== 'none';
+  el.style.display = visible ? 'none' : 'block';
+  btn.innerHTML = visible ? '+ Neue Person direkt anlegen' : '✕ Abbrechen';
+}
+
+// Wird beim Speichern von Bereichen aufgerufen um ggf. neue Person anzulegen
+async function saveBereichVerantwortlichen() {
+  const name = document.getElementById('vn-name')?.value.trim();
+  if (!name) return null; // kein neuer Verantwortlicher
+  const neu = {
+    id: uid('BEAUF'),
+    name,
+    funktionen: [document.getElementById('vn-funktion')?.value.trim() || 'Bereichsverantwortliche/r'],
+    funktion: document.getElementById('vn-funktion')?.value.trim() || 'Bereichsverantwortliche/r',
+    email: document.getElementById('vn-email')?.value.trim(),
+    tel: document.getElementById('vn-tel')?.value.trim(),
+    createdAt: new Date().toISOString()
+  };
+  DB.beauftragte.push(neu);
+  await dbSet('beauftragte', DB.beauftragte);
+  return neu.id;
+}
+
+// ── Beauftragte: Zertifikat ───────────────────────────────
+let _pendingZertifikat = null;
+
+function uploadZertifikat(e) {
+  const file = e.target.files[0]; if (!file) return;
+  if (file.size > 10*1024*1024) { toast('Max. 10 MB','err'); return; }
+  const r = new FileReader();
+  r.onload = ev => {
+    _pendingZertifikat = { dataUrl: ev.target.result, name: file.name };
+    const el = document.getElementById('zert-info');
+    if (el) el.innerHTML = `<span style="color:var(--ok)">✓ ${esc(file.name)}</span>`;
+    toast(file.name + ' bereit ✓', 'ok');
+  };
+  r.readAsDataURL(file); e.target.value = '';
+}
+
+function openZertifikat() {
+  const editId = document.getElementById('obj-edit-id')?.value;
+  const obj = editId ? DB.beauftragte.find(x=>x.id===editId) : null;
+  const url = _pendingZertifikat?.dataUrl || obj?.zertifikat_datei;
+  if (!url) return;
+  const w = window.open(); w.document.write('<iframe src="'+url+'" style="width:100%;height:100vh;border:none"></iframe>');
+}
+
+// ── PSA-Export ────────────────────────────────────────────
+function openPSAExport() {
+  if (!DB.psa?.length) { toast('Keine PSA-Artikel vorhanden','err'); return; }
+  const typen = [...new Set(DB.psa.map(p=>p.typ).filter(Boolean))];
+  const auswahl = typen.map(t=>`
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--s2);cursor:pointer;font-weight:400">
+      <input type="checkbox" value="${t}" checked style="accent-color:#1a1a1a;width:auto"> ${t}
+    </label>`).join('');
+  const div = document.createElement('div');
+  div.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px';
+  div.innerHTML=`<div style="background:#fff;border-radius:10px;padding:24px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.12)">
+    <div style="font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:6px">PSA-Plan exportieren</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:16px">Wählen Sie die PSA-Kategorien für den Export</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">${auswahl}</div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-o" onclick="this.closest('[style*=fixed]').remove()">Abbrechen</button>
+      <button class="btn btn-p" onclick="exportPSAPlan(this.closest('[style*=fixed]'))">📄 PDF-Plan erstellen</button>
+    </div>
+  </div>`;
+  document.body.appendChild(div);
+}
+
+function exportPSAPlan(overlay) {
+  const selected = [...overlay.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
+  overlay.remove();
+  const items = DB.psa.filter(p=>selected.includes(p.typ));
+  const gruppen = {};
+  items.forEach(p=>{ if(!gruppen[p.typ])gruppen[p.typ]=[]; gruppen[p.typ].push(p); });
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+  <title>PSA-Plan – Oak Engineering</title>
+  <style>body{font-family:'Segoe UI',sans-serif;max-width:900px;margin:0 auto;padding:32px;color:#1a1a1a}
+  h1{font-size:22px;margin-bottom:4px}
+  .meta{font-size:13px;color:#666;margin-bottom:24px}
+  h2{font-size:16px;font-weight:700;border-bottom:2px solid #1a1a1a;padding-bottom:6px;margin:20px 0 12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px}
+  th{background:#1a1a1a;color:#fff;padding:8px 12px;text-align:left;font-weight:500}
+  td{padding:8px 12px;border-bottom:1px solid #e0e0e0}
+  tr:nth-child(even)td{background:#f9f9f9}
+  .link{color:#2980b9;text-decoration:none;font-size:12px}
+  @media print{button{display:none}}
+  </style></head><body>
+  <h1>PSA-Plan</h1>
+  <div class="meta">Oak Engineering · Stand: ${new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'long',year:'numeric'})}</div>
+  <button onclick="window.print()" style="padding:8px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px">🖨 Drucken / PDF</button>
+  ${Object.entries(gruppen).map(([typ,liste])=>`
+    <h2>${typ}</h2>
+    <table><thead><tr>
+      <th>Bezeichnung</th><th>Norm</th><th>Kategorie</th><th>Hersteller / Art.-Nr.</th><th>Zertifikat</th><th>Prüfung</th>
+    </tr></thead><tbody>
+    ${liste.map(p=>`<tr>
+      <td><strong>${p.name||'–'}</strong>${p.notizen?`<br><span style="color:#666;font-size:11px">${p.notizen}</span>`:''}</td>
+      <td>${p.norm||'–'}</td>
+      <td>${p.kategorie||'–'}</td>
+      <td>${p.lieferant||'–'}${p.artikelnr?' · '+p.artikelnr:''}</td>
+      <td>${p.zertifikat||'–'}</td>
+      <td>${p.naechstePruefung?new Date(p.naechstePruefung).toLocaleDateString('de-DE'):'–'}</td>
+    </tr>`).join('')}
+    </tbody></table>`).join('')}
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+  toast('PSA-Plan erstellt ✓','ok');
 }
 </script>
 </body>
