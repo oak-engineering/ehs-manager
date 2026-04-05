@@ -112,6 +112,10 @@
     <svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg>
   </div>
 
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Sidebar ein-/ausklappen">
+    <svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg>
+  </button>
+
   <div class="sb-footer">
     <div class="sb-user" onclick="openUserMenuModal()">
       <div class="sb-avatar" id="sb-av">?</div>
@@ -294,7 +298,13 @@ function closeM(id){document.getElementById(id)?.classList.remove('on');}
 
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  if (_collapsed) _applySidebarCollapsed(true);
+  // Sidebar-Zustand aus localStorage herstellen
+  if (_collapsed) { 
+    const sb = document.getElementById('sidebar');
+    if (sb) sb.classList.add('collapsed');
+    const icon = document.getElementById('sb-toggle-icon');
+    if (icon) icon.innerHTML = '<polyline points="4,2 7,5 4,8"/>';
+  }
   requireAuth(async (user, profile) => {
     _profile = profile;
     document.getElementById('app-root').style.display = 'flex';
@@ -319,10 +329,15 @@ function updateUI(p) {
   // Admin-Elemente
   const admin = p?.rolle === 'admin';
   document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
-  // Firma
-  getOrgSettings().then(s => {
-    if (s.firmenname) document.getElementById('sb-firm').textContent = s.firmenname;
-  });
+  // Firma aus Einstellungen laden
+  try {
+    getOrgSettings().then(s => {
+      if (s?.firmenname) {
+        const el = document.getElementById('sb-firm');
+        if (el) el.textContent = s.firmenname;
+      }
+    }).catch(()=>{});
+  } catch(e) {}
   // Aktuellen Nav-Link markieren
   document.getElementById('snav-dashboard')?.classList.remove('active');
 }
