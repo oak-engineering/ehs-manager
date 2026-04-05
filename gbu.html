@@ -35,6 +35,17 @@
   </nav>
   <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
   <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)" title="Dark Mode">
+        <span id="dark-mode-label" style="display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <span class="sb-label">Dark Mode</span>
+        </span>
+        <div id="dark-toggle" onclick="toggleDarkMode(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
+          <div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+        </div>
+      </label>
+    </div>
     <div class="sb-user" onclick="openUserMenu()">
       <div class="sb-avatar" id="u-av">?</div>
       <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
@@ -59,7 +70,7 @@
   </div>
 </nav>
 <div class="content">
-  <div class="view-tabs">
+  <div class="tabs">
     <button class="view-tab on" onclick="switchView('gbu')"        id="vtab-gbu">📋<br>GBU</button>
     <button class="view-tab"    onclick="switchView('taetigkeiten')" id="vtab-taetigkeiten">⚙<br>Tätigkeiten</button>
     <button class="view-tab"    onclick="switchView('prueffragen')" id="vtab-prueffragen">✅<br>Prüffragen</button>
@@ -104,7 +115,7 @@
         <button class="btn btn-o btn-sm" onclick="exportPruefprotokoll()">📄 Protokoll exportieren</button>
       </div>
     </div>
-    <div class="view-tabs" style="margin-bottom:16px">
+    <div class="tabs" style="margin-bottom:16px">
       <button class="view-tab on" onclick="switchPruefKat('maschinen')"    id="pkat-maschinen">🏭<br>Maschinen</button>
       <button class="view-tab"    onclick="switchPruefKat('gefahrstoffe')" id="pkat-gefahrstoffe">☣<br>Gefahrstoffe</button>
       <button class="view-tab"    onclick="switchPruefKat('arbeitsmittel')" id="pkat-arbeitsmittel">🔧<br>Arbeitsmittel</button>
@@ -824,6 +835,27 @@ function exportPruefprotokoll(){
   </body></html>`;
   const w=window.open('','_blank');w.document.write(html);w.document.close();
   toast('Prüfprotokoll exportiert ✓','ok');
+}
+
+// ── Dark Mode Toggle ──────────────────────────────────────
+function initDarkToggle() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  updateDarkToggleUI(isDark);
+}
+
+function toggleDarkMode(e) {
+  e && e.stopPropagation();
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  localStorage.setItem('ehs_theme', isDark ? 'dark' : 'light');
+  updateDarkToggleUI(isDark);
+}
+
+function updateDarkToggleUI(isDark) {
+  const toggle = document.getElementById('dark-toggle');
+  const knob = document.getElementById('dark-knob');
+  if (toggle) toggle.style.background = isDark ? '#1a1a1a' : 'var(--border2)';
+  if (knob) knob.style.left = isDark ? '18px' : '2px';
 }
 </script>
 </body>
