@@ -6,119 +6,64 @@
 <title>EHS Datenbank – Oak Engineering</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#f5f5f3;--s1:#ffffff;--s2:#f0efec;--s3:#e8e7e3;
-  --border:#d8d7d2;--b2:#c0bfba;--accent:#1a1a1a;--a2:#4a4a4a;
-  --ok:#2d6a2d;--nok:#c0392b;--warn:#b7860a;
-  --text:#1a1a1a;--t2:#555550;--t3:#999990;
-  --r:8px;--ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;--fh:'Barlow',sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
-.topnav{height:56px;background:#1a1a1a;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.logo-wrap{display:flex;align-items:center;gap:12px}
-.logo-img{height:30px;width:auto;display:block;filter:invert(1)}
-.logo-divider{width:1px;height:22px;background:rgba(255,255,255,.2)}
-.logo-module{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase}
-.nav-link{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.8);text-decoration:none;font-family:var(--ff)}
-.nav-link:hover{background:rgba(255,255,255,.18)}
-.user-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.75)}
-.user-chip:hover{background:rgba(255,255,255,.15)}
-.user-av{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1a1a1a}
-.role-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.role-admin{background:rgba(183,134,10,.2);color:#b7860a;border:1px solid rgba(183,134,10,.3)}
-.role-ma{background:rgba(45,106,45,.15);color:#2d6a2d;border:1px solid rgba(45,106,45,.25)}
-.app{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.main{flex:1;overflow-y:auto;padding:16px;max-width:980px;margin:0 auto;width:100%;padding-bottom:80px}
-.type-tabs{display:flex;gap:3px;background:var(--s2);border-radius:8px;padding:4px;border:1px solid var(--border);margin-bottom:16px;flex-wrap:wrap}
-.type-tab{flex:1;min-width:80px;padding:8px 6px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:11px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400;line-height:1.4}
-.type-tab br{display:block}
-.type-tab:first-line{font-size:18px}
-.type-tab.on{background:#1a1a1a;color:#fff;font-weight:600}
-label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;font-weight:500}
-input,select,textarea{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
-textarea{resize:vertical;min-height:70px}
-select option{background:var(--s2)}
-input[type=file]{display:none}
-input[type=checkbox]{width:auto;accent-color:#1a1a1a}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px}
-@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}}
-.btn{padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-family:var(--ff);font-size:13px;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
-.btn-p{background:#1a1a1a;color:#fff}.btn-p:hover{background:#333}
-.btn-ok{background:var(--ok);color:#fff}
-.btn-o{background:transparent;border:1px solid var(--border);color:var(--t2)}.btn-o:hover{border-color:var(--accent);color:var(--text)}
-.btn-d{background:transparent;border:1px solid rgba(192,57,43,.3);color:var(--nok)}.btn-d:hover{background:rgba(192,57,43,.06)}
-.btn-warn{background:rgba(183,134,10,.1);border:1px solid rgba(183,134,10,.3);color:var(--warn)}
-.btn-sm{padding:6px 11px;font-size:12px}
-.gap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.fb{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.badge{display:inline-block;padding:3px 8px;border-radius:20px;font-size:11px;font-family:var(--fm)}
-.b-ok{background:rgba(45,106,45,.1);color:var(--ok);border:1px solid rgba(45,106,45,.25)}
-.b-nok{background:rgba(192,57,43,.1);color:var(--nok);border:1px solid rgba(192,57,43,.25)}
-.b-warn{background:rgba(183,134,10,.1);color:var(--warn);border:1px solid rgba(183,134,10,.25)}
-.b-info{background:rgba(26,26,26,.07);color:var(--a2);border:1px solid rgba(26,26,26,.15)}
-.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
-.obj-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
-.obj-card:hover{border-color:var(--b2)}
-.obj-card-body{padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
-.overlay.on{display:flex}
-.modal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:640px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,.1)}
-.modal-wide{max-width:800px}
-.modal-t{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:18px}
-.modal-act{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
-.section-block{background:var(--s2);border-radius:7px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
-.section-label{font-family:var(--fm);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;color:var(--t2)}
-.ts{font-size:12px;color:var(--t3)}
-.font-mono{font-family:var(--fm)}
-.divider{height:1px;background:var(--border);margin:14px 0}
-.empty{text-align:center;padding:50px 20px;color:var(--t3)}
-.empty-i{font-size:44px;margin-bottom:12px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid #333;border-radius:7px;padding:10px 20px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;color:#fff}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{background:var(--ok)}.toast.err{background:var(--nok)}
-.sdb-block{background:rgba(192,57,43,.04);border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:14px;margin-bottom:12px}
-.sdb-block.ok{background:rgba(45,106,45,.04);border-color:rgba(45,106,45,.2)}
-.doc-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;background:rgba(26,26,26,.07);border:1px solid rgba(26,26,26,.15);color:var(--text);font-size:12px;cursor:pointer}
-.doc-chip:hover{background:rgba(26,26,26,.12)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
-.chat-msg{padding:10px 14px;border-radius:8px;margin-bottom:8px;font-size:13px;line-height:1.6;max-width:85%}
-.chat-user{background:#1a1a1a;color:#fff;margin-left:auto;border-radius:8px 8px 2px 8px}
-.chat-ai{background:var(--s2);border:1px solid var(--border);border-radius:8px 8px 8px 2px}
-/* Readonly-Overlay für Lesezugriff */
-.readonly-overlay{position:absolute;inset:0;background:rgba(245,245,243,.6);z-index:10;border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:not-allowed}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="app-content" style="display:none;flex-direction:column;height:100%">
+<div id="app-root" style="display:none">
 
-<nav class="topnav">
-  <div class="logo-wrap">
-    <img src="logo.png" alt="Oak Engineering" class="logo-img">
-    <div class="logo-divider"></div>
-    <span class="logo-module">EHS · Datenbank</span>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon">
+      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
+    </div>
+    <div class="sb-logo-text">
+      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
+      <div class="sb-logo-sub">Oak Engineering</div>
+    </div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <div class="sb-section">Verwaltung</div>
+    <div class="sb-item admin-only" onclick="openSettingsModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2"/></svg></span><span class="sb-label">Einstellungen</span></div>
+    <div class="sb-item admin-only" onclick="openNutzerModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="sb-label">Nutzerverwaltung</span></div>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div class="sb-user" onclick="openUserMenuDB()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <a href="index.html" class="nav-link">← Übersicht</a>
-    <span id="role-display"></span>
-    <div class="user-chip" onclick="openUserMenuDB()">
-      <div class="user-av" id="u-av">?</div>
-      <span id="u-name">–</span>
+</aside>
+
+<!-- MAIN -->
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <span class="nav-crumb">EHS Manager</span>
+    <span class="nav-sep">›</span>
+    <span class="nav-page">Datenbank</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" id="top-admin-badge" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenuDB()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
     </div>
   </div>
 </nav>
 
-<div class="app"><div class="main">
+<div class="content">
 
   <!-- Readonly-Banner -->
-  <div id="readonly-banner" style="display:none;padding:8px 14px;background:rgba(183,134,10,.08);border:1px solid rgba(183,134,10,.25);border-radius:8px;margin-bottom:14px;font-size:13px;color:var(--warn)">
+  <div id="readonly-banner" class="warn-box" style="display:none;margin-bottom:14px">
     👁 Sie haben nur Lesezugriff auf die Datenbank. Änderungen sind nicht möglich.
   </div>
 
@@ -146,8 +91,9 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
   </div>
   <div id="obj-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
 
-</div></div>
-</div><!-- /app-content -->
+</div><!-- /content -->
+</div><!-- /main-area -->
+</div><!-- /app-root -->
 
 <!-- MODAL: Anlegen/Bearbeiten -->
 <div class="overlay" id="m-obj" onclick="if(event.target===this)closeM('m-obj')">
@@ -271,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
   requireAuth(async (user, profile) => {
     currentProfile = profile;
     canWriteDB = canWrite('datenbank', profile);
-    document.getElementById('app-content').style.display = 'flex';
+    document.getElementById('app-root').style.display = 'flex';
     updateNavUI();
     applyWriteUI();
     if (!canRead('datenbank', profile)) { showAccessDenied('datenbank'); return; }
@@ -282,10 +228,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function updateNavUI() {
   const p = currentProfile;
-  document.getElementById('u-av').textContent = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
+  const kz = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
+  document.getElementById('u-av').textContent = kz;
   document.getElementById('u-name').textContent = p?.name || '–';
-  const rd = document.getElementById('role-display');
-  rd.innerHTML = `<span class="role-badge ${p?.rolle==='admin'?'role-admin':'role-ma'}">${p?.rolle==='admin'?'Admin':'Mitarbeiter'}</span>`;
+  const r = document.getElementById('u-role'); if(r) r.textContent = p?.rolle==='admin'?'Administrator':'Mitarbeiter';
+  document.getElementById('top-uname').textContent = p?.name || '–';
+  const admin = p?.rolle === 'admin';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
+  // Sidebar
+  try { getOrgSettings().then(s=>{ if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;} }).catch(()=>{}); } catch(e) {}
+  const col = localStorage.getItem('sb_collapsed')==='1';
+  if(col){ document.getElementById('sidebar')?.classList.add('collapsed'); const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>'; }
 }
 
 function applyWriteUI() {
@@ -296,17 +249,17 @@ function applyWriteUI() {
 
 async function loadAllData() {
   try {
-    // Daten aus Supabase laden (key/value Tabelle für Bestandsdaten)
+    // Neue Einzelobjekt-Tabellen (je Objekt eine Zeile)
     const [masch, gefahr, arbeit, beauf, ber, taet] = await Promise.all([
-      dbGet('maschinen'), dbGet('gefahrstoffe'), dbGet('arbeitsmittel'),
-      dbGet('beauftragte'), dbGet('bereiche'), dbGet('taetigkeiten')
+      maschinGetAll(), gefahrstoffGetAll(), arbeitsmittelGetAll(),
+      beauftragterGetAll(), bereichGetAll(), taetigkeitGetAll()
     ]);
-    DB.maschinen    = masch    || S_get('po_maschinen', []);
-    DB.gefahrstoffe = gefahr   || S_get('po_gefahrstoffe', []);
-    DB.arbeitsmittel= arbeit   || S_get('po_arbeitsmittel', []);
-    DB.beauftragte  = beauf    || S_get('po_beauftragte', []);
-    DB.bereiche     = ber      || S_get('po_bereiche', []);
-    DB.taetigkeiten = taet     || S_get('po_taetigkeiten', []);
+    DB.maschinen    = masch    || [];
+    DB.gefahrstoffe = gefahr   || [];
+    DB.arbeitsmittel= arbeit   || [];
+    DB.beauftragte  = beauf    || [];
+    DB.bereiche     = ber      || [];
+    DB.taetigkeiten = taet     || [];
     // Neue Tabellen
     [DB.psa, DB.besucher, DB.rechtskataster, DB.profiles] = await Promise.all([
       psaGetAll(), besucherGetAll(), rechtskatasterGetAll(), profilesGetAll()
@@ -321,14 +274,40 @@ function S_get(key, def) { try { const v=localStorage.getItem(key); return v?JSO
 
 async function saveArr(tabKey) {
   if (!canWriteDB) { toast('Kein Schreibzugriff','err'); return; }
-  const map = {
-    maschine:'maschinen', gefahrstoff:'gefahrstoffe', arbeitsmittel:'arbeitsmittel',
-    beauftragte:'beauftragte', bereiche:'bereiche', taetigkeiten:'taetigkeiten'
+  // Mapping von Tab-Key → DB-Array + Saver-Funktion
+  const cfg = {
+    maschine:      { arr:'maschinen',    fn: maschinSave },
+    maschinen:     { arr:'maschinen',    fn: maschinSave },
+    gefahrstoff:   { arr:'gefahrstoffe', fn: gefahrstoffSave },
+    gefahrstoffe:  { arr:'gefahrstoffe', fn: gefahrstoffSave },
+    arbeitsmittel: { arr:'arbeitsmittel',fn: arbeitsmittelSave },
+    beauftragte:   { arr:'beauftragte',  fn: beauftragterSave },
+    bereiche:      { arr:'bereiche',     fn: bereichSave },
+    taetigkeiten:  { arr:'taetigkeiten', fn: taetigkeitSave },
+    taetigkeiten:  { arr:'taetigkeiten', fn: taetigkeitSave },
   };
-  const dbKey = map[tabKey] || tabKey;
-  if (DB[dbKey] !== undefined) {
-    try { await dbSet(dbKey, DB[dbKey]); } catch(e) { toast('Sync-Fehler: ' + e.message, 'err'); }
+  const c = cfg[tabKey];
+  if (c && c.fn) {
+    // Einzelobjekt-Tabellen: alle Objekte einzeln upserten
+    await Promise.all((DB[c.arr]||[]).map(obj => c.fn(obj)));
+  } else {
+    // PSA, Besucher etc. über eigene Helfer
+    try { await dbSet(tabKey, DB[tabKey]||[]); } catch(e) { toast('Sync-Fehler: '+e.message,'err'); }
   }
+}
+
+async function deleteFromArr(tabKey, id) {
+  if (!canWriteDB) { toast('Kein Schreibzugriff','err'); return; }
+  const delMap = {
+    maschine: maschinDelete, maschinen: maschinDelete,
+    gefahrstoff: gefahrstoffDelete, gefahrstoffe: gefahrstoffDelete,
+    arbeitsmittel: arbeitsmittelDelete,
+    beauftragte: beauftragterDelete,
+    bereiche: bereichDelete,
+    taetigkeiten: taetigkeitDelete,
+  };
+  const delFn = delMap[tabKey];
+  if (delFn) { await delFn(id); }
 }
 
 // ── User-Menü ─────────────────────────────────────────────
@@ -1203,7 +1182,7 @@ async function saveBereichVerantwortlichen() {
     createdAt: new Date().toISOString()
   };
   DB.beauftragte.push(neu);
-  await dbSet('beauftragte', DB.beauftragte);
+  await Promise.all(DB.beauftragte.map(b => beauftragterSave(b)));
   return neu.id;
 }
 
@@ -1292,6 +1271,26 @@ function exportPSAPlan(overlay) {
   </body></html>`;
   const w=window.open('','_blank');w.document.write(html);w.document.close();
   toast('PSA-Plan erstellt ✓','ok');
+}
+
+// ── Sidebar ───────────────────────────────────────────────
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ic = document.getElementById('sb-toggle-icon');
+  const collapsed = sb.classList.toggle('collapsed');
+  localStorage.setItem('sb_collapsed', collapsed ? '1' : '0');
+  if (ic) ic.innerHTML = collapsed ? '<polyline points="4,2 7,5 4,8"/>' : '<polyline points="6,2 3,5 6,8"/>';
+}
+
+function openUserMenuDB() {
+  const p = currentProfile;
+  document.getElementById('um-name-db').textContent = p?.name||'Mein Konto';
+  const r = document.getElementById('um-rolle-db');
+  if(r) r.textContent = p?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  document.getElementById('um-api-key-db').value = getApiKey();
+  document.getElementById('um-api-status-db').textContent = '';
+  document.getElementById('um-nutzerverwaltung-btn').style.display = isAdmin(currentProfile)?'flex':'none';
+  openM('m-usermenu-db');
 }
 </script>
 </body>
