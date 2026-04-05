@@ -73,10 +73,10 @@
 </nav>
 
 <div class="content">
-  <div class="view-tabs">
-    <button class="view-tab on" onclick="switchView('schulungen')"  id="vtab-schulungen">📚<br>Unterweisungen</button>
-    <button class="view-tab"    onclick="switchView('protokoll')"   id="vtab-protokoll">📋<br>Protokoll</button>
-    <button class="view-tab"    onclick="switchView('buchung')"     id="vtab-buchung">🛒<br>Oak Schulungen</button>
+  <div class="tabs">
+    <button class="tab on" onclick="switchView('schulungen')"  id="vtab-schulungen">Unterweisungen</button>
+    <button class="tab"    onclick="switchView('protokoll')"   id="vtab-protokoll">Protokoll</button>
+    <button class="tab"    onclick="switchView('buchung')"     id="vtab-buchung">Oak Schulungen</button>
   </div>
 
   <!-- SCHULUNGEN (intern + präsenz zusammen) -->
@@ -1088,8 +1088,7 @@ function printQR(){
   <style>body{font-family:sans-serif;text-align:center;padding:40px;max-width:500px;margin:0 auto}@media print{button{display:none}}</style></head><body>
   <h2>EHS Unterweisung</h2><h3>${s?.titel||''}</h3>
   <p>${s?.kategorie||''} · Mit Smartphone scannen – kein Account erforderlich</p>
-  <img src="${canvas.toDataURL()}" width="200"><br><br>
-  <p style="font-size:12px;color:#999">Oak Engineering · EHS Management</p>
+  <img src="${canvas.toDataURL()}" width="200"><br> <p style="font-size:12px;color:#999">Oak Engineering · EHS Management</p>
   <button onclick="window.print()">🖨 Drucken</button></body></html>`);
   w.document.close();
 }

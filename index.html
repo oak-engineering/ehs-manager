@@ -298,8 +298,8 @@ const MODULES_CFG = [
 ];
 
 // ── State ──────────────────────────────────────────────────
-let _profile = null;
-let _collapsed = localStorage.getItem('sb_collapsed') === '1';
+_profile = null;
+_collapsed = localStorage.getItem('sb_collapsed') === '1';
 
 function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
 let _tt;

@@ -357,13 +357,7 @@ async function openSettingsModal() {
     </div>
     <div class="settings-section">
       <div class="settings-section-label">Darstellung</div>
-      <div class="settings-row">
-        <label class="settings-label">Dark Mode</label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" id="s-darkmode" ${document.documentElement.getAttribute('data-theme')==='dark'?'checked':''} style="accent-color:#1a1a1a;width:auto">
-          <span style="font-size:13px;color:#555">Dunkles Design aktivieren</span>
-        </label>
-      </div>
+  
       <div class="settings-row"><label class="settings-label">API-Key (Claude KI-Funktionen)</label>
         <input class="settings-input" id="s-apikey" type="password" value="${localStorage.getItem('ehs_api_key')||''}" placeholder="sk-ant-…" style="font-family:monospace"></div>
     </div>`;
@@ -383,9 +377,7 @@ async function saveSettings() {
   };
   const apiKey = document.getElementById('s-apikey')?.value.trim();
   if (apiKey) localStorage.setItem('ehs_api_key', apiKey);
-  const darkMode = document.getElementById('s-darkmode')?.checked;
-  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  localStorage.setItem('ehs_theme', darkMode ? 'dark' : 'light');
+
   try {
     await saveOrgSettings(updates);
     document.getElementById('settings-overlay').classList.remove('on');
