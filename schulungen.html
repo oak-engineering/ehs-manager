@@ -10,9 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#f5f5f3;--s1:#ffffff;--s2:#f0efec;--s3:#e8e7e3;
-  --border:#d8d7d2;--b2:#c0bfba;
-  --accent:#1a1a1a;--a2:#4a4a4a;
+  --bg:#f5f5f3;--s1:#fff;--s2:#f0efec;--s3:#e8e7e3;
+  --border:#d8d7d2;--b2:#c0bfba;--accent:#1a1a1a;--a2:#4a4a4a;
   --ok:#2d6a2d;--nok:#c0392b;--warn:#b7860a;
   --text:#1a1a1a;--t2:#555550;--t3:#999990;
   --r:8px;--ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;--fh:'Barlow',sans-serif;
@@ -22,7 +21,7 @@ html,body{height:100%;overflow:hidden}
 body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
 .topnav{height:56px;background:#1a1a1a;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .logo-wrap{display:flex;align-items:center;gap:12px}
-.logo-img{height:30px;width:auto;display:block;filter:invert(1)}
+.logo-img{height:30px;filter:invert(1)}
 .logo-divider{width:1px;height:22px;background:rgba(255,255,255,.2)}
 .logo-module{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase}
 .nav-btn{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.8);text-decoration:none;font-family:var(--ff)}
@@ -30,14 +29,17 @@ body{font-family:var(--ff);background:var(--bg);color:var(--text);display:flex;f
 .user-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.75)}
 .user-chip:hover{background:rgba(255,255,255,.15)}
 .user-av{width:22px;height:22px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1a1a1a}
-.role-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.04em}
+.role-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
 .role-admin{background:rgba(183,134,10,.2);color:#b7860a;border:1px solid rgba(183,134,10,.3)}
 .role-ma{background:rgba(45,106,45,.15);color:#2d6a2d;border:1px solid rgba(45,106,45,.25)}
 .app{flex:1;overflow:hidden;display:flex;flex-direction:column}
 .main{flex:1;overflow-y:auto;padding:16px;max-width:980px;margin:0 auto;width:100%;padding-bottom:80px}
-.view-tabs{display:flex;gap:4px;background:var(--s2);border-radius:8px;padding:4px;border:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap}
-.view-tab{flex:1;min-width:140px;padding:8px 12px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:13px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400}
+
+/* TABS */
+.view-tabs{display:flex;gap:3px;background:var(--s2);border-radius:8px;padding:4px;border:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap}
+.view-tab{flex:1;min-width:80px;padding:8px 6px;border-radius:5px;border:none;background:transparent;color:var(--t2);font-family:var(--ff);font-size:11px;cursor:pointer;transition:all .18s;text-align:center;font-weight:400;line-height:1.5}
 .view-tab.on{background:#1a1a1a;color:#fff;font-weight:600}
+
 label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;font-weight:500}
 input,select,textarea{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{border-color:#1a1a1a}
@@ -53,7 +55,6 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 .btn-ok{background:var(--ok);color:#fff}
 .btn-o{background:transparent;border:1px solid var(--border);color:var(--t2)}.btn-o:hover{border-color:var(--accent);color:var(--text)}
 .btn-d{background:transparent;border:1px solid rgba(192,57,43,.3);color:var(--nok)}.btn-d:hover{background:rgba(192,57,43,.06)}
-.btn-warn{background:rgba(183,134,10,.1);border:1px solid rgba(183,134,10,.3);color:var(--warn)}
 .btn-sm{padding:6px 11px;font-size:12px}
 .gap{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .fb{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
@@ -62,29 +63,37 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 .b-nok{background:rgba(192,57,43,.1);color:var(--nok);border:1px solid rgba(192,57,43,.25)}
 .b-warn{background:rgba(183,134,10,.1);color:var(--warn);border:1px solid rgba(183,134,10,.25)}
 .b-info{background:rgba(26,26,26,.07);color:var(--a2);border:1px solid rgba(26,26,26,.15)}
-.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
 .schulung-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
 .schulung-card:hover{border-color:var(--b2)}
-.schulung-card-body{padding:16px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.schulung-card-body{padding:14px 16px}
+
+/* OVERLAYS & MODALS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
 .overlay.on{display:flex}
-.modal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:640px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,.1)}
+.modal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:0;width:100%;max-width:640px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,.12);overflow:hidden}
 .modal-wide{max-width:820px}
-.modal-t{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:18px}
-.modal-act{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
-.section-block{background:var(--s2);border-radius:7px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+.modal-hd{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;background:#fff;z-index:5}
+.modal-hd-title{font-family:var(--fh);font-size:17px;font-weight:700}
+.modal-hd-sub{font-size:12px;color:var(--t3);margin-top:2px}
+.modal-body{padding:20px 22px;max-height:70vh;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:#fff}
+
+.section-block{background:var(--s2);border-radius:7px;padding:14px;border:1px solid var(--border)}
 .section-label{font-family:var(--fm);font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;color:var(--t2)}
 .ts{font-size:12px;color:var(--t3)}
 .divider{height:1px;background:var(--border);margin:14px 0}
 .empty{text-align:center;padding:50px 20px;color:var(--t3)}
 .empty-i{font-size:44px;margin-bottom:12px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid #333;border-radius:7px;padding:10px 20px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;color:#fff}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid #333;border-radius:7px;padding:10px 20px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;color:#fff}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{background:var(--ok)}.toast.err{background:var(--nok)}
 .prog-wrap{background:var(--s3);border-radius:4px;height:6px;overflow:hidden;margin:8px 0}
 .prog-fill{height:100%;border-radius:3px;background:#1a1a1a;transition:width .4s}
 .prog-fill.ok{background:var(--ok)}
-.quiz-option{width:100%;padding:14px 16px;margin-bottom:8px;border:2px solid var(--border);border-radius:8px;background:#fff;text-align:left;cursor:pointer;font-family:var(--ff);font-size:14px;transition:all .18s;display:flex;align-items:center;gap:10px}
+
+/* QUIZ */
+.quiz-option{width:100%;padding:13px 16px;margin-bottom:8px;border:2px solid var(--border);border-radius:8px;background:#fff;text-align:left;cursor:pointer;font-family:var(--ff);font-size:14px;transition:all .18s;display:flex;align-items:center;gap:10px}
 .quiz-option:hover:not(.disabled){border-color:var(--accent);background:var(--s2)}
 .quiz-option.correct{border-color:var(--ok);background:rgba(45,106,45,.08);color:var(--ok)}
 .quiz-option.wrong{border-color:var(--nok);background:rgba(192,57,43,.08);color:var(--nok)}
@@ -92,40 +101,49 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 .quiz-feedback{padding:12px 16px;border-radius:8px;margin-top:10px;font-size:13px;font-weight:500}
 .quiz-feedback.ok{background:rgba(45,106,45,.1);color:var(--ok);border:1px solid rgba(45,106,45,.2)}
 .quiz-feedback.nok{background:rgba(192,57,43,.1);color:var(--nok);border:1px solid rgba(192,57,43,.2)}
+
+/* FRAGEN-EDITOR */
 .frage-item{border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
 .frage-hd{padding:10px 14px;background:var(--s2);display:flex;align-items:center;gap:8px}
 .opt-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+
+/* PROTOKOLL */
 .proto-row{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px}
 .proto-row:last-child{border-bottom:none}
 .proto-head{background:var(--s2);font-weight:600;font-size:12px;color:var(--t2)}
+
+/* PRÄSENZ */
 .praesenz-card{background:#fff;border:2px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:border-color .2s}
 .praesenz-card:hover{border-color:var(--b2)}
-.praesenz-card.voll{border-color:rgba(192,57,43,.3)}
+
+/* SHARE / QR */
 .share-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
 .share-tab{padding:7px 14px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--ff);font-size:13px;border-bottom:2px solid transparent;transition:all .2s}
 .share-tab.on{color:var(--text);border-bottom-color:#1a1a1a}
-#qr-canvas{display:flex;justify-content:center;padding:16px 0}
+#qr-canvas{display:flex;justify-content:center;padding:12px 0}
 #qr-canvas canvas,#qr-canvas img{border:1px solid var(--border);border-radius:8px;padding:8px;background:#fff}
+
+/* KATALOG */
+.katalog-card{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s}
+.katalog-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.katalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
 @keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
-.teilnehmer-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px}
-.teilnehmer-row:last-child{border-bottom:none}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:#1a1a1a;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
 </style>
 </head>
 <body>
-
-<!-- App-Inhalt (wird bei Login ausgeblendet) -->
 <div id="app-content" style="display:none;flex-direction:column;height:100%">
 
 <nav class="topnav">
   <div class="logo-wrap">
-    <img src="logo.png" alt="Oak Engineering" class="logo-img">
+    <img src="logo.png" alt="Oak" class="logo-img" onerror="this.style.display='none'">
     <div class="logo-divider"></div>
     <span class="logo-module">EHS · Schulungen</span>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
     <a href="index.html" class="nav-btn">← Übersicht</a>
-    <div id="role-display" style="display:none"></div>
+    <span id="role-display"></span>
     <div class="user-chip" onclick="openUserMenu()">
       <div class="user-av" id="u-av">?</div>
       <span id="u-name">–</span>
@@ -134,36 +152,22 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 </nav>
 
 <div class="app"><div class="main">
-  <div class="view-tabs" id="main-tabs">
-    <button class="view-tab on" onclick="switchView('online')" id="vtab-online">🖥 Online-Schulungen</button>
-    <button class="view-tab" onclick="switchView('praesenz')" id="vtab-praesenz">📅 Präsenzschulungen</button>
-    <button class="view-tab" onclick="switchView('protokoll')" id="vtab-protokoll">📋 Protokoll</button>
-    <button class="view-tab" onclick="switchView('buchung')" id="vtab-buchung">🛒 Oak Schulungen buchen</button>
-    <button class="view-tab admin-only" onclick="switchView('nutzer')" id="vtab-nutzer" style="display:none">👥 Nutzer</button>
+  <div class="view-tabs">
+    <button class="view-tab on" onclick="switchView('schulungen')"  id="vtab-schulungen">📚<br>Schulungen</button>
+    <button class="view-tab"    onclick="switchView('protokoll')"   id="vtab-protokoll">📋<br>Protokoll</button>
+    <button class="view-tab"    onclick="switchView('buchung')"     id="vtab-buchung">🛒<br>Oak Schulungen</button>
   </div>
 
-  <!-- ONLINE-SCHULUNGEN -->
-  <div id="view-online">
+  <!-- SCHULUNGEN (intern + präsenz zusammen) -->
+  <div id="view-schulungen">
     <div class="fb" style="margin-bottom:16px">
       <div>
-        <h2 style="font-family:var(--fh);font-size:20px">Online-Schulungen</h2>
+        <h2 style="font-family:var(--fh);font-size:20px">Schulungen</h2>
         <div class="ts" id="schulung-sub">Wird geladen…</div>
       </div>
       <button class="btn btn-p btn-sm admin-only" onclick="openNewSchulungModal()" id="btn-neue-schulung" style="display:none">+ Neue Schulung</button>
     </div>
-    <div id="schulung-list"><div class="empty"><div class="empty-i">⏳</div><p>Schulungen werden geladen…</p></div></div>
-  </div>
-
-  <!-- PRÄSENZSCHULUNGEN -->
-  <div id="view-praesenz" style="display:none">
-    <div class="fb" style="margin-bottom:16px">
-      <div>
-        <h2 style="font-family:var(--fh);font-size:20px">Präsenzschulungen</h2>
-        <div class="ts" id="praesenz-sub">Termine & Anmeldungen</div>
-      </div>
-      <button class="btn btn-p btn-sm admin-only" onclick="openNewPraesenzModal()" id="btn-neue-praesenz" style="display:none">+ Neuer Termin</button>
-    </div>
-    <div id="praesenz-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
+    <div id="schulung-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
   </div>
 
   <!-- PROTOKOLL -->
@@ -176,52 +180,59 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
       <button class="btn btn-o btn-sm" onclick="exportProtokolleCSV()">⬇ CSV Export</button>
     </div>
     <div style="margin-bottom:12px">
-      <select id="proto-filter" onchange="renderProtokoll()" style="max-width:300px">
+      <select id="proto-filter" onchange="renderProtokoll()" style="max-width:320px">
         <option value="">– Alle Schulungen –</option>
       </select>
     </div>
     <div id="protokoll-list"></div>
   </div>
 
-  <!-- BUCHUNG OAK ENGINEERING -->
+  <!-- OAK SCHULUNGEN BUCHEN -->
   <div id="view-buchung" style="display:none">
     <div class="fb" style="margin-bottom:16px">
       <div>
         <h2 style="font-family:var(--fh);font-size:20px">🛒 Oak Engineering – Schulungsangebot</h2>
         <div class="ts">Externe Schulungen direkt buchen · Preise zzgl. MwSt.</div>
       </div>
-      <div class="gap">
-        <button class="btn btn-o btn-sm admin-only" onclick="openKatalogModal()" id="btn-katalog-admin" style="display:none">⚙ Katalog verwalten</button>
-        <button class="btn btn-o btn-sm admin-only" onclick="openBuchungsanfragenModal()" id="btn-anfragen-admin" style="display:none">📋 Buchungsanfragen</button>
-      </div>
+      <button class="btn btn-o btn-sm admin-only" onclick="openBuchungsanfragenModal()" id="btn-anfragen-admin" style="display:none">📋 Buchungsanfragen</button>
     </div>
-    <div id="buchung-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
-  </div>
-
-  <!-- NUTZER-VERWALTUNG (nur Admin) -->
-  <div id="view-nutzer" style="display:none">
-    <div class="fb" style="margin-bottom:16px">
-      <div>
-        <h2 style="font-family:var(--fh);font-size:20px">Nutzer-Verwaltung</h2>
-        <div class="ts">Mitarbeiter einladen und Rollen verwalten</div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="openInviteModal()">+ Nutzer einladen</button>
-    </div>
-    <div id="nutzer-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
+    <div id="buchung-list"></div>
   </div>
 
 </div></div>
 </div><!-- /app-content -->
 
-<!-- MODAL: Online-Schulung anlegen/bearbeiten -->
-<div class="overlay" id="m-schulung" onclick="if(event.target===this)closeM('m-schulung')">
-<div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0" id="m-schulung-title">Schulung anlegen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-schulung')">✕</button>
+<!-- ═══════════════════════════════════════════
+     MODALS
+     ═══════════════════════════════════════════ -->
+
+<!-- MODAL: Schulung anlegen/bearbeiten -->
+<div class="overlay" id="m-schulung">
+<div class="modal modal-wide" style="max-height:92vh;overflow-y:auto">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-hd-title" id="m-schulung-title">Schulung anlegen</div>
+    </div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-schulung')">✕ Schließen</button>
   </div>
-  <div style="display:flex;flex-direction:column;gap:12px">
+  <div class="modal-body">
     <input type="hidden" id="edit-schulung-id">
+
+    <!-- Typ-Auswahl -->
+    <div class="section-block">
+      <div class="section-label">Schulungstyp</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:7px;border:2px solid var(--border);background:var(--s1);font-weight:400;flex:1;min-width:140px" id="typ-online-label">
+          <input type="radio" name="schulung-typ" value="online" id="typ-online" checked style="width:auto;accent-color:#1a1a1a" onchange="onTypChange()">
+          🖥 <strong>Online</strong> – Webinar, E-Learning
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:7px;border:2px solid var(--border);background:var(--s1);font-weight:400;flex:1;min-width:140px" id="typ-praesenz-label">
+          <input type="radio" name="schulung-typ" value="praesenz" id="typ-praesenz" style="width:auto;accent-color:#1a1a1a" onchange="onTypChange()">
+          📍 <strong>Präsenz</strong> – Vor Ort
+        </label>
+      </div>
+    </div>
+
     <div class="g2">
       <div><label>Titel *</label><input id="s-titel" placeholder="z.B. Brandschutzunterweisung 2025"></div>
       <div><label>Kategorie</label>
@@ -229,25 +240,61 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
           <option>Brandschutz</option><option>Gefahrstoffe</option>
           <option>Arbeitssicherheit</option><option>Erste Hilfe</option>
           <option>Ladungssicherung</option><option>Elektrische Sicherheit</option>
-          <option>Persönliche Schutzausrüstung</option><option>Ergonomie</option>
-          <option>Sonstiges</option>
+          <option>Persönliche Schutzausrüstung</option><option>Ergonomie</option><option>Sonstiges</option>
         </select>
       </div>
     </div>
-    <div class="g2">
-      <div><label>Gültig bis</label><input id="s-gueltig" type="date"></div>
-      <div><label>Wiederholungsintervall</label>
-        <select id="s-intervall">
-          <option value="">– einmalig –</option>
-          <option value="6">Halbjährlich</option><option value="12">Jährlich</option>
-          <option value="24">Alle 2 Jahre</option><option value="36">Alle 3 Jahre</option>
-        </select>
+
+    <!-- Online-Felder -->
+    <div id="felder-online">
+      <div class="g2">
+        <div><label>Plattform / Tool</label><input id="s-plattform" placeholder="z.B. Microsoft Teams, Zoom, Moodle"></div>
+        <div><label>Gültig bis</label><input id="s-gueltig" type="date"></div>
+      </div>
+      <div class="g2">
+        <div><label>Wiederholungsintervall</label>
+          <select id="s-intervall">
+            <option value="">– einmalig –</option><option value="6">Halbjährlich</option>
+            <option value="12">Jährlich</option><option value="24">Alle 2 Jahre</option><option value="36">Alle 3 Jahre</option>
+          </select>
+        </div>
+        <div><label>Bestehensgrenze (%)</label><input id="s-bestehen" type="number" value="80" min="0" max="100"></div>
       </div>
     </div>
+
+    <!-- Präsenz-Felder -->
+    <div id="felder-praesenz" style="display:none">
+      <div class="g2">
+        <div><label>Datum *</label><input id="s-datum" type="date"></div>
+        <div><label>Uhrzeit</label>
+          <div style="display:flex;gap:8px">
+            <input id="s-von" type="time" value="09:00" placeholder="09:00">
+            <input id="s-bis" type="time" value="11:00" placeholder="11:00">
+          </div>
+        </div>
+      </div>
+      <div class="g2">
+        <div><label>Raum / Ort</label><input id="s-raum" placeholder="Schulungsraum 1, Halle 3"></div>
+        <div><label>Referent/in</label><input id="s-referent" placeholder="Max Mustermann"></div>
+      </div>
+      <div class="g2">
+        <div><label>Max. Teilnehmerzahl</label><input id="s-maxtn" type="number" value="20" min="1"></div>
+        <div><label>Anmeldefrist</label><input id="s-frist" type="date"></div>
+      </div>
+      <div><label>Kontakt-E-Mail (für Bestätigungen)</label><input id="s-kontakt" type="email" placeholder="ehs@oak-engineering.de"></div>
+    </div>
+
     <div><label>Beschreibung / Lernziele</label>
       <textarea id="s-beschreibung" rows="3" placeholder="Was lernen die Teilnehmer? Gesetzliche Grundlage?"></textarea>
     </div>
-    <div class="section-block">
+    <div class="g2">
+      <div><label>Pflichtschulung</label>
+        <select id="s-pflicht"><option value="ja">Ja – Pflichtschulung</option><option value="nein">Nein – freiwillig</option></select>
+      </div>
+    </div>
+
+    <!-- PDF Upload (nur Online) -->
+    <div class="section-block" id="pdf-block">
       <div class="section-label">Unterweisungsunterlage (PDF)</div>
       <div id="s-dok-info" style="margin-bottom:8px;font-size:13px;color:var(--t3)">Noch keine Datei hochgeladen</div>
       <div class="gap">
@@ -257,21 +304,18 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
       </div>
       <div id="ki-fragen-status" style="display:none;margin-top:8px;padding:10px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px;font-size:13px"></div>
     </div>
-    <div class="section-block">
+
+    <!-- Fragenkatalog (nur Online) -->
+    <div class="section-block" id="fragen-block">
       <div class="fb" style="margin-bottom:10px">
         <div class="section-label" style="margin:0">Verständnisfragen</div>
         <button type="button" class="btn btn-p btn-sm" onclick="addFrage()">+ Frage</button>
       </div>
       <div id="fragen-editor"></div>
-    </div>
-    <div class="g2">
-      <div><label>Bestehensgrenze (%)</label><input id="s-bestehen" type="number" value="80" min="0" max="100"></div>
-      <div><label>Pflichtschulung</label>
-        <select id="s-pflicht"><option value="ja">Ja – Pflichtschulung</option><option value="nein">Nein – freiwillig</option></select>
-      </div>
+      <div class="ts" style="margin-top:6px">Mindestens 1 richtige Antwort pro Frage · Mindestens 1 Frage erforderlich</div>
     </div>
   </div>
-  <div class="modal-act">
+  <div class="modal-ft">
     <button class="btn btn-o" onclick="closeM('m-schulung')">Abbrechen</button>
     <button class="btn btn-p" onclick="saveSchulungModal()">
       <span class="spinner" id="save-schulung-spinner" style="display:none"></span>Speichern
@@ -279,74 +323,21 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
   </div>
 </div></div>
 
-<!-- MODAL: Präsenzschulung anlegen -->
-<div class="overlay" id="m-praesenz" onclick="if(event.target===this)closeM('m-praesenz')">
-<div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0" id="m-praesenz-title">Präsenzschulung anlegen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-praesenz')">✕</button>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <input type="hidden" id="edit-praesenz-id">
-    <div class="g2">
-      <div><label>Titel *</label><input id="p-titel" placeholder="z.B. Ersthelfer-Auffrischung"></div>
-      <div><label>Kategorie</label>
-        <select id="p-kategorie">
-          <option>Brandschutz</option><option>Erste Hilfe</option>
-          <option>Arbeitssicherheit</option><option>Gefahrstoffe</option>
-          <option>Führen von Fahrzeugen</option><option>Sonstiges</option>
-        </select>
-      </div>
-    </div>
-    <div class="g2">
-      <div><label>Datum *</label><input id="p-datum" type="date"></div>
-      <div><label>Uhrzeit</label>
-        <div style="display:flex;gap:8px">
-          <input id="p-von" type="time" value="09:00" placeholder="09:00">
-          <input id="p-bis" type="time" value="11:00" placeholder="11:00">
-        </div>
-      </div>
-    </div>
-    <div class="g2">
-      <div><label>Raum / Ort</label><input id="p-raum" placeholder="Schulungsraum 1, Halle 3"></div>
-      <div><label>Referent/in</label><input id="p-referent" placeholder="Max Mustermann"></div>
-    </div>
-    <div class="g2">
-      <div><label>Max. Teilnehmerzahl</label><input id="p-maxtn" type="number" value="20" min="1"></div>
-      <div><label>Anmeldefrist</label><input id="p-frist" type="date"></div>
-    </div>
-    <div><label>Beschreibung / Inhalt</label>
-      <textarea id="p-beschreibung" rows="3" placeholder="Was wird behandelt? Welche Voraussetzungen? Bitte pünktlich erscheinen."></textarea>
-    </div>
-    <div class="g2">
-      <div><label>Pflichtschulung</label>
-        <select id="p-pflicht"><option value="ja">Ja</option><option value="nein">Nein – freiwillig</option></select>
-      </div>
-      <div><label>Kontakt-E-Mail (für Bestätigungen)</label>
-        <input id="p-kontakt" type="email" placeholder="ehs@oak-engineering.de"></div>
-    </div>
-  </div>
-  <div class="modal-act">
-    <button class="btn btn-o" onclick="closeM('m-praesenz')">Abbrechen</button>
-    <button class="btn btn-p" onclick="savePraesenzModal()">
-      <span class="spinner" id="save-praesenz-spinner" style="display:none"></span>Speichern
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Präsenz-Anmeldung (Mitarbeiter) -->
-<div class="overlay" id="m-anmeldung" onclick="if(event.target===this)closeM('m-anmeldung')">
+<!-- MODAL: Anmeldung Präsenz -->
+<div class="overlay" id="m-anmeldung">
 <div class="modal">
-  <div class="fb" style="margin-bottom:4px">
-    <div class="modal-t" style="margin:0" id="m-anmeldung-title">Anmelden</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-anmeldung')">✕</button>
+  <div class="modal-hd">
+    <div>
+      <div class="modal-hd-title" id="m-anmeldung-title">Anmelden</div>
+      <div class="modal-hd-sub" id="m-anmeldung-sub"></div>
+    </div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-anmeldung')">✕ Schließen</button>
   </div>
-  <p class="ts" style="margin-bottom:16px" id="m-anmeldung-sub"></p>
-  <div style="display:flex;flex-direction:column;gap:12px">
+  <div class="modal-body">
     <div><label>Name *</label><input id="anm-name" placeholder="Max Mustermann"></div>
     <div><label>E-Mail * (für Bestätigungsmail)</label><input id="anm-email" type="email" placeholder="max.mustermann@firma.de"></div>
   </div>
-  <div class="modal-act">
+  <div class="modal-ft">
     <button class="btn btn-o" onclick="closeM('m-anmeldung')">Abbrechen</button>
     <button class="btn btn-ok" onclick="submitAnmeldung()">
       <span class="spinner" id="anm-spinner" style="display:none"></span>✓ Verbindlich anmelden
@@ -354,112 +345,139 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
   </div>
 </div></div>
 
-<!-- MODAL: Teilnehmerliste (Admin) -->
-<div class="overlay" id="m-teilnehmer" onclick="if(event.target===this)closeM('m-teilnehmer')">
+<!-- MODAL: Teilnehmerliste -->
+<div class="overlay" id="m-teilnehmer">
 <div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0" id="m-teilnehmer-title">Teilnehmerliste</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-teilnehmer')">✕</button>
+  <div class="modal-hd">
+    <div class="modal-hd-title" id="m-teilnehmer-title">Teilnehmerliste</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-teilnehmer')">✕ Schließen</button>
   </div>
-  <div id="teilnehmer-body"></div>
-  <div class="modal-act">
-    <button class="btn btn-o btn-sm" onclick="exportTeilnehmerCSV()">⬇ CSV</button>
+  <div class="modal-body" id="teilnehmer-body"></div>
+  <div class="modal-ft">
     <button class="btn btn-ok" onclick="schulungDurchgefuehrt()">✓ Als durchgeführt markieren</button>
   </div>
 </div></div>
 
 <!-- MODAL: Schulung teilen -->
-<div class="overlay" id="m-share" onclick="if(event.target===this)closeM('m-share')">
-<div class="modal" style="max-width:500px">
-  <div class="fb" style="margin-bottom:4px">
-    <div class="modal-t" style="margin:0" id="m-share-title">Schulung teilen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-share')">✕</button>
-  </div>
-  <p class="ts" style="margin-bottom:14px" id="m-share-sub"></p>
-  <div class="share-tabs">
-    <button class="share-tab on" onclick="switchShareTab('qr')" id="stab-qr">📱 QR-Code</button>
-    <button class="share-tab" onclick="switchShareTab('link')" id="stab-link">🔗 Link</button>
-    <button class="share-tab" onclick="switchShareTab('mail')" id="stab-mail">✉ E-Mail</button>
-  </div>
-  <div id="share-qr">
-    <div id="qr-canvas"></div>
-    <p class="ts" style="text-align:center;margin-bottom:12px">QR-Code für den Aushang im Werk</p>
-    <div style="display:flex;gap:8px;justify-content:center">
-      <button class="btn btn-p btn-sm" onclick="downloadQR()">⬇ PNG laden</button>
-      <button class="btn btn-o btn-sm" onclick="printQR()">🖨 Drucken</button>
+<div class="overlay" id="m-share">
+<div class="modal">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-hd-title" id="m-share-title">Schulung teilen</div>
+      <div class="modal-hd-sub" id="m-share-sub"></div>
     </div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-share')">✕ Schließen</button>
   </div>
-  <div id="share-link" style="display:none">
-    <div style="margin-bottom:12px">
-      <label>Direktlink</label>
+  <div class="modal-body" style="max-height:none">
+    <div class="share-tabs">
+      <button class="share-tab on" onclick="switchShareTab('qr')" id="stab-qr">📱 QR-Code</button>
+      <button class="share-tab" onclick="switchShareTab('link')" id="stab-link">🔗 Link</button>
+      <button class="share-tab" onclick="switchShareTab('mail')" id="stab-mail">✉ E-Mail</button>
+    </div>
+    <div id="share-qr">
+      <div id="qr-canvas"></div>
+      <p class="ts" style="text-align:center;margin-bottom:12px">Aushang im Werk – Teilnehmer scannen und starten direkt ohne Account</p>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-p btn-sm" onclick="downloadQR()">⬇ PNG laden</button>
+        <button class="btn btn-o btn-sm" onclick="printQR()">🖨 Drucken</button>
+      </div>
+    </div>
+    <div id="share-link" style="display:none">
+      <label>Direktlink (kein Account erforderlich)</label>
       <div style="display:flex;gap:8px">
         <input id="share-link-input" readonly style="font-size:11px;font-family:var(--fm);background:var(--s3)">
         <button class="btn btn-p btn-sm" onclick="copyShareLink()">Kopieren</button>
       </div>
+      <div class="ts" style="margin-top:6px">Teilnehmer geben Name + E-Mail ein und führen die Schulung direkt durch.</div>
     </div>
-  </div>
-  <div id="share-mail" style="display:none">
-    <div style="margin-bottom:12px">
-      <label>Empfänger (optional)</label>
-      <input id="share-mail-to" type="email" placeholder="besucher@firma.de">
-    </div>
-    <div style="margin-bottom:14px">
-      <label>Nachricht</label>
-      <textarea id="share-mail-body" rows="4"></textarea>
-    </div>
-    <button class="btn btn-p" onclick="sendShareMail()" style="width:100%">✉ E-Mail öffnen</button>
-  </div>
-</div></div>
-
-<!-- MODAL: Nutzer einladen -->
-<div class="overlay" id="m-invite" onclick="if(event.target===this)closeM('m-invite')">
-<div class="modal">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0">Nutzer einladen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-invite')">✕</button>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <div><label>Name *</label><input id="inv-name" placeholder="Max Mustermann"></div>
-    <div><label>E-Mail *</label><input id="inv-email" type="email" placeholder="max@firma.de"></div>
-    <div><label>Rolle</label>
-      <select id="inv-rolle">
-        <option value="mitarbeiter">Mitarbeiter (nur lesen, Schulungen durchführen)</option>
-        <option value="admin">Admin (lesen + schreiben + verwalten)</option>
-      </select>
-    </div>
-    <div class="section-block" style="background:rgba(183,134,10,.06);border-color:rgba(183,134,10,.2)">
-      <div class="ts" style="color:var(--warn)">
-        ⚠ Der Nutzer erhält eine Einladungsmail von Supabase mit einem Link zum Passwort setzen. Erst danach kann er sich einloggen.
+    <div id="share-mail" style="display:none">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div><label>Empfänger (optional)</label><input id="share-mail-to" type="email" placeholder="besucher@firma.de"></div>
+        <div><label>Nachricht</label><textarea id="share-mail-body" rows="4"></textarea></div>
       </div>
     </div>
   </div>
-  <div class="modal-act">
-    <button class="btn btn-o" onclick="closeM('m-invite')">Abbrechen</button>
-    <button class="btn btn-p" onclick="submitInvite()">
-      <span class="spinner" id="inv-spinner" style="display:none"></span>Einladen
+  <div class="modal-ft" id="share-mail-ft" style="display:none">
+    <button class="btn btn-o" onclick="closeM('m-share')">Schließen</button>
+    <button class="btn btn-p" onclick="sendShareMail()">✉ E-Mail öffnen</button>
+  </div>
+  <div class="modal-ft" id="share-default-ft">
+    <button class="btn btn-o" onclick="closeM('m-share')">Schließen</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Buchungsanfrage -->
+<div class="overlay" id="m-buchung">
+<div class="modal modal-wide">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-hd-title" id="m-buchung-titel">Schulung buchen</div>
+      <div class="modal-hd-sub" id="m-buchung-sub"></div>
+    </div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-buchung')">✕ Schließen</button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="buchung-katalog-id">
+    <div class="g2">
+      <div><label>Firma / Organisation *</label><input id="b-firma" placeholder="Musterfirma GmbH"></div>
+      <div><label>Ansprechpartner *</label><input id="b-kontakt" placeholder="Max Mustermann"></div>
+    </div>
+    <div class="g2">
+      <div><label>E-Mail *</label><input id="b-email" type="email" placeholder="max@musterfirma.de"></div>
+      <div><label>Telefon</label><input id="b-tel" placeholder="+49 821…"></div>
+    </div>
+    <div class="g2">
+      <div><label>Anzahl Teilnehmer *</label><input id="b-tn" type="number" min="1" placeholder="10"></div>
+      <div><label>Wunschtermin</label><input id="b-termin" type="date"></div>
+    </div>
+    <div><label>Alternativer Termin</label><input id="b-termin2" type="date"></div>
+    <div><label>Nachricht / besondere Anforderungen</label>
+      <textarea id="b-nachricht" rows="3" placeholder="Schulungsort, spezifische Themen, Branche…"></textarea>
+    </div>
+    <div style="padding:10px 14px;background:rgba(45,106,45,.06);border:1px solid rgba(45,106,45,.2);border-radius:7px;font-size:12px;color:var(--ok)">
+      ✓ Sie erhalten innerhalb von 24 Stunden eine Bestätigung von Oak Engineering.
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn btn-o" onclick="closeM('m-buchung')">Abbrechen</button>
+    <button class="btn btn-ok" onclick="submitBuchung()">
+      <span class="spinner" id="buchung-spinner" style="display:none"></span>📩 Verbindlich anfragen
     </button>
   </div>
 </div></div>
 
+<!-- MODAL: Buchungsanfragen verwalten (Admin) -->
+<div class="overlay" id="m-anfragen">
+<div class="modal modal-wide" style="max-height:92vh;overflow-y:auto">
+  <div class="modal-hd" style="position:sticky;top:0">
+    <div class="modal-hd-title">📋 Buchungsanfragen</div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-anfragen')">✕ Schließen</button>
+  </div>
+  <div class="modal-body" id="anfragen-list" style="max-height:none"></div>
+</div></div>
+
 <!-- MODAL: User-Menü -->
-<div class="overlay" id="m-usermenu" onclick="if(event.target===this)closeM('m-usermenu')">
+<div class="overlay" id="m-usermenu">
 <div class="modal" style="max-width:360px">
-  <div class="fb" style="margin-bottom:4px">
-    <div class="modal-t" style="margin:0" id="usermenu-name">Mein Konto</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-usermenu')">✕</button>
-  </div>
-  <div class="ts" id="usermenu-rolle" style="margin-bottom:16px"></div>
-  <div class="divider"></div>
-  <div style="margin-bottom:14px">
-    <label>Claude API-Key (für KI-Funktionen)</label>
-    <div style="display:flex;gap:8px">
-      <input id="um-api-key" type="password" placeholder="sk-ant-…" style="font-size:12px;font-family:var(--fm)">
-      <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">Speichern</button>
+  <div class="modal-hd">
+    <div>
+      <div class="modal-hd-title" id="um-name">Mein Konto</div>
+      <div class="modal-hd-sub" id="um-rolle"></div>
     </div>
-    <div class="ts" style="margin-top:4px" id="um-api-status"></div>
+    <button class="btn btn-o btn-sm" onclick="closeM('m-usermenu')">✕ Schließen</button>
   </div>
-  <div class="divider"></div>
-  <button class="btn btn-d" style="width:100%;justify-content:center;margin-top:8px" onclick="doSignOut()">↩ Abmelden</button>
+  <div class="modal-body">
+    <div>
+      <label>Claude API-Key (für KI-Funktionen)</label>
+      <div style="display:flex;gap:8px">
+        <input id="um-api-key" type="password" placeholder="sk-ant-…" style="font-size:12px;font-family:var(--fm)">
+        <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">Speichern</button>
+      </div>
+      <div class="ts" style="margin-top:4px" id="um-api-status"></div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doSignOut()">↩ Abmelden</button>
+  </div>
 </div></div>
 
 <!-- MODAL: Player -->
@@ -486,150 +504,6 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
   </div>
 </div></div>
 
-<!-- MODAL: Buchungsanfrage -->
-<div class="overlay" id="m-buchung" onclick="if(event.target===this)closeM('m-buchung')">
-<div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:4px">
-    <div class="modal-t" style="margin:0" id="m-buchung-titel">Schulung buchen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-buchung')">✕</button>
-  </div>
-  <div class="ts" style="margin-bottom:16px" id="m-buchung-sub"></div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <input type="hidden" id="buchung-katalog-id">
-    <div class="g2">
-      <div><label>Firma / Organisation *</label><input id="b-firma" placeholder="Musterfirma GmbH"></div>
-      <div><label>Ansprechpartner *</label><input id="b-kontakt" placeholder="Max Mustermann"></div>
-    </div>
-    <div class="g2">
-      <div><label>E-Mail *</label><input id="b-email" type="email" placeholder="max@musterfirma.de"></div>
-      <div><label>Telefon</label><input id="b-tel" placeholder="+49 821…"></div>
-    </div>
-    <div class="g2">
-      <div><label>Anzahl Teilnehmer *</label><input id="b-tn" type="number" min="1" placeholder="10"></div>
-      <div><label>Wunschtermin</label><input id="b-termin" type="date"></div>
-    </div>
-    <div>
-      <label>Alternativer Termin</label>
-      <input id="b-termin2" type="date">
-    </div>
-    <div><label>Nachricht / besondere Anforderungen</label>
-      <textarea id="b-nachricht" rows="3" placeholder="Schulungsort, spezifische Themen, Branche…"></textarea>
-    </div>
-    <div style="padding:10px 14px;background:rgba(45,106,45,.06);border:1px solid rgba(45,106,45,.2);border-radius:7px;font-size:12px;color:#2d6a2d">
-      ✓ Nach Absenden erhalten Sie innerhalb von 24 Stunden eine Bestätigung von Oak Engineering.
-    </div>
-  </div>
-  <div class="modal-act">
-    <button class="btn btn-o" onclick="closeM('m-buchung')">Abbrechen</button>
-    <button class="btn btn-ok" onclick="submitBuchung()">
-      <span class="spinner" id="buchung-spinner" style="display:none"></span>
-      📩 Verbindlich anfragen
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Katalog verwalten (Admin) -->
-<div class="overlay" id="m-katalog" onclick="if(event.target===this)closeM('m-katalog')">
-<div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
-  <div class="fb" style="margin-bottom:16px;position:sticky;top:0;background:#fff;z-index:5;padding-bottom:10px;border-bottom:1px solid var(--border)">
-    <div class="modal-t" style="margin:0">⚙ Schulungskatalog verwalten</div>
-    <div class="gap">
-      <button class="btn btn-p btn-sm" onclick="openKatalogItemModal(null)">+ Schulung anlegen</button>
-      <button class="btn btn-o btn-sm" onclick="closeM('m-katalog')">✕</button>
-    </div>
-  </div>
-  <div id="katalog-admin-list"></div>
-</div></div>
-
-<!-- MODAL: Katalog-Eintrag anlegen/bearbeiten -->
-<div class="overlay" id="m-katalog-item" onclick="if(event.target===this)closeM('m-katalog-item')">
-<div class="modal modal-wide">
-  <div class="fb" style="margin-bottom:16px">
-    <div class="modal-t" style="margin:0" id="m-ki-title">Schulung anlegen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-katalog-item')">✕</button>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:12px">
-    <input type="hidden" id="ki-edit-id">
-    <div class="g2">
-      <div><label>Titel *</label><input id="ki-titel" placeholder="z.B. Brandschutzbeauftragter Ausbildung"></div>
-      <div><label>Kategorie</label>
-        <select id="ki-kategorie">
-          <option>Brandschutz</option><option>Erste Hilfe</option>
-          <option>Arbeitssicherheit</option><option>Gefahrstoffe</option>
-          <option>Führung & Organisation</option><option>Elektrische Sicherheit</option>
-          <option>Sonstiges</option>
-        </select>
-      </div>
-    </div>
-    <div><label>Kurzbeschreibung *</label>
-      <textarea id="ki-beschreibung" rows="3" placeholder="Was wird vermittelt? Zielgruppe? Gesetzliche Grundlage?"></textarea>
-    </div>
-    <div class="g2">
-      <div><label>Dauer</label><input id="ki-dauer" placeholder="1 Tag, 2 × 4 Std., 8 UE…"></div>
-      <div><label>Max. Teilnehmerzahl</label><input id="ki-maxtn" type="number" placeholder="15"></div>
-    </div>
-    <div class="g3">
-      <div><label>Preis pro Person (€, netto) *</label><input id="ki-preis-pp" type="number" step="0.01" placeholder="149.00"></div>
-      <div><label>Pauschalpreis Gruppe (€, netto)</label><input id="ki-preis-gruppe" type="number" step="0.01" placeholder="990.00"></div>
-      <div><label>Ab Teilnehmerzahl</label><input id="ki-preis-ab" type="number" placeholder="8"></div>
-    </div>
-    <div class="g2">
-      <div><label>Format</label>
-        <select id="ki-format">
-          <option>Vor Ort beim Kunden</option>
-          <option>Online / Webinar</option>
-          <option>In unserem Schulungszentrum</option>
-          <option>Hybrid</option>
-        </select>
-      </div>
-      <div><label>Zertifikat nach Abschluss</label>
-        <select id="ki-zertifikat">
-          <option value="ja">Ja – Teilnahmezertifikat</option>
-          <option value="nein">Nein</option>
-        </select>
-      </div>
-    </div>
-    <div><label>Inhalte / Agenda (stichpunktartig)</label>
-      <textarea id="ki-inhalte" rows="4" placeholder="• Grundlagen Brandschutz&#10;• Rechtliche Grundlagen&#10;• Praktische Übungen&#10;• Abschlussprüfung"></textarea>
-    </div>
-    <div><label>Zielgruppe</label>
-      <input id="ki-zielgruppe" placeholder="Brandschutzbeauftragte, Führungskräfte, alle Mitarbeiter…">
-    </div>
-    <div class="g2">
-      <div><label>Rechtsgrundlage</label><input id="ki-rechtsgrundlage" placeholder="ArbSchG §12, DGUV V1, ASR A2.2…"></div>
-      <div><label>Wiederholungsintervall</label>
-        <select id="ki-intervall">
-          <option value="">– keine Wiederholung –</option>
-          <option value="1">Jährlich</option>
-          <option value="2">Alle 2 Jahre</option>
-          <option value="3">Alle 3 Jahre</option>
-          <option value="5">Alle 5 Jahre</option>
-        </select>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="ki-aktiv" checked style="width:auto;accent-color:#1a1a1a">
-      <label style="margin:0;font-weight:400">Im Katalog sichtbar (aktiv)</label>
-    </div>
-  </div>
-  <div class="modal-act">
-    <button class="btn btn-o" onclick="closeM('m-katalog-item')">Abbrechen</button>
-    <button class="btn btn-p" onclick="saveKatalogItem()">
-      <span class="spinner" id="ki-spinner" style="display:none"></span>Speichern
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Buchungsanfragen (Admin) -->
-<div class="overlay" id="m-anfragen" onclick="if(event.target===this)closeM('m-anfragen')">
-<div class="modal modal-wide" style="max-height:90vh;overflow-y:auto">
-  <div class="fb" style="margin-bottom:16px;position:sticky;top:0;background:#fff;z-index:5;padding-bottom:10px;border-bottom:1px solid var(--border)">
-    <div class="modal-t" style="margin:0">📋 Buchungsanfragen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-anfragen')">✕</button>
-  </div>
-  <div id="anfragen-list"></div>
-</div></div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -637,14 +511,42 @@ input[type=checkbox]{width:auto;accent-color:#1a1a1a}
 // GLOBALER STATE
 // ═══════════════════════════════════════════════════════════
 let currentProfile = null;
-let allSchulungen = [];
-let allProtokoll = [];
-let allPraesenz = [];
-let currentView = 'online';
-let pendingPDF = null;
-let fragenDraft = [];
+let allSchulungen  = [];
+let allProtokoll   = [];
+let currentView    = 'schulungen';
+let pendingPDF     = null;
+let fragenDraft    = [];
 let shareSchulungId = null;
-let currentPraesenzId = null;
+let allAnfragen    = [];
+
+// Oak Engineering fester Katalog (hardcoded, kein Admin-Upload nötig)
+const OAK_KATALOG = [
+  {
+    id: 'OAK-001',
+    titel: 'Fachliche Weiterbildung für Sicherheitsbeauftragte',
+    kategorie: 'Arbeitssicherheit',
+    beschreibung: 'Umfassende Weiterbildung für Sicherheitsbeauftragte gemäß DGUV Vorschrift 1 §20. Die Schulung vermittelt aktuelles Fachwissen zu Arbeitsschutzrecht, Gefährdungsbeurteilung, Unfallprävention sowie den Aufgaben und der Stellung des Sicherheitsbeauftragten im Betrieb.',
+    dauer: '1 Tag (8 UE)',
+    maxTn: 15,
+    preis_pp: null,
+    preis_gruppe: 1899,
+    preis_ab: 1,
+    format_optionen: ['online', 'vor-ort'],
+    zertifikat: 'ja',
+    rechtsgrundlage: 'DGUV Vorschrift 1 §20, ArbSchG §22',
+    zielgruppe: 'Sicherheitsbeauftragte, neu bestellte Sicherheitsbeauftragte, Führungskräfte',
+    intervall: 3,
+    inhalte: `• Rechtsgrundlagen: ArbSchG, DGUV Vorschrift 1, BetrVG
+• Aufgaben und Stellung des Sicherheitsbeauftragten
+• Gefährdungsbeurteilung – Methoden und Praxis
+• Unfallursachen erkennen und analysieren
+• Präventionsmaßnahmen entwickeln und umsetzen
+• Begehungen und Kontrollen wirksam durchführen
+• Kommunikation mit Arbeitgeber, Betriebsrat und DGUV
+• Praktische Übungen und Fallbeispiele
+• Aktuelle Änderungen im Arbeitsschutzrecht`,
+  }
+];
 
 function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
@@ -654,11 +556,10 @@ let _tt;
 function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
 function openM(id){document.getElementById(id)?.classList.add('on');}
 function closeM(id){document.getElementById(id)?.classList.remove('on');}
-
 function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
 async function claudeFetch(body){
-  var key=getApiKey();
-  if(!key){alert('Bitte API-Key in den Einstellungen hinterlegen.');throw new Error('Kein API-Key');}
+  const key=getApiKey();
+  if(!key){openUserMenu();throw new Error('Bitte API-Key hinterlegen');}
   return fetch('https://api.anthropic.com/v1/messages',{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify(body)});
@@ -672,193 +573,238 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUserUI();
     applyRoleUI();
     await loadAll();
-    renderSchulungList();
+    switchView('schulungen');
     checkURLShare();
   });
 });
 
 function updateUserUI() {
   const p = currentProfile;
-  document.getElementById('u-av').textContent = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
-  document.getElementById('u-name').textContent = p?.name || '–';
-  const rd = document.getElementById('role-display');
-  rd.style.display = 'inline-flex';
-  rd.innerHTML = `<span class="role-badge ${p?.rolle==='admin'?'role-admin':'role-ma'}">${p?.rolle==='admin'?'Admin':'Mitarbeiter'}</span>`;
+  document.getElementById('u-av').textContent = p?.kuerzel||p?.name?.slice(0,2).toUpperCase()||'?';
+  document.getElementById('u-name').textContent = p?.name||'–';
+  document.getElementById('role-display').innerHTML =
+    `<span class="role-badge ${p?.rolle==='admin'?'role-admin':'role-ma'}">${p?.rolle==='admin'?'Admin':'Mitarbeiter'}</span>`;
 }
 
 function applyRoleUI() {
   const admin = currentProfile?.rolle === 'admin';
-  document.querySelectorAll('.admin-only').forEach(el => {
-    el.style.display = admin ? '' : 'none';
-  });
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
 }
 
 async function loadAll() {
   try {
-    [allSchulungen, allProtokoll, allPraesenz] = await Promise.all([
-      schulungenGetAll(),
-      protokolleGetAll(),
-      praesenzGetAll()
-    ]);
-  } catch(e) {
-    toast('Fehler beim Laden: ' + e.message, 'err');
-  }
+    [allSchulungen, allProtokoll] = await Promise.all([schulungenGetAll(), protokolleGetAll()]);
+  } catch(e) { toast('Fehler beim Laden: ' + e.message, 'err'); }
 }
 
 function openUserMenu() {
   const p = currentProfile;
-  document.getElementById('usermenu-name').textContent = p?.name || 'Mein Konto';
-  document.getElementById('usermenu-rolle').textContent =
-    (p?.rolle === 'admin' ? '👑 Administrator' : '👤 Mitarbeiter') + (p?.kuerzel ? ' · ' + p.kuerzel : '');
-  const keyEl = document.getElementById('um-api-key');
-  if (keyEl) keyEl.value = localStorage.getItem('ehs_api_key') || '';
+  document.getElementById('um-name').textContent = p?.name||'Mein Konto';
+  document.getElementById('um-rolle').textContent = (p?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter')+(p?.kuerzel?' · '+p.kuerzel:'');
+  document.getElementById('um-api-key').value = getApiKey();
   document.getElementById('um-api-status').textContent = '';
   openM('m-usermenu');
 }
+function saveApiKeyUM(){const k=document.getElementById('um-api-key').value.trim();localStorage.setItem('ehs_api_key',k);document.getElementById('um-api-status').textContent=k?'✓ Gespeichert':'Gelöscht';toast('API-Key gespeichert ✓','ok');}
+async function doSignOut(){closeM('m-usermenu');await signOut();}
 
-function saveApiKeyUM() {
-  const k = document.getElementById('um-api-key').value.trim();
-  localStorage.setItem('ehs_api_key', k);
-  document.getElementById('um-api-status').textContent = k ? '✓ Gespeichert' : 'Gelöscht';
-  toast('API-Key gespeichert ✓', 'ok');
-}
-
-async function doSignOut() {
-  await signOut();
-  closeM('m-usermenu');
-}
-
-// ── View-Switching ─────────────────────────────────────────
+// ── View Switching ─────────────────────────────────────────
 function switchView(v) {
   currentView = v;
-  ['online','praesenz','protokoll','nutzer','buchung'].forEach(t => {
-    document.getElementById('view-'+t).style.display = t===v ? 'block' : 'none';
+  ['schulungen','protokoll','buchung'].forEach(t => {
+    document.getElementById('view-'+t).style.display = t===v?'block':'none';
     document.getElementById('vtab-'+t)?.classList.toggle('on', t===v);
   });
-  if (v==='online')    renderSchulungList();
-  if (v==='praesenz')  renderPraesenzList();
-  if (v==='protokoll') renderProtokoll();
-  if (v==='nutzer')    renderNutzer();
-  if (v==='buchung')   renderBuchungList();
+  if (v==='schulungen') renderSchulungList();
+  if (v==='protokoll')  renderProtokoll();
+  if (v==='buchung')    renderBuchungList();
+}
+
+// ── Schulungstyp Toggle ────────────────────────────────────
+function onTypChange() {
+  const typ = document.querySelector('input[name="schulung-typ"]:checked')?.value;
+  document.getElementById('felder-online').style.display  = typ==='online'  ? 'contents' : 'none';
+  document.getElementById('felder-praesenz').style.display = typ==='praesenz' ? 'contents' : 'none';
+  document.getElementById('pdf-block').style.display    = typ==='online'  ? 'block' : 'none';
+  document.getElementById('fragen-block').style.display = typ==='online'  ? 'block' : 'none';
+  // Typ-Label highlighten
+  document.getElementById('typ-online-label').style.borderColor  = typ==='online'  ? '#1a1a1a' : 'var(--border)';
+  document.getElementById('typ-praesenz-label').style.borderColor = typ==='praesenz' ? '#1a1a1a' : 'var(--border)';
 }
 
 // ═══════════════════════════════════════════════════════════
-// ONLINE-SCHULUNGEN
+// SCHULUNGEN LISTE
 // ═══════════════════════════════════════════════════════════
 function renderSchulungList() {
   const el = document.getElementById('schulung-list');
-  document.getElementById('schulung-sub').textContent =
-    allSchulungen.length + ' Schulung(en)';
+  document.getElementById('schulung-sub').textContent = allSchulungen.length + ' Schulung(en)';
   if (!allSchulungen.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-i">📚</div><p style="margin-bottom:14px">Noch keine Schulungen angelegt.</p>'
-      + (currentProfile?.rolle==='admin' ? '<button class="btn btn-p" onclick="openNewSchulungModal()">+ Erste Schulung anlegen</button>' : '') + '</div>';
+    el.innerHTML = `<div class="empty"><div class="empty-i">📚</div><p style="margin-bottom:14px">Noch keine Schulungen angelegt.</p>
+      ${currentProfile?.rolle==='admin'?'<button class="btn btn-p" onclick="openNewSchulungModal()">+ Erste Schulung anlegen</button>':''}</div>`;
     return;
   }
   const admin = currentProfile?.rolle === 'admin';
   el.innerHTML = allSchulungen.map(s => {
+    const typ = s.typ || 'online';
+    const isPraesenz = typ === 'praesenz';
     const protos = allProtokoll.filter(p => p.schulung_id === s.id);
     const best = protos.filter(p => p.bestanden).length;
     const overdue = s.gueltigBis && new Date(s.gueltigBis) < new Date();
     const catColors = {Brandschutz:'#c0392b',Gefahrstoffe:'#e67e22','Arbeitssicherheit':'#2d6a2d','Erste Hilfe':'#2980b9',Sonstiges:'#555'};
-    const cc = catColors[s.kategorie] || '#555';
+    const cc = catColors[s.kategorie]||'#555';
+    const typBadge = isPraesenz
+      ? `<span class="badge b-info">📍 Präsenz</span>`
+      : `<span class="badge b-info">🖥 Online</span>`;
     return `<div class="schulung-card">
-      <div class="schulung-card-body"><div style="min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-          <span style="font-size:15px;font-weight:600">${esc(s.titel)}</span>
-          <span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${cc}20;color:${cc};border:1px solid ${cc}40">${esc(s.kategorie)}</span>
-          ${s.pflicht==='ja'?'<span class="badge b-nok">Pflicht</span>':''}
-          ${overdue?'<span class="badge b-warn">⏰ Abgelaufen</span>':''}
+      <div class="schulung-card-body">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="min-width:0;flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+              <span style="font-size:15px;font-weight:600">${esc(s.titel)}</span>
+              <span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${cc}20;color:${cc};border:1px solid ${cc}40">${esc(s.kategorie)}</span>
+              ${typBadge}
+              ${s.pflicht==='ja'?'<span class="badge b-nok">Pflicht</span>':''}
+              ${overdue?'<span class="badge b-warn">⏰ Abgelaufen</span>':''}
+            </div>
+            ${s.beschreibung?`<div class="ts" style="margin-bottom:6px">${esc(s.beschreibung.slice(0,100))}${s.beschreibung.length>100?'…':''}</div>`:''}
+            <div style="display:flex;gap:14px;flex-wrap:wrap" class="ts">
+              ${isPraesenz
+                ? `<span>📅 ${fmt(s.datum)}${s.von?' · '+s.von:''} ${s.bis?'– '+s.bis:''} Uhr</span>
+                   ${s.raum?`<span>📍 ${esc(s.raum)}</span>`:''}
+                   ${s.referent?`<span>👤 ${esc(s.referent)}</span>`:''}`
+                : `<span>📝 ${s.fragen?.length||0} Fragen · Bestehen: ${s.bestehensgrenze||80}%</span>
+                   ${s.plattform?`<span>🖥 ${esc(s.plattform)}</span>`:''}
+                   ${s.gueltigBis?`<span>📅 Gültig bis: ${fmt(s.gueltigBis)}</span>`:''}`}
+              <span>👥 ${protos.length} Durchführungen${protos.length?' · '+best+' bestanden':''}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
+            ${isPraesenz
+              ? `<button class="btn btn-ok btn-sm" onclick="openAnmeldungModal('${s.id}')">✓ Anmelden</button>`
+              : `<button class="btn btn-p btn-sm" onclick="startSchulungPlayer('${s.id}')">▶ Starten</button>`}
+            <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
+              <button class="btn btn-o btn-sm" onclick="openShareModal('${s.id}')" title="Teilen">📤 Teilen</button>
+              ${isPraesenz&&admin?`<button class="btn btn-o btn-sm" onclick="openTeilnehmerModal('${s.id}')">👥</button>`:''}
+              ${admin?`<button class="btn btn-o btn-sm" onclick="editSchulung('${s.id}')">✏</button>
+              <button class="btn btn-d btn-sm" onclick="deleteSchulung('${s.id}')">🗑</button>`:''}
+            </div>
+          </div>
         </div>
-        ${s.beschreibung?`<div class="ts" style="margin-bottom:6px">${esc(s.beschreibung.slice(0,100))}${s.beschreibung.length>100?'…':''}</div>`:''}
-        <div style="display:flex;gap:14px;flex-wrap:wrap">
-          <span class="ts">📄 ${s.fragen?.length||0} Fragen · Bestehen: ${s.bestehensgrenze||80}%</span>
-          ${s.gueltigBis?`<span class="ts">📅 Gültig bis: ${fmt(s.gueltigBis)}</span>`:''}
-          <span class="ts">👥 ${protos.length} Durchführungen · ${best} bestanden</span>
-        </div>
+        ${isPraesenz?`<div style="margin-top:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:3px">
+            <span>Anmeldungen</span><span>${protos.length}/${s.maxTn||20}</span>
+          </div>
+          <div class="prog-wrap" style="margin:0">
+            <div class="prog-fill ok" style="width:${Math.min(100,Math.round(protos.length/(s.maxTn||20)*100))}%"></div>
+          </div>
+        </div>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
-        <button class="btn btn-p btn-sm" onclick="startSchulungPlayer('${s.id}')">▶ Starten</button>
-        <div style="display:flex;gap:5px">
-          <button class="btn btn-o btn-sm" onclick="openShareModal('${s.id}')" title="Teilen">📤</button>
-          ${admin?`<button class="btn btn-o btn-sm" onclick="editSchulung('${s.id}')">✏</button>
-          <button class="btn btn-d btn-sm" onclick="deleteSchulung('${s.id}')">🗑</button>`:''}
-        </div>
-      </div></div></div>`;
+    </div>`;
   }).join('');
 }
 
-// ── Schulung Anlegen/Bearbeiten ───────────────────────────
+// ═══════════════════════════════════════════════════════════
+// SCHULUNG ANLEGEN / BEARBEITEN
+// ═══════════════════════════════════════════════════════════
 function openNewSchulungModal() {
   document.getElementById('edit-schulung-id').value = '';
   document.getElementById('m-schulung-title').textContent = 'Schulung anlegen';
-  document.getElementById('s-titel').value = '';
+  // Reset
+  ['s-titel','s-beschreibung','s-plattform','s-raum','s-referent','s-kontakt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('s-kategorie').value = 'Brandschutz';
   document.getElementById('s-gueltig').value = '';
   document.getElementById('s-intervall').value = '12';
-  document.getElementById('s-beschreibung').value = '';
   document.getElementById('s-bestehen').value = '80';
   document.getElementById('s-pflicht').value = 'ja';
+  document.getElementById('s-datum').value = '';
+  document.getElementById('s-von').value = '09:00';
+  document.getElementById('s-bis').value = '11:00';
+  document.getElementById('s-maxtn').value = '20';
+  document.getElementById('s-frist').value = '';
   document.getElementById('s-dok-info').textContent = 'Noch keine Datei hochgeladen';
   document.getElementById('btn-ki-fragen').style.display = 'none';
   document.getElementById('ki-fragen-status').style.display = 'none';
+  // Typ auf Online
+  document.getElementById('typ-online').checked = true;
   pendingPDF = null; fragenDraft = [];
+  onTypChange();
   renderFragenEditor();
   openM('m-schulung');
-  setTimeout(() => document.getElementById('s-titel')?.focus(), 120);
+  setTimeout(()=>document.getElementById('s-titel')?.focus(), 120);
 }
 
 function editSchulung(id) {
-  const s = allSchulungen.find(x => x.id === id); if (!s) return;
+  const s = allSchulungen.find(x=>x.id===id); if (!s) return;
   document.getElementById('edit-schulung-id').value = id;
   document.getElementById('m-schulung-title').textContent = 'Schulung bearbeiten';
-  document.getElementById('s-titel').value = s.titel||'';
-  document.getElementById('s-kategorie').value = s.kategorie||'Sonstiges';
-  document.getElementById('s-gueltig').value = s.gueltigBis||'';
-  document.getElementById('s-intervall').value = s.intervall||'';
-  document.getElementById('s-beschreibung').value = s.beschreibung||'';
-  document.getElementById('s-bestehen').value = s.bestehensgrenze||80;
-  document.getElementById('s-pflicht').value = s.pflicht||'ja';
-  document.getElementById('s-dok-info').textContent = s.pdf_name||'Keine Datei';
-  document.getElementById('btn-ki-fragen').style.display = s.pdf_datei ? 'inline-flex' : 'none';
-  pendingPDF = s.pdf_datei ? {dataUrl:s.pdf_datei, name:s.pdf_name} : null;
-  fragenDraft = JSON.parse(JSON.stringify(s.fragen||[]));
-  renderFragenEditor();
+  const set = (elId,val) => { const el=document.getElementById(elId); if(el&&val!=null) el.value=val; };
+  set('s-titel', s.titel); set('s-kategorie', s.kategorie||'Sonstiges');
+  set('s-beschreibung', s.beschreibung); set('s-pflicht', s.pflicht||'ja');
+  // Typ setzen
+  const typ = s.typ || 'online';
+  document.getElementById('typ-'+typ).checked = true;
+  onTypChange();
+  if (typ === 'online') {
+    set('s-plattform', s.plattform); set('s-gueltig', s.gueltigBis);
+    set('s-intervall', s.intervall); set('s-bestehen', s.bestehensgrenze||80);
+    document.getElementById('s-dok-info').textContent = s.pdf_name||'Keine Datei';
+    document.getElementById('btn-ki-fragen').style.display = s.pdf_datei?'inline-flex':'none';
+    pendingPDF = s.pdf_datei?{dataUrl:s.pdf_datei,name:s.pdf_name}:null;
+    fragenDraft = JSON.parse(JSON.stringify(s.fragen||[]));
+    renderFragenEditor();
+  } else {
+    set('s-datum', s.datum); set('s-von', s.von||'09:00'); set('s-bis', s.bis||'11:00');
+    set('s-raum', s.raum); set('s-referent', s.referent);
+    set('s-maxtn', s.maxTn||20); set('s-frist', s.anmeldefrist); set('s-kontakt', s.kontakt);
+  }
   openM('m-schulung');
 }
 
 async function saveSchulungModal() {
   const titel = document.getElementById('s-titel').value.trim();
   if (!titel) { toast('Titel erforderlich','err'); return; }
-  if (!fragenDraft.length) { toast('Mindestens eine Frage erforderlich','err'); return; }
+  const typ = document.querySelector('input[name="schulung-typ"]:checked')?.value || 'online';
+  if (typ==='online' && !fragenDraft.length) { toast('Mindestens eine Frage erforderlich','err'); return; }
   const sp = document.getElementById('save-schulung-spinner');
   sp.style.display = 'inline-block';
   const editId = document.getElementById('edit-schulung-id').value;
-  const prev = editId ? allSchulungen.find(x => x.id === editId) : null;
+  const prev = editId ? allSchulungen.find(x=>x.id===editId) : null;
   const s = {
-    id: prev?.id || uid('SCH'),
-    titel,
-    kategorie: document.getElementById('s-kategorie').value,
-    gueltigBis: document.getElementById('s-gueltig').value,
-    intervall: document.getElementById('s-intervall').value,
-    beschreibung: document.getElementById('s-beschreibung').value.trim(),
-    bestehensgrenze: parseInt(document.getElementById('s-bestehen').value)||80,
-    pflicht: document.getElementById('s-pflicht').value,
-    fragen: fragenDraft,
-    pdf_datei: pendingPDF?.dataUrl || prev?.pdf_datei || null,
-    pdf_name: pendingPDF?.name || prev?.pdf_name || null,
-    createdAt: prev?.createdAt || new Date().toISOString(),
+    id: prev?.id || uid('SCH'), titel, typ,
+    kategorie:   document.getElementById('s-kategorie').value,
+    beschreibung:document.getElementById('s-beschreibung').value.trim(),
+    pflicht:     document.getElementById('s-pflicht').value,
+    createdAt:   prev?.createdAt || new Date().toISOString(),
   };
+  if (typ === 'online') {
+    Object.assign(s, {
+      plattform:      document.getElementById('s-plattform').value.trim(),
+      gueltigBis:     document.getElementById('s-gueltig').value,
+      intervall:      document.getElementById('s-intervall').value,
+      bestehensgrenze:parseInt(document.getElementById('s-bestehen').value)||80,
+      fragen:         fragenDraft,
+      pdf_datei:      pendingPDF?.dataUrl||prev?.pdf_datei||null,
+      pdf_name:       pendingPDF?.name||prev?.pdf_name||null,
+    });
+  } else {
+    Object.assign(s, {
+      datum:        document.getElementById('s-datum').value,
+      von:          document.getElementById('s-von').value,
+      bis:          document.getElementById('s-bis').value,
+      raum:         document.getElementById('s-raum').value.trim(),
+      referent:     document.getElementById('s-referent').value.trim(),
+      maxTn:        parseInt(document.getElementById('s-maxtn').value)||20,
+      anmeldefrist: document.getElementById('s-frist').value,
+      kontakt:      document.getElementById('s-kontakt').value.trim(),
+    });
+  }
   try {
     await schulungSave(s);
     allSchulungen = await schulungenGetAll();
-    closeM('m-schulung');
-    renderSchulungList();
-    toast('Schulung gespeichert ✓', 'ok');
-  } catch(e) {
-    toast('Fehler: ' + e.message, 'err');
-  } finally {
-    sp.style.display = 'none';
-  }
+    closeM('m-schulung'); renderSchulungList();
+    toast('Schulung gespeichert ✓','ok');
+  } catch(e) { toast('Fehler: '+e.message,'err'); }
+  finally { sp.style.display='none'; }
 }
 
 async function deleteSchulung(id) {
@@ -866,77 +812,75 @@ async function deleteSchulung(id) {
   try {
     await schulungDelete(id);
     allSchulungen = await schulungenGetAll();
-    allProtokoll = await protokolleGetAll();
-    renderSchulungList();
-    toast('Schulung gelöscht');
-  } catch(e) { toast('Fehler: ' + e.message, 'err'); }
+    allProtokoll  = await protokolleGetAll();
+    renderSchulungList(); toast('Schulung gelöscht');
+  } catch(e) { toast('Fehler: '+e.message,'err'); }
 }
 
-// ── PDF Upload ────────────────────────────────────────────
+// ── PDF & KI-Fragen ───────────────────────────────────────
 function uploadSchulungPDF(e) {
   const file = e.target.files[0]; if (!file) return;
-  if (file.size > 15*1024*1024) { toast('Max. 15 MB','err'); return; }
+  if (file.size>15*1024*1024) { toast('Max. 15 MB','err'); return; }
   const r = new FileReader();
   r.onload = ev => {
-    pendingPDF = {dataUrl: ev.target.result, name: file.name};
+    pendingPDF = {dataUrl:ev.target.result, name:file.name};
     document.getElementById('s-dok-info').innerHTML = `<span style="color:var(--ok)">✓ ${esc(file.name)}</span>`;
     document.getElementById('btn-ki-fragen').style.display = 'inline-flex';
-    toast(file.name + ' bereit ✓', 'ok');
+    toast(file.name+' bereit ✓','ok');
   };
-  r.readAsDataURL(file); e.target.value = '';
+  r.readAsDataURL(file); e.target.value='';
 }
 
-// ── KI-Fragen ─────────────────────────────────────────────
 async function generateKIFragen() {
   if (!pendingPDF?.dataUrl) { toast('Bitte zuerst PDF hochladen','err'); return; }
   const st = document.getElementById('ki-fragen-status');
-  st.style.display = 'block';
-  st.innerHTML = '<div style="display:flex;align-items:center;gap:8px"><span class="spinner"></span><span>KI generiert Fragen… (20–40 Sek.)</span></div>';
-  const titel = document.getElementById('s-titel').value || 'Schulung';
-  const prompt = `Du bist ein EHS-Schulungsexperte. Lies dieses Schulungsdokument und generiere 5 Verständnisfragen.\n\nSCHULUNG: ${titel}\n\nMultiple-Choice (genau 4 Optionen, genau 1 richtige Antwort).\nAntworte NUR mit JSON-Array:\n[{"frage":"Fragetext","optionen":[{"text":"A","richtig":false},{"text":"B","richtig":true},{"text":"C","richtig":false},{"text":"D","richtig":false}],"erklaerung":"Erklärung"}]`;
+  st.style.display='block';
+  st.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span class="spinner"></span><span>KI generiert Fragen… (20–40 Sek.)</span></div>';
+  const titel = document.getElementById('s-titel').value||'Schulung';
+  const prompt = `Du bist EHS-Schulungsexperte. Lies das Dokument und generiere 5 Multiple-Choice-Fragen (4 Optionen, 1 richtige).\nSCHULUNG: ${titel}\nAntworte NUR mit JSON-Array:\n[{"frage":"...","optionen":[{"text":"...","richtig":false},{"text":"...","richtig":true},{"text":"...","richtig":false},{"text":"...","richtig":false}],"erklaerung":"..."}]`;
   try {
     const res = await claudeFetch({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:[
       {type:'document',source:{type:'base64',media_type:'application/pdf',data:pendingPDF.dataUrl.split(',')[1]}},
       {type:'text',text:prompt}
     ]}]});
     const data = await res.json();
-    if (!res.ok) { st.innerHTML = `<span style="color:var(--nok)">Fehler: ${data.error?.message||'API'}</span>`; return; }
+    if (!res.ok) { st.innerHTML=`<span style="color:var(--nok)">Fehler: ${data.error?.message||'API'}</span>`; return; }
     const text = (data.content||[]).map(b=>b.text||'').join('');
-    let parsed; try { parsed = JSON.parse(text.replace(/```json|```/g,'').trim()); } catch(e) { const m = text.match(/\[[\s\S]*\]/); if(m) try{parsed=JSON.parse(m[0]);}catch(e2){} }
-    if (!Array.isArray(parsed)||!parsed.length) { st.innerHTML = '<span style="color:var(--nok)">Konnte Fragen nicht verarbeiten.</span>'; return; }
-    parsed.forEach(q => fragenDraft.push({id:uid('Q'),frage:q.frage||'',optionen:(q.optionen||[]).map(o=>({text:o.text||'',richtig:!!o.richtig})),erklaerung:q.erklaerung||''}));
+    let parsed; try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){const m=text.match(/\[[\s\S]*\]/);if(m)try{parsed=JSON.parse(m[0]);}catch(e2){}}
+    if (!Array.isArray(parsed)||!parsed.length) { st.innerHTML='<span style="color:var(--nok)">Konnte Fragen nicht verarbeiten.</span>'; return; }
+    parsed.forEach(q=>fragenDraft.push({id:uid('Q'),frage:q.frage||'',optionen:(q.optionen||[]).map(o=>({text:o.text||'',richtig:!!o.richtig})),erklaerung:q.erklaerung||''}));
     renderFragenEditor();
-    st.innerHTML = `<span style="color:var(--ok)">✓ ${parsed.length} Fragen generiert. Bitte prüfen.</span>`;
-    toast(parsed.length + ' KI-Fragen generiert ✓', 'ok');
-  } catch(e) { st.innerHTML = `<span style="color:var(--nok)">Fehler: ${e.message}</span>`; }
+    st.innerHTML=`<span style="color:var(--ok)">✓ ${parsed.length} Fragen generiert. Bitte prüfen.</span>`;
+    toast(parsed.length+' KI-Fragen generiert ✓','ok');
+  } catch(e) { st.innerHTML=`<span style="color:var(--nok)">Fehler: ${e.message}</span>`; }
 }
 
 // ── Fragen-Editor ──────────────────────────────────────────
 function renderFragenEditor() {
   const el = document.getElementById('fragen-editor');
-  if (!fragenDraft.length) { el.innerHTML = '<div class="ts" style="text-align:center;padding:16px">Keine Fragen. Manuell anlegen oder KI nutzen.</div>'; return; }
-  el.innerHTML = fragenDraft.map((f,fi) => `
+  if (!fragenDraft.length) { el.innerHTML='<div class="ts" style="text-align:center;padding:12px">Keine Fragen. Manuell anlegen oder KI nutzen.</div>'; return; }
+  el.innerHTML = fragenDraft.map((f,fi)=>`
     <div class="frage-item" id="frage-block-${fi}">
       <div class="frage-hd">
         <span style="font-size:12px;font-weight:600;color:var(--t2)">Frage ${fi+1}</span>
-        <div style="display:flex;gap:5px;margin-left:auto">
-          ${fi>0?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},-1)" style="padding:4px 8px">↑</button>`:''}
-          ${fi<fragenDraft.length-1?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},1)" style="padding:4px 8px">↓</button>`:''}
-          <button class="btn btn-d btn-sm" onclick="removeFrage(${fi})" style="padding:4px 8px">🗑</button>
+        <div style="display:flex;gap:4px;margin-left:auto">
+          ${fi>0?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},-1)" style="padding:3px 7px">↑</button>`:''}
+          ${fi<fragenDraft.length-1?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},1)" style="padding:3px 7px">↓</button>`:''}
+          <button class="btn btn-d btn-sm" onclick="removeFrage(${fi})" style="padding:3px 7px">🗑</button>
         </div>
       </div>
-      <div style="padding:12px 14px">
-        <div style="margin-bottom:10px"><label>Frage *</label>
+      <div style="padding:10px 14px">
+        <div style="margin-bottom:8px"><label>Frage *</label>
           <textarea rows="2" style="font-size:13px" onchange="fragenDraft[${fi}].frage=this.value">${esc(f.frage)}</textarea></div>
-        <div style="margin-bottom:6px"><label>Antwortoptionen (● = richtig)</label></div>
-        ${f.optionen.map((o,oi) => `<div class="opt-row">
-          <input type="radio" class="opt-radio" name="richtig-${fi}" ${o.richtig?'checked':''} onchange="setRichtig(${fi},${oi})">
-          <input type="text" style="font-size:13px;padding:8px 10px" value="${esc(o.text)}" placeholder="Antwort ${oi+1}" onchange="fragenDraft[${fi}].optionen[${oi}].text=this.value">
-          ${f.optionen.length>2?`<button class="btn btn-d btn-sm" onclick="removeOption(${fi},${oi})" style="padding:4px 8px;flex-shrink:0">✕</button>`:''}
+        <div style="margin-bottom:6px"><label>Antwortoptionen (● = richtige Antwort)</label></div>
+        ${f.optionen.map((o,oi)=>`<div class="opt-row">
+          <input type="radio" name="richtig-${fi}" ${o.richtig?'checked':''} onchange="setRichtig(${fi},${oi})" style="width:auto;accent-color:#1a1a1a">
+          <input type="text" value="${esc(o.text)}" placeholder="Antwort ${oi+1}" style="font-size:13px;padding:7px 10px" onchange="fragenDraft[${fi}].optionen[${oi}].text=this.value">
+          ${f.optionen.length>2?`<button class="btn btn-d btn-sm" onclick="removeOption(${fi},${oi})" style="padding:3px 7px">✕</button>`:''}
         </div>`).join('')}
         ${f.optionen.length<6?`<button class="btn btn-o btn-sm" onclick="addOption(${fi})" style="margin-top:4px">+ Option</button>`:''}
-        <div style="margin-top:10px"><label>Erklärung (nach Antwort)</label>
-          <input type="text" style="font-size:13px;padding:8px 10px" value="${esc(f.erklaerung||'')}" placeholder="Warum ist diese Antwort richtig? (optional)" onchange="fragenDraft[${fi}].erklaerung=this.value"></div>
+        <div style="margin-top:8px"><label>Erklärung (nach Antwort)</label>
+          <input type="text" value="${esc(f.erklaerung||'')}" placeholder="Warum ist diese Antwort richtig?" style="font-size:13px;padding:7px 10px" onchange="fragenDraft[${fi}].erklaerung=this.value"></div>
       </div>
     </div>`).join('');
 }
@@ -948,851 +892,409 @@ function addOption(fi){fragenDraft[fi].optionen.push({text:'',richtig:false});re
 function removeOption(fi,oi){if(fragenDraft[fi].optionen.length<=2)return;const wasR=fragenDraft[fi].optionen[oi].richtig;fragenDraft[fi].optionen.splice(oi,1);if(wasR&&fragenDraft[fi].optionen.length>0)fragenDraft[fi].optionen[0].richtig=true;renderFragenEditor();}
 
 // ═══════════════════════════════════════════════════════════
-// SCHULUNGS-PLAYER
+// PLAYER (Online-Schulungen)
 // ═══════════════════════════════════════════════════════════
-let player = {schulung:null, slide:0, antworten:{}, answered:{}, complete:false};
+let player={schulung:null,slide:0,antworten:{},answered:{}};
 
 function startSchulungPlayer(id) {
-  const s = allSchulungen.find(x => x.id === id); if (!s) return;
-  player = {schulung:s, slide:0, antworten:{}, answered:{}, complete:false};
-  document.getElementById('player-titel').textContent = s.titel;
-  document.getElementById('player-sub').textContent = s.kategorie + ' · ' + s.fragen.length + ' Fragen';
-  updatePlayerProgress(); renderPlayerSlide(); openM('m-player');
+  const s = allSchulungen.find(x=>x.id===id); if(!s)return;
+  if(!DB.activeUser&&!currentProfile){toast('Bitte zuerst anmelden','err');return;}
+  player={schulung:s,slide:0,antworten:{},answered:{}};
+  document.getElementById('player-titel').textContent=s.titel;
+  document.getElementById('player-sub').textContent=s.kategorie+' · '+s.fragen.length+' Fragen';
+  updatePlayerProgress();renderPlayerSlide();openM('m-player');
 }
 
-function getTotalSlides() { return (player.schulung?.fragen?.length||0) + 2; }
+function getTotalSlides(){return(player.schulung?.fragen?.length||0)+2;}
 
-function updatePlayerProgress() {
-  const total = getTotalSlides();
-  const pct = Math.round(player.slide / Math.max(total-1,1) * 100);
-  document.getElementById('player-prog-fill').style.width = pct + '%';
-  document.getElementById('player-prog-text').textContent = (player.slide+1) + ' / ' + total;
+function updatePlayerProgress(){
+  const total=getTotalSlides(),pct=Math.round(player.slide/Math.max(total-1,1)*100);
+  document.getElementById('player-prog-fill').style.width=pct+'%';
+  document.getElementById('player-prog-text').textContent=(player.slide+1)+' / '+total;
 }
 
-function renderPlayerSlide() {
-  const s = player.schulung, total = getTotalSlides();
-  const pc = document.getElementById('player-content');
-  const backBtn = document.getElementById('player-back-btn');
-  const nextBtn = document.getElementById('player-next-btn');
-  const navInfo = document.getElementById('player-nav-info');
-  backBtn.style.display = player.slide > 0 ? 'inline-flex' : 'none';
+function renderPlayerSlide(){
+  const s=player.schulung,total=getTotalSlides();
+  const pc=document.getElementById('player-content');
+  const backBtn=document.getElementById('player-back-btn');
+  const nextBtn=document.getElementById('player-next-btn');
+  const navInfo=document.getElementById('player-nav-info');
+  backBtn.style.display=player.slide>0?'inline-flex':'none';
   updatePlayerProgress();
-  if (player.slide === 0) {
-    nextBtn.textContent = 'Schulung starten →'; navInfo.textContent = '';
-    pc.innerHTML = `<div style="max-width:560px;margin:0 auto;text-align:center;padding:20px 0">
-      <div style="font-size:56px;margin-bottom:20px">📚</div>
-      <h1 style="font-family:var(--fh);font-size:26px;font-weight:700;margin-bottom:12px">${esc(s.titel)}</h1>
-      <div style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:13px;background:rgba(26,26,26,.07);margin-bottom:16px">${esc(s.kategorie)}</div>
-      ${s.beschreibung?`<p style="color:var(--t2);font-size:14px;line-height:1.7;margin-bottom:20px">${esc(s.beschreibung)}</p>`:''}
-      <div style="background:var(--s2);border-radius:10px;padding:16px 20px;margin-bottom:20px;text-align:left">
-        <div style="font-size:13px;display:flex;flex-direction:column;gap:8px">
-          <div>📝 <strong>${s.fragen.length}</strong> Verständnisfragen</div>
-          <div>✅ Bestehensgrenze: <strong>${s.bestehensgrenze}%</strong></div>
-          ${s.gueltigBis?`<div>📅 Gültig bis: <strong>${fmt(s.gueltigBis)}</strong></div>`:''}
-          ${s.pdf_datei?`<div>📄 Unterweisung verfügbar <button class="btn btn-o btn-sm" style="margin-left:8px" onclick="openSchulungPDF()">📖 Lesen</button></div>`:''}
-        </div>
+  if(player.slide===0){
+    nextBtn.textContent='Schulung starten →';navInfo.textContent='';
+    pc.innerHTML=`<div style="max-width:560px;margin:0 auto;text-align:center;padding:20px 0">
+      <div style="font-size:52px;margin-bottom:16px">📚</div>
+      <h1 style="font-family:var(--fh);font-size:24px;font-weight:700;margin-bottom:10px">${esc(s.titel)}</h1>
+      ${s.beschreibung?`<p style="color:var(--t2);font-size:14px;line-height:1.6;margin-bottom:16px">${esc(s.beschreibung)}</p>`:''}
+      <div style="background:var(--s2);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left;font-size:13px;display:flex;flex-direction:column;gap:8px">
+        <div>📝 <strong>${s.fragen.length}</strong> Fragen · Bestehen: <strong>${s.bestehensgrenze||80}%</strong></div>
+        ${s.plattform?`<div>🖥 Plattform: <strong>${esc(s.plattform)}</strong></div>`:''}
+        ${s.pdf_datei?`<div>📄 Unterweisung verfügbar <button class="btn btn-o btn-sm" style="margin-left:8px" onclick="openSchulungPDF()">📖 Lesen</button></div>`:''}
       </div>
       <p style="font-size:13px;color:var(--t2)">Eingeloggt als: <strong>${esc(currentProfile?.name||'–')}</strong></p>
-    </div>`;
-    return;
+    </div>`;return;
   }
-  if (player.slide === total-1) {
-    const fragen = s.fragen;
-    const richtig = fragen.filter(f => player.antworten[f.id]!=null && f.optionen[player.antworten[f.id]]?.richtig).length;
-    const pct = Math.round(richtig/fragen.length*100);
-    const bestanden = pct >= s.bestehensgrenze;
-    nextBtn.textContent = bestanden ? '✓ Abschließen & speichern' : '↺ Nochmals versuchen';
-    nextBtn.className = 'btn ' + (bestanden ? 'btn-ok' : 'btn-p');
-    navInfo.textContent = ''; backBtn.style.display = 'none';
-    pc.innerHTML = `<div style="max-width:520px;margin:0 auto;text-align:center;padding:20px 0">
-      <div style="font-size:64px;margin-bottom:16px">${bestanden?'🎉':'❌'}</div>
-      <h2 style="font-family:var(--fh);font-size:28px;font-weight:700;margin-bottom:8px">${bestanden?'Bestanden!':'Nicht bestanden'}</h2>
-      <div style="font-size:48px;font-weight:800;color:${bestanden?'var(--ok)':'var(--nok)'};margin-bottom:8px">${pct}%</div>
-      <p style="color:var(--t2);margin-bottom:24px">${richtig} von ${fragen.length} Fragen richtig · Minimum: ${s.bestehensgrenze}%</p>
-      <div style="background:var(--s2);border-radius:10px;padding:16px;margin-bottom:20px;text-align:left">
-        ${fragen.map(f => {
-          const ai = player.antworten[f.id];
-          const r = ai!=null && f.optionen[ai]?.richtig;
-          return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
-            <span style="font-size:16px;flex-shrink:0">${r?'✓':'✗'}</span>
-            <div><div style="font-size:13px;font-weight:500;color:${r?'var(--ok)':'var(--nok)'}">${esc(f.frage)}</div>
-            ${ai!=null?`<div style="font-size:12px;color:var(--t2)">Antwort: ${esc(f.optionen[ai]?.text||'–')}</div>`:'<div style="font-size:12px;color:var(--nok)">Nicht beantwortet</div>'}
-            ${!r&&f.erklaerung?`<div style="font-size:12px;color:var(--a2);margin-top:2px">💡 ${esc(f.erklaerung)}</div>`:''}</div></div>`;
-        }).join('')}
+  if(player.slide===total-1){
+    const fragen=s.fragen;
+    const richtig=fragen.filter(f=>player.antworten[f.id]!=null&&f.optionen[player.antworten[f.id]]?.richtig).length;
+    const pct=Math.round(richtig/fragen.length*100);
+    const bestanden=pct>=(s.bestehensgrenze||80);
+    nextBtn.textContent=bestanden?'✓ Abschließen & speichern':'↺ Nochmals versuchen';
+    nextBtn.className='btn '+(bestanden?'btn-ok':'btn-p');
+    navInfo.textContent='';backBtn.style.display='none';
+    pc.innerHTML=`<div style="max-width:520px;margin:0 auto;text-align:center;padding:20px 0">
+      <div style="font-size:56px;margin-bottom:12px">${bestanden?'🎉':'❌'}</div>
+      <h2 style="font-family:var(--fh);font-size:26px;font-weight:700;margin-bottom:6px">${bestanden?'Bestanden!':'Nicht bestanden'}</h2>
+      <div style="font-size:44px;font-weight:800;color:${bestanden?'var(--ok)':'var(--nok)'};margin-bottom:6px">${pct}%</div>
+      <p style="color:var(--t2);margin-bottom:20px">${richtig} von ${fragen.length} richtig · Minimum: ${s.bestehensgrenze||80}%</p>
+      <div style="background:var(--s2);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left">
+        ${fragen.map(f=>{const ai=player.antworten[f.id];const r=ai!=null&&f.optionen[ai]?.richtig;return`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:15px;flex-shrink:0">${r?'✓':'✗'}</span><div><div style="font-size:13px;font-weight:500;color:${r?'var(--ok)':'var(--nok)'}">${esc(f.frage)}</div>${ai!=null?`<div class="ts">Antwort: ${esc(f.optionen[ai]?.text||'–')}</div>`:'<div class="ts" style="color:var(--nok)">Nicht beantwortet</div>'}${!r&&f.erklaerung?`<div class="ts">💡 ${esc(f.erklaerung)}</div>`:''}</div></div>`;}).join('')}
       </div>
-    </div>`;
-    return;
+    </div>`;return;
   }
-  const fi = player.slide - 1, f = s.fragen[fi]; if (!f) return;
-  const answered = player.answered[f.id], selectedIdx = player.antworten[f.id] ?? null;
-  navInfo.textContent = 'Frage ' + (fi+1) + ' von ' + s.fragen.length;
-  nextBtn.textContent = answered ? 'Weiter →' : 'Überspringen';
-  nextBtn.className = 'btn ' + (answered ? 'btn-p' : 'btn-o');
-  pc.innerHTML = `<div style="max-width:640px;margin:0 auto">
-    <div style="font-size:12px;color:var(--t2);font-family:var(--fm);margin-bottom:12px">FRAGE ${fi+1} / ${s.fragen.length}</div>
-    <h2 style="font-size:18px;font-weight:600;line-height:1.5;margin-bottom:24px">${esc(f.frage)}</h2>
-    ${f.optionen.map((o,oi) => {
-      let cls = 'quiz-option';
-      if (answered) { cls += ' disabled'; if(o.richtig) cls += ' correct'; else if(oi===selectedIdx&&!o.richtig) cls += ' wrong'; }
-      else if (oi===selectedIdx) cls += ' selected';
-      return `<button class="${cls}" onclick="${answered?'':'selectAntwort(\''+f.id+'\','+oi+')'}">
-        <span style="width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${['A','B','C','D','E','F'][oi]}</span>
-        ${esc(o.text)}</button>`;
-    }).join('')}
+  const fi=player.slide-1,f=s.fragen[fi];if(!f)return;
+  const answered=player.answered[f.id],selectedIdx=player.antworten[f.id]??null;
+  navInfo.textContent='Frage '+(fi+1)+' von '+s.fragen.length;
+  nextBtn.textContent=answered?'Weiter →':'Überspringen';
+  nextBtn.className='btn '+(answered?'btn-p':'btn-o');
+  pc.innerHTML=`<div style="max-width:640px;margin:0 auto">
+    <div style="font-size:11px;color:var(--t2);font-family:var(--fm);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em">Frage ${fi+1} / ${s.fragen.length}</div>
+    <h2 style="font-size:18px;font-weight:600;line-height:1.5;margin-bottom:20px">${esc(f.frage)}</h2>
+    ${f.optionen.map((o,oi)=>{let cls='quiz-option';if(answered){cls+=' disabled';if(o.richtig)cls+=' correct';else if(oi===selectedIdx&&!o.richtig)cls+=' wrong';}else if(oi===selectedIdx)cls+=' selected';return`<button class="${cls}" onclick="${answered?'':'selectAntwort(\''+f.id+'\','+oi+')'}"><span style="width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${['A','B','C','D','E','F'][oi]}</span>${esc(o.text)}</button>`;}).join('')}
     ${answered&&f.erklaerung?`<div class="quiz-feedback ${f.optionen[selectedIdx]?.richtig?'ok':'nok'}">💡 ${esc(f.erklaerung)}</div>`:''}
-    ${answered?`<div style="margin-top:16px;text-align:right"><button class="btn btn-p" onclick="playerNext()">Weiter →</button></div>`:''}
+    ${answered?`<div style="margin-top:14px;text-align:right"><button class="btn btn-p" onclick="playerNext()">Weiter →</button></div>`:''}
   </div>`;
 }
 
 function selectAntwort(fid,idx){player.antworten[fid]=idx;player.answered[fid]=true;renderPlayerSlide();}
 function openSchulungPDF(){const s=player.schulung;if(!s?.pdf_datei)return;const w=window.open();w.document.write('<iframe src="'+s.pdf_datei+'" style="width:100%;height:100vh;border:none"></iframe>');}
-async function playerNext() {
-  const total = getTotalSlides(), s = player.schulung;
-  if (player.slide === total-1) {
-    const fragen = s.fragen;
-    const richtig = fragen.filter(f=>player.antworten[f.id]!=null&&f.optionen[player.antworten[f.id]]?.richtig).length;
-    const pct = Math.round(richtig/fragen.length*100);
-    const bestanden = pct >= s.bestehensgrenze;
-    if (!bestanden) { player.slide=0; player.antworten={}; player.answered={}; renderPlayerSlide(); return; }
-    await saveProtokolleintrag(s, pct, bestanden);
-    closePlayer(); return;
+async function playerNext(){
+  const total=getTotalSlides(),s=player.schulung;
+  if(player.slide===total-1){
+    const fragen=s.fragen,richtig=fragen.filter(f=>player.antworten[f.id]!=null&&f.optionen[player.antworten[f.id]]?.richtig).length;
+    const pct=Math.round(richtig/fragen.length*100),bestanden=pct>=(s.bestehensgrenze||80);
+    if(!bestanden){player.slide=0;player.antworten={};player.answered={};renderPlayerSlide();return;}
+    await saveProtokolleintrag(s,pct,bestanden);closePlayer();return;
   }
-  if (player.slide < total-1) { player.slide++; renderPlayerSlide(); }
+  if(player.slide<total-1){player.slide++;renderPlayerSlide();}
 }
 function playerBack(){if(player.slide>0){player.slide--;renderPlayerSlide();}}
 function closePlayer(){closeM('m-player');renderSchulungList();}
 
-async function saveProtokolleintrag(s, score, bestanden) {
-  const p = {
-    id: uid('P'), schulungId: s.id,
-    userName: currentProfile?.name || '–', userKz: currentProfile?.kuerzel || '–',
-    score, bestanden, antworten: player.antworten
-  };
-  try {
-    await protokollSave(p);
-    allProtokoll = await protokolleGetAll();
-    toast(bestanden ? 'Schulung bestanden ✓ (' + score + '%)' : 'Schulung abgeschlossen – ' + score + '%', bestanden ? 'ok' : '');
-  } catch(e) { toast('Protokoll konnte nicht gespeichert werden: ' + e.message, 'err'); }
+async function saveProtokolleintrag(s,score,bestanden){
+  try{
+    await protokollSave({id:uid('P'),schulungId:s.id,userName:currentProfile?.name||'–',userKz:currentProfile?.kuerzel||'–',score,bestanden,antworten:player.antworten});
+    allProtokoll=await protokolleGetAll();
+    toast(bestanden?'Schulung bestanden ✓ ('+score+'%)':'Schulung abgeschlossen – '+score+'%',bestanden?'ok':'');
+  }catch(e){toast('Protokoll-Fehler: '+e.message,'err');}
 }
 
 // ═══════════════════════════════════════════════════════════
-// PRÄSENZSCHULUNGEN
+// ANMELDUNG (Präsenzschulungen)
 // ═══════════════════════════════════════════════════════════
-async function renderPraesenzList() {
-  const el = document.getElementById('praesenz-list');
-  el.innerHTML = '<div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div>';
-  allPraesenz = await praesenzGetAll();
-  const admin = currentProfile?.rolle === 'admin';
-  document.getElementById('praesenz-sub').textContent = allPraesenz.length + ' Termine';
-  if (!allPraesenz.length) {
-    el.innerHTML = '<div class="empty"><div class="empty-i">📅</div><p style="margin-bottom:14px">Noch keine Präsenzschulungen geplant.</p>'
-      + (admin?'<button class="btn btn-p" onclick="openNewPraesenzModal()">+ Ersten Termin anlegen</button>':'') + '</div>';
-    return;
-  }
-  // Anmeldezahlen laden
-  const anmeldungenMap = {};
-  for (const p of allPraesenz) {
-    const anm = await anmeldungenGet(p.id);
-    anmeldungenMap[p.id] = anm;
-  }
-  const jetzt = new Date();
-  el.innerHTML = allPraesenz.map(p => {
-    const anm = anmeldungenMap[p.id] || [];
-    const aktiv = anm.filter(a => a.status === 'angemeldet' || a.status === 'teilgenommen');
-    const voll = aktiv.length >= (p.maxTn || 20);
-    const vergangen = p.datum && new Date(p.datum) < jetzt;
-    const fristAbgelaufen = p.anmeldefrist && new Date(p.anmeldefrist) < jetzt;
-    const catColors = {Brandschutz:'#c0392b','Erste Hilfe':'#2980b9','Arbeitssicherheit':'#2d6a2d',Sonstiges:'#555'};
-    const cc = catColors[p.kategorie] || '#555';
-    return `<div class="praesenz-card ${voll?'voll':''}">
-      <div style="padding:16px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div style="min-width:0">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-              <span style="font-size:15px;font-weight:600">${esc(p.titel)}</span>
-              <span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${cc}20;color:${cc};border:1px solid ${cc}40">${esc(p.kategorie||'')}</span>
-              ${p.pflicht==='ja'?'<span class="badge b-nok">Pflicht</span>':''}
-              ${vergangen?'<span class="badge b-info">Durchgeführt</span>':''}
-              ${voll&&!vergangen?'<span class="badge b-warn">Ausgebucht</span>':''}
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;font-size:13px;color:var(--t2)">
-              <div>📅 <strong>${fmt(p.datum)}</strong>${p.von?' · '+p.von:''} ${p.bis?'– '+p.bis:''} Uhr</div>
-              ${p.raum?`<div>📍 ${esc(p.raum)}</div>`:''}
-              ${p.referent?`<div>👤 ${esc(p.referent)}</div>`:''}
-              <div>👥 ${aktiv.length} / ${p.maxTn||20} Teilnehmer</div>
-              ${p.anmeldefrist?`<div>⏰ Anmeldung bis: ${fmt(p.anmeldefrist)}</div>`:''}
-            </div>
-            ${p.beschreibung?`<div class="ts" style="margin-top:8px">${esc(p.beschreibung.slice(0,120))}${p.beschreibung.length>120?'…':''}</div>`:''}
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
-            ${!vergangen && !voll && !fristAbgelaufen
-              ? `<button class="btn btn-ok btn-sm" onclick="openAnmeldungModal('${p.id}')">✓ Anmelden</button>`
-              : !vergangen && voll ? `<button class="btn btn-warn btn-sm" onclick="openAnmeldungModal('${p.id}')">Warteliste</button>` : ''}
-            ${admin?`
-              <div style="display:flex;gap:5px">
-                <button class="btn btn-o btn-sm" onclick="openTeilnehmerModal('${p.id}')">👥 Liste</button>
-                <button class="btn btn-o btn-sm" onclick="editPraesenz('${p.id}')">✏</button>
-                <button class="btn btn-d btn-sm" onclick="deletePraesenz('${p.id}')">🗑</button>
-              </div>`:''}
-          </div>
-        </div>
-        <!-- Fortschrittsbalken Anmeldungen -->
-        <div style="margin-top:10px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:3px">
-            <span>Anmeldungen</span><span>${aktiv.length}/${p.maxTn||20}</span>
-          </div>
-          <div class="prog-wrap" style="margin:0">
-            <div class="prog-fill ${voll?'':'ok'}" style="width:${Math.min(100,Math.round(aktiv.length/(p.maxTn||20)*100))}%;background:${voll?'var(--nok)':'var(--ok)'}"></div>
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openNewPraesenzModal() {
-  document.getElementById('edit-praesenz-id').value = '';
-  document.getElementById('m-praesenz-title').textContent = 'Präsenzschulung anlegen';
-  ['p-titel','p-raum','p-referent','p-beschreibung','p-kontakt'].forEach(id => {const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('p-kategorie').value = 'Brandschutz';
-  document.getElementById('p-datum').value = '';
-  document.getElementById('p-von').value = '09:00';
-  document.getElementById('p-bis').value = '11:00';
-  document.getElementById('p-maxtn').value = '20';
-  document.getElementById('p-frist').value = '';
-  document.getElementById('p-pflicht').value = 'ja';
-  openM('m-praesenz');
-  setTimeout(() => document.getElementById('p-titel')?.focus(), 120);
-}
-
-function editPraesenz(id) {
-  const p = allPraesenz.find(x => x.id === id); if (!p) return;
-  document.getElementById('edit-praesenz-id').value = id;
-  document.getElementById('m-praesenz-title').textContent = 'Präsenzschulung bearbeiten';
-  document.getElementById('p-titel').value = p.titel||'';
-  document.getElementById('p-kategorie').value = p.kategorie||'Sonstiges';
-  document.getElementById('p-datum').value = p.datum||'';
-  document.getElementById('p-von').value = p.von||'09:00';
-  document.getElementById('p-bis').value = p.bis||'11:00';
-  document.getElementById('p-raum').value = p.raum||'';
-  document.getElementById('p-referent').value = p.referent||'';
-  document.getElementById('p-maxtn').value = p.maxTn||20;
-  document.getElementById('p-frist').value = p.anmeldefrist||'';
-  document.getElementById('p-beschreibung').value = p.beschreibung||'';
-  document.getElementById('p-pflicht').value = p.pflicht||'ja';
-  document.getElementById('p-kontakt').value = p.kontakt||'';
-  openM('m-praesenz');
-}
-
-async function savePraesenzModal() {
-  const titel = document.getElementById('p-titel').value.trim();
-  const datum = document.getElementById('p-datum').value;
-  if (!titel || !datum) { toast('Titel und Datum erforderlich','err'); return; }
-  const sp = document.getElementById('save-praesenz-spinner');
-  sp.style.display = 'inline-block';
-  const editId = document.getElementById('edit-praesenz-id').value;
-  const prev = editId ? allPraesenz.find(x => x.id === editId) : null;
-  const p = {
-    id: prev?.id || uid('PRZ'), titel,
-    kategorie: document.getElementById('p-kategorie').value,
-    datum, von: document.getElementById('p-von').value,
-    bis: document.getElementById('p-bis').value,
-    raum: document.getElementById('p-raum').value.trim(),
-    referent: document.getElementById('p-referent').value.trim(),
-    maxTn: parseInt(document.getElementById('p-maxtn').value)||20,
-    anmeldefrist: document.getElementById('p-frist').value,
-    beschreibung: document.getElementById('p-beschreibung').value.trim(),
-    pflicht: document.getElementById('p-pflicht').value,
-    kontakt: document.getElementById('p-kontakt').value.trim(),
-    createdAt: prev?.createdAt || new Date().toISOString()
-  };
-  try {
-    await praesenzSave(p);
-    allPraesenz = await praesenzGetAll();
-    closeM('m-praesenz');
-    renderPraesenzList();
-    toast('Präsenzschulung gespeichert ✓','ok');
-  } catch(e) { toast('Fehler: ' + e.message,'err'); }
-  finally { sp.style.display = 'none'; }
-}
-
-async function deletePraesenz(id) {
-  if (!confirm('Termin und alle Anmeldungen löschen?')) return;
-  try { await praesenzDelete(id); allPraesenz = await praesenzGetAll(); renderPraesenzList(); toast('Termin gelöscht'); }
-  catch(e) { toast('Fehler: ' + e.message,'err'); }
-}
-
-// ── Anmeldung ─────────────────────────────────────────────
-let _anmeldungPraesenzId = null;
-function openAnmeldungModal(praesenzId) {
-  _anmeldungPraesenzId = praesenzId;
-  const p = allPraesenz.find(x => x.id === praesenzId);
-  document.getElementById('m-anmeldung-title').textContent = 'Anmelden: ' + (p?.titel||'');
-  document.getElementById('m-anmeldung-sub').textContent =
-    `${fmt(p?.datum||'')}${p?.von?' · '+p.von:''} ${p?.bis?'– '+p.bis:''} Uhr · ${p?.raum||''}`;
-  document.getElementById('anm-name').value = currentProfile?.name || '';
+let _anmPraesenzId = null;
+function openAnmeldungModal(id) {
+  _anmPraesenzId = id;
+  const s = allSchulungen.find(x=>x.id===id);
+  document.getElementById('m-anmeldung-title').textContent = 'Anmelden: '+(s?.titel||'');
+  document.getElementById('m-anmeldung-sub').textContent = `${fmt(s?.datum||'')}${s?.von?' · '+s.von:''} ${s?.bis?'– '+s.bis:''} Uhr · ${s?.raum||''}`;
+  document.getElementById('anm-name').value = currentProfile?.name||'';
   document.getElementById('anm-email').value = '';
   openM('m-anmeldung');
-  setTimeout(() => document.getElementById('anm-email')?.focus(), 120);
+  setTimeout(()=>document.getElementById('anm-email')?.focus(),120);
 }
 
-async function submitAnmeldung() {
-  const name = document.getElementById('anm-name').value.trim();
-  const email = document.getElementById('anm-email').value.trim();
-  if (!name || !email) { toast('Name und E-Mail erforderlich','err'); return; }
-  const sp = document.getElementById('anm-spinner');
-  sp.style.display = 'inline-block';
-  const p = allPraesenz.find(x => x.id === _anmeldungPraesenzId);
-  const anm = await anmeldungenGet(_anmeldungPraesenzId);
-  const aktiv = anm.filter(a => a.status === 'angemeldet' || a.status === 'teilgenommen');
-  const voll = aktiv.length >= (p?.maxTn||20);
-  const status = voll ? 'warteliste' : 'angemeldet';
-  try {
-    await anmeldungSave({id:uid('ANM'), schulungId:_anmeldungPraesenzId, name, email, status});
+async function submitAnmeldung(){
+  const name=document.getElementById('anm-name').value.trim();
+  const email=document.getElementById('anm-email').value.trim();
+  if(!name||!email){toast('Name und E-Mail erforderlich','err');return;}
+  const sp=document.getElementById('anm-spinner');sp.style.display='inline-block';
+  const s=allSchulungen.find(x=>x.id===_anmPraesenzId);
+  const protos=allProtokoll.filter(p=>p.schulung_id===_anmPraesenzId);
+  const status=protos.length>=(s?.maxTn||20)?'warteliste':'angemeldet';
+  try{
+    await anmeldungSave({id:uid('ANM'),schulungId:_anmPraesenzId,name,email,status});
+    allProtokoll=await protokolleGetAll();
     closeM('m-anmeldung');
-    // Mail-Bestätigung öffnen
-    sendAnmeldungsBestaetigung(p, name, email, status);
-    renderPraesenzList();
-    toast(status==='angemeldet' ? 'Anmeldung bestätigt ✓' : 'Auf Warteliste gesetzt','ok');
-  } catch(e) { toast('Fehler: ' + e.message,'err'); }
-  finally { sp.style.display = 'none'; }
+    sendAnmeldungsBestaetigung(s,name,email,status);
+    renderSchulungList();
+    toast(status==='angemeldet'?'Anmeldung bestätigt ✓':'Auf Warteliste gesetzt','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
 }
 
-function sendAnmeldungsBestaetigung(p, name, email, status) {
-  if (!p) return;
-  const betreff = encodeURIComponent(`${status==='angemeldet'?'Anmeldebestätigung':'Warteliste'}: ${p.titel}`);
-  const body = encodeURIComponent(
-    `Guten Tag ${name},\n\n` +
-    (status==='angemeldet'
-      ? `Ihre Anmeldung zur folgenden Schulung wurde bestätigt:\n\n`
-      : `Sie wurden auf die Warteliste gesetzt:\n\n`) +
-    `Schulung: ${p.titel}\n` +
-    `Datum: ${fmt(p.datum)}${p.von?' · '+p.von:''} ${p.bis?'– '+p.bis:''} Uhr\n` +
-    (p.raum ? `Ort: ${p.raum}\n` : '') +
-    (p.referent ? `Referent: ${p.referent}\n` : '') +
-    `\nBitte erscheinen Sie 5 Minuten vor Beginn.\n\n` +
-    `Bei Fragen wenden Sie sich an: ${p.kontakt||'das EHS-Team'}\n\n` +
-    `Mit freundlichen Grüßen\nEHS-Team – Oak Engineering`
-  );
-  const kontakt = p.kontakt || '';
-  window.location.href = `mailto:${email}${kontakt?','+kontakt:''}?subject=${betreff}&body=${body}`;
+function sendAnmeldungsBestaetigung(s,name,email,status){
+  if(!s)return;
+  const betreff=encodeURIComponent(`${status==='angemeldet'?'Anmeldebestätigung':'Warteliste'}: ${s.titel}`);
+  const body=encodeURIComponent(`Guten Tag ${name},\n\n`+(status==='angemeldet'?'Ihre Anmeldung wurde bestätigt:\n\n':'Sie wurden auf die Warteliste gesetzt:\n\n')+`Schulung: ${s.titel}\nDatum: ${fmt(s.datum)}${s.von?' · '+s.von:''} ${s.bis?'– '+s.bis:''} Uhr\n`+(s.raum?`Ort: ${s.raum}\n`:'')+(s.referent?`Referent: ${s.referent}\n`:'')+`\nBitte erscheinen Sie 5 Minuten vor Beginn.\n\nMit freundlichen Grüßen\nEHS-Team – Oak Engineering`);
+  window.location.href=`mailto:${email}?subject=${betreff}&body=${body}`;
 }
 
 // ── Teilnehmerliste (Admin) ────────────────────────────────
-let _teilnehmerPraesenzId = null;
-async function openTeilnehmerModal(praesenzId) {
-  _teilnehmerPraesenzId = praesenzId;
-  const p = allPraesenz.find(x => x.id === praesenzId);
-  document.getElementById('m-teilnehmer-title').textContent = 'Teilnehmerliste: ' + (p?.titel||'');
-  const el = document.getElementById('teilnehmer-body');
-  el.innerHTML = '<div style="text-align:center;padding:20px"><span class="spinner"></span></div>';
+let _tnPraesenzId = null;
+async function openTeilnehmerModal(id){
+  _tnPraesenzId=id;
+  const s=allSchulungen.find(x=>x.id===id);
+  document.getElementById('m-teilnehmer-title').textContent='Teilnehmer: '+(s?.titel||'');
+  const el=document.getElementById('teilnehmer-body');
+  el.innerHTML='<div style="text-align:center;padding:20px"><span class="spinner"></span></div>';
   openM('m-teilnehmer');
-  const anm = await anmeldungenGet(praesenzId);
-  if (!anm.length) { el.innerHTML = '<div class="empty"><div class="empty-i">👥</div><p>Noch keine Anmeldungen.</p></div>'; return; }
-  const statusLabel = {angemeldet:'✓ Angemeldet',warteliste:'⏳ Warteliste',abgesagt:'✗ Abgesagt',teilgenommen:'✓ Teilgenommen'};
-  const statusColor = {angemeldet:'var(--ok)',warteliste:'var(--warn)',abgesagt:'var(--nok)',teilgenommen:'var(--ok)'};
-  el.innerHTML = `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
-    <div class="teilnehmer-row proto-head"><div>Name / E-Mail</div><div>Angemeldet</div><div>Status</div></div>
-    ${anm.map(a => `<div class="teilnehmer-row">
+  const anm=await anmeldungenGet(id);
+  if(!anm.length){el.innerHTML='<div class="empty"><div class="empty-i">👥</div><p>Noch keine Anmeldungen.</p></div>';return;}
+  const statusLabel={angemeldet:'✓ Angemeldet',warteliste:'⏳ Warteliste',abgesagt:'✗ Abgesagt',teilgenommen:'✓ Teilgenommen'};
+  el.innerHTML=`<div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    ${anm.map(a=>`<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px">
       <div><div style="font-weight:500">${esc(a.name)}</div><div class="ts">${esc(a.email)}</div></div>
       <div class="ts">${fmtDT(a.angemeldet_am)}</div>
-      <div>
-        <select style="font-size:12px;padding:4px 8px;width:auto" onchange="updateTnStatus('${a.id}',this.value)">
-          ${['angemeldet','warteliste','abgesagt','teilgenommen'].map(s =>
-            `<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
-        </select>
-      </div>
+      <select style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--s2)" onchange="updateTnStatus('${a.id}',this.value)">
+        ${['angemeldet','warteliste','abgesagt','teilgenommen'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
+      </select>
     </div>`).join('')}
   </div>
-  <div class="ts" style="margin-top:10px">${anm.filter(a=>a.status==='angemeldet'||a.status==='teilgenommen').length} Anmeldungen · ${anm.filter(a=>a.status==='warteliste').length} Warteliste</div>`;
+  <div class="ts" style="margin-top:8px">${anm.filter(a=>a.status==='angemeldet'||a.status==='teilgenommen').length} Anmeldungen · ${anm.filter(a=>a.status==='warteliste').length} Warteliste</div>`;
 }
 
-async function updateTnStatus(id, status) {
-  try { await anmeldungUpdateStatus(id, status); toast('Status aktualisiert ✓','ok'); }
-  catch(e) { toast('Fehler: ' + e.message,'err'); }
-}
+async function updateTnStatus(id,status){try{await anmeldungUpdateStatus(id,status);toast('Status aktualisiert ✓','ok');}catch(e){toast('Fehler: '+e.message,'err');}}
 
-async function schulungDurchgefuehrt() {
-  if (!confirm('Schulung als durchgeführt markieren? Alle angemeldeten Teilnehmer werden als "Teilgenommen" gesetzt.')) return;
-  const anm = await anmeldungenGet(_teilnehmerPraesenzId);
-  for (const a of anm.filter(x => x.status==='angemeldet')) {
-    await anmeldungUpdateStatus(a.id, 'teilgenommen');
-  }
+async function schulungDurchgefuehrt(){
+  if(!confirm('Schulung als durchgeführt markieren?'))return;
+  const anm=await anmeldungenGet(_tnPraesenzId);
+  for(const a of anm.filter(x=>x.status==='angemeldet'))await anmeldungUpdateStatus(a.id,'teilgenommen');
   toast('Schulung als durchgeführt markiert ✓','ok');
-  openTeilnehmerModal(_teilnehmerPraesenzId);
-}
-
-function exportTeilnehmerCSV() {
-  // Wird nach Laden der Daten aufgerufen
-  openTeilnehmerModal(_teilnehmerPraesenzId).then(() => {
-    toast('Export: Bitte nochmal klicken nach dem Laden','');
-  });
+  openTeilnehmerModal(_tnPraesenzId);
 }
 
 // ═══════════════════════════════════════════════════════════
 // PROTOKOLL
 // ═══════════════════════════════════════════════════════════
-async function renderProtokoll() {
-  allProtokoll = await protokolleGetAll();
-  const sel = document.getElementById('proto-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">– Alle Schulungen –</option>'
-    + allSchulungen.map(s => `<option value="${s.id}" ${s.id===cur?'selected':''}>${esc(s.titel)}</option>`).join('');
-  const filter = sel.value;
-  const data = allProtokoll.filter(p => !filter || p.schulung_id===filter)
-    .sort((a,b) => new Date(b.datum)-new Date(a.datum));
-  document.getElementById('proto-sub').textContent = data.length + ' Einträge';
-  const el = document.getElementById('protokoll-list');
-  if (!data.length) { el.innerHTML = '<div class="empty"><div class="empty-i">📋</div><p>Noch keine Schulungen durchgeführt.</p></div>'; return; }
-  const schulungName = id => allSchulungen.find(s=>s.id===id)?.titel || id;
-  el.innerHTML = `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+async function renderProtokoll(){
+  allProtokoll=await protokolleGetAll();
+  const sel=document.getElementById('proto-filter');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">– Alle Schulungen –</option>'+allSchulungen.map(s=>`<option value="${s.id}" ${s.id===cur?'selected':''}>${esc(s.titel)}</option>`).join('');
+  const filter=sel.value;
+  const data=allProtokoll.filter(p=>!filter||p.schulung_id===filter).sort((a,b)=>new Date(b.datum)-new Date(a.datum));
+  document.getElementById('proto-sub').textContent=data.length+' Einträge';
+  const el=document.getElementById('protokoll-list');
+  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Schulungen durchgeführt.</p></div>';return;}
+  const schulungName=id=>allSchulungen.find(s=>s.id===id)?.titel||id;
+  el.innerHTML=`<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
     <div class="proto-row proto-head"><div>Teilnehmer / Schulung</div><div>Datum</div><div>Ergebnis</div><div>Status</div></div>
-    ${data.map(p => `<div class="proto-row">
-      <div><div style="font-size:13px;font-weight:500">${esc(p.user_name||'–')}</div>
-      <div class="ts">${esc(schulungName(p.schulung_id))}</div></div>
+    ${data.map(p=>`<div class="proto-row">
+      <div><div style="font-weight:500">${esc(p.user_name||'–')}</div><div class="ts">${esc(schulungName(p.schulung_id))}</div></div>
       <div class="ts">${fmtDT(p.datum)}</div>
-      <div style="font-size:14px;font-weight:600;color:${p.bestanden?'var(--ok)':'var(--nok)'}">${p.score}%</div>
+      <div style="font-weight:600;color:${p.bestanden?'var(--ok)':'var(--nok)'}">${p.score!=null?p.score+'%':'–'}</div>
       <div><span class="badge ${p.bestanden?'b-ok':'b-nok'}">${p.bestanden?'✓ Bestanden':'✗ Nicht bestanden'}</span></div>
     </div>`).join('')}
   </div>`;
 }
 
-function exportProtokolleCSV() {
-  const csv = '\uFEFFTeilnehmer,Schulung,Datum,Ergebnis (%),Bestanden\n'
-    + allProtokoll.map(p => [
-        `"${p.user_name||''}"`,
-        `"${allSchulungen.find(s=>s.id===p.schulung_id)?.titel||p.schulung_id}"`,
-        new Date(p.datum).toLocaleString('de-DE'),
-        p.score, p.bestanden?'Ja':'Nein'
-      ].join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url;
-  a.download = 'EHS_Protokoll_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
-  a.click(); URL.revokeObjectURL(url);
-  toast('CSV exportiert ✓','ok');
-}
-
-// ═══════════════════════════════════════════════════════════
-// NUTZER-VERWALTUNG
-// ═══════════════════════════════════════════════════════════
-async function renderNutzer() {
-  const el = document.getElementById('nutzer-list');
-  el.innerHTML = '<div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div>';
-  try {
-    const nutzer = await profilesGetAll();
-    if (!nutzer.length) { el.innerHTML = '<div class="empty"><div class="empty-i">👥</div><p>Keine Nutzer gefunden.</p></div>'; return; }
-    el.innerHTML = `<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
-      ${nutzer.map(n => `<div style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-weight:500">${esc(n.name)}</div>
-          <div class="ts">${esc(n.kuerzel||'')} · ${n.id === currentProfile?.id ? 'Ich' : ''}</div>
-        </div>
-        <span class="role-badge ${n.rolle==='admin'?'role-admin':'role-ma'}">${n.rolle==='admin'?'Admin':'Mitarbeiter'}</span>
-        ${n.id !== currentProfile?.id ? `
-        <select style="font-size:12px;padding:4px 8px;width:auto" onchange="changeRolle('${n.id}',this.value)">
-          <option value="mitarbeiter" ${n.rolle==='mitarbeiter'?'selected':''}>Mitarbeiter</option>
-          <option value="admin" ${n.rolle==='admin'?'selected':''}>Admin</option>
-        </select>` : '<div></div>'}
-      </div>`).join('')}
-    </div>`;
-  } catch(e) { el.innerHTML = `<div class="empty"><div class="empty-i">⚠</div><p>${e.message}</p></div>`; }
-}
-
-async function changeRolle(id, rolle) {
-  try { await profileUpdate(id, {rolle}); toast('Rolle aktualisiert ✓','ok'); renderNutzer(); }
-  catch(e) { toast('Fehler: ' + e.message,'err'); }
-}
-
-function openInviteModal() { openM('m-invite'); setTimeout(()=>document.getElementById('inv-name')?.focus(),120); }
-
-async function submitInvite() {
-  const name = document.getElementById('inv-name').value.trim();
-  const email = document.getElementById('inv-email').value.trim();
-  const rolle = document.getElementById('inv-rolle').value;
-  if (!name||!email) { toast('Name und E-Mail erforderlich','err'); return; }
-  const sp = document.getElementById('inv-spinner');
-  sp.style.display = 'inline-block';
-  try {
-    await inviteUser(email, name, rolle);
-    closeM('m-invite');
-    toast('Einladung gesendet ✓','ok');
-    renderNutzer();
-  } catch(e) { toast('Fehler: ' + e.message,'err'); }
-  finally { sp.style.display = 'none'; }
+function exportProtokolleCSV(){
+  const csv='\uFEFFTeilnehmer,Schulung,Datum,Ergebnis (%),Bestanden\n'
+    +allProtokoll.map(p=>[`"${p.user_name||''}"`,`"${allSchulungen.find(s=>s.id===p.schulung_id)?.titel||p.schulung_id}"`,new Date(p.datum).toLocaleString('de-DE'),p.score,p.bestanden?'Ja':'Nein'].join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='Protokoll_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';a.click();
+  URL.revokeObjectURL(url);toast('CSV exportiert ✓','ok');
 }
 
 // ═══════════════════════════════════════════════════════════
 // TEILEN (QR / LINK / MAIL)
 // ═══════════════════════════════════════════════════════════
-function buildShareURL(schulungId) {
-  const base = window.location.href.split('/').slice(0,-1).join('/');
-  return base + '/schulung-extern.html?id=' + encodeURIComponent(schulungId);
+function buildShareURL(schulungId){
+  const base=window.location.href.split('/').slice(0,-1).join('/');
+  return base+'/schulung-extern.html?id='+encodeURIComponent(schulungId);
 }
 
-function openShareModal(id) {
-  shareSchulungId = id;
-  const s = allSchulungen.find(x => x.id === id); if (!s) return;
-  document.getElementById('m-share-title').textContent = '📤 ' + s.titel;
-  document.getElementById('m-share-sub').textContent = s.kategorie + ' · ' + (s.fragen?.length||0) + ' Fragen';
-  switchShareTab('qr'); openM('m-share');
+function openShareModal(id){
+  shareSchulungId=id;
+  const s=allSchulungen.find(x=>x.id===id);if(!s)return;
+  document.getElementById('m-share-title').textContent='📤 Teilen: '+s.titel;
+  document.getElementById('m-share-sub').textContent=s.kategorie+' · '+(s.fragen?.length||0)+' Fragen · kein Account erforderlich';
+  switchShareTab('qr');openM('m-share');
 }
 
-function switchShareTab(tab) {
-  ['qr','link','mail'].forEach(t => {
-    document.getElementById('share-'+t).style.display = t===tab?'block':'none';
+function switchShareTab(tab){
+  ['qr','link','mail'].forEach(t=>{
+    document.getElementById('share-'+t).style.display=t===tab?'block':'none';
     document.getElementById('stab-'+t).classList.toggle('on',t===tab);
   });
-  if (tab==='qr') buildQRCode();
-  if (tab==='link') document.getElementById('share-link-input').value = buildShareURL(shareSchulungId);
-  if (tab==='mail') {
-    const s = allSchulungen.find(x=>x.id===shareSchulungId);
-    document.getElementById('share-mail-body').value =
-      `Guten Tag,\n\nbitte führen Sie die folgende EHS-Unterweisung durch:\n\n${s?.titel||''}\n\nLink zur Schulung:`;
+  document.getElementById('share-mail-ft').style.display=tab==='mail'?'flex':'none';
+  document.getElementById('share-default-ft').style.display=tab==='mail'?'none':'flex';
+  if(tab==='qr')buildQRCode();
+  if(tab==='link')document.getElementById('share-link-input').value=buildShareURL(shareSchulungId);
+  if(tab==='mail'){
+    const s=allSchulungen.find(x=>x.id===shareSchulungId);
+    document.getElementById('share-mail-body').value=`Guten Tag,\n\nbitte führen Sie die folgende EHS-Unterweisung durch. Kein Account erforderlich – einfach auf den Link klicken, Name und E-Mail eingeben und starten:\n\n${s?.titel||''}\n\n${buildShareURL(shareSchulungId)}`;
   }
 }
 
-function buildQRCode() {
-  const el = document.getElementById('qr-canvas'); el.innerHTML = '';
-  const url = buildShareURL(shareSchulungId);
-  if (!url || url.length > 2953) {
-    el.innerHTML = '<p class="ts" style="color:var(--warn);text-align:center;padding:16px">⚠ Schulung zu groß für QR-Code. Bitte Link-Tab verwenden.</p>'; return;
-  }
-  try { new QRCode(el,{text:url,width:220,height:220,colorDark:'#1a1a1a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
-  catch(e) { el.innerHTML = '<p class="ts" style="color:var(--nok)">QR-Code Fehler.</p>'; }
+function buildQRCode(){
+  const el=document.getElementById('qr-canvas');el.innerHTML='';
+  const url=buildShareURL(shareSchulungId);
+  try{new QRCode(el,{text:url,width:200,height:200,colorDark:'#1a1a1a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){el.innerHTML='<p class="ts" style="color:var(--nok)">QR-Code Fehler.</p>';}
 }
 
-function downloadQR() {
-  const canvas = document.querySelector('#qr-canvas canvas'); if (!canvas) return;
-  const s = allSchulungen.find(x=>x.id===shareSchulungId);
-  const a = document.createElement('a'); a.href = canvas.toDataURL('image/png');
-  a.download = 'QR_' + (s?.titel||'Schulung').replace(/[^a-zA-Z0-9]/g,'_') + '.png'; a.click();
+function downloadQR(){
+  const canvas=document.querySelector('#qr-canvas canvas');if(!canvas)return;
+  const s=allSchulungen.find(x=>x.id===shareSchulungId);
+  const a=document.createElement('a');a.href=canvas.toDataURL('image/png');
+  a.download='QR_'+(s?.titel||'Schulung').replace(/[^a-zA-Z0-9]/g,'_')+'.png';a.click();
+  toast('QR-Code heruntergeladen ✓','ok');
 }
 
-function printQR() {
-  const canvas = document.querySelector('#qr-canvas canvas'); if (!canvas) return;
-  const s = allSchulungen.find(x=>x.id===shareSchulungId);
-  const w = window.open('','_blank');
+function printQR(){
+  const canvas=document.querySelector('#qr-canvas canvas');if(!canvas)return;
+  const s=allSchulungen.find(x=>x.id===shareSchulungId);
+  const w=window.open('','_blank');
   w.document.write(`<html><head><title>QR – ${s?.titel||''}</title>
-    <style>body{font-family:sans-serif;text-align:center;padding:40px;max-width:500px;margin:0 auto}
-    @media print{button{display:none}}</style></head><body>
-    <h2>EHS Unterweisung</h2><h3>${s?.titel||''}</h3>
-    <p>${s?.kategorie||''} · Mit Smartphone scannen und Schulung durchführen.</p>
-    <img src="${canvas.toDataURL()}" width="220"><br><br>
-    <p style="font-size:12px;color:#999">Oak Engineering · EHS Management</p>
-    <button onclick="window.print()">🖨 Drucken</button>
-    </body></html>`);
+  <style>body{font-family:sans-serif;text-align:center;padding:40px;max-width:500px;margin:0 auto}@media print{button{display:none}}</style></head><body>
+  <h2>EHS Unterweisung</h2><h3>${s?.titel||''}</h3>
+  <p>${s?.kategorie||''} · Mit Smartphone scannen – kein Account erforderlich</p>
+  <img src="${canvas.toDataURL()}" width="200"><br><br>
+  <p style="font-size:12px;color:#999">Oak Engineering · EHS Management</p>
+  <button onclick="window.print()">🖨 Drucken</button></body></html>`);
   w.document.close();
 }
 
-function copyShareLink() {
-  const url = document.getElementById('share-link-input').value;
-  navigator.clipboard.writeText(url).then(()=>toast('Link kopiert ✓','ok')).catch(()=>{
-    document.getElementById('share-link-input').select(); document.execCommand('copy'); toast('Link kopiert ✓','ok');
-  });
+function copyShareLink(){
+  const url=document.getElementById('share-link-input').value;
+  navigator.clipboard.writeText(url).then(()=>toast('Link kopiert ✓','ok')).catch(()=>{document.getElementById('share-link-input').select();document.execCommand('copy');toast('Link kopiert ✓','ok');});
 }
 
-function sendShareMail() {
-  const s = allSchulungen.find(x=>x.id===shareSchulungId);
-  const to = document.getElementById('share-mail-to').value.trim();
-  const subject = encodeURIComponent('EHS-Unterweisung: ' + (s?.titel||''));
-  const body = document.getElementById('share-mail-body').value;
-  const url = buildShareURL(shareSchulungId);
-  window.location.href = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(body+'\n\n'+url)}`;
+function sendShareMail(){
+  const s=allSchulungen.find(x=>x.id===shareSchulungId);
+  const to=document.getElementById('share-mail-to').value.trim();
+  const subject=encodeURIComponent('EHS-Unterweisung: '+(s?.titel||''));
+  const body=document.getElementById('share-mail-body').value;
+  window.location.href=`mailto:${to}?subject=${subject}&body=${encodeURIComponent(body)}`;
+}
+
+function checkURLShare(){
+  const params=new URLSearchParams(window.location.search);
+  const shareParam=params.get('share');if(!shareParam)return;
+  try{
+    const slim=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
+    if(!allSchulungen.find(x=>x.id===slim.id))allSchulungen.push(slim);
+    setTimeout(()=>startSchulungPlayer(slim.id),500);
+  }catch(e){console.warn('Share-URL ungültig');}
 }
 
 // ═══════════════════════════════════════════════════════════
-// BUCHUNGSMODUL – OAK ENGINEERING SCHULUNGSKATALOG
+// OAK SCHULUNGEN BUCHEN
 // ═══════════════════════════════════════════════════════════
-let allKatalog = [];
-let allAnfragen = [];
+function renderBuchungList(){
+  const el=document.getElementById('buchung-list');
+  const admin=currentProfile?.rolle==='admin';
+  document.getElementById('btn-anfragen-admin').style.display=admin?'inline-flex':'none';
 
-async function renderBuchungList() {
-  const el = document.getElementById('buchung-list');
-  el.innerHTML = '<div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div>';
-  const admin = currentProfile?.rolle === 'admin';
-  // Admin-Buttons zeigen
-  document.getElementById('btn-katalog-admin').style.display = admin ? 'inline-flex' : 'none';
-  document.getElementById('btn-anfragen-admin').style.display = admin ? 'inline-flex' : 'none';
-  try {
-    const { data } = await getSB().from('oak_katalog')
-      .select('id,data,aktiv')
-      .eq('aktiv', true)
-      .order('created_at', { ascending: false });
-    allKatalog = (data || []).map(r => ({ ...r.data, id: r.id, aktiv: r.aktiv }));
-  } catch(e) {
-    el.innerHTML = `<div class="empty"><div class="empty-i">⚠</div><p>Fehler: ${esc(e.message)}</p></div>`;
-    return;
-  }
-  if (!allKatalog.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-i">🛒</div>
-      <p style="margin-bottom:14px">Noch keine Schulungen im Katalog.</p>
-      ${admin ? '<button class="btn btn-p" onclick="openKatalogModal()">+ Erste Schulung anlegen</button>' : ''}
-    </div>`;
-    return;
-  }
-  // Gruppieren nach Kategorie
-  const kategorien = [...new Set(allKatalog.map(k => k.kategorie))];
-  const catColors = {
-    Brandschutz:'#c0392b','Erste Hilfe':'#2980b9','Arbeitssicherheit':'#2d6a2d',
-    Gefahrstoffe:'#e67e22','Führung & Organisation':'#8e44ad',
-    'Elektrische Sicherheit':'#f39c12',Sonstiges:'#555'
-  };
-  el.innerHTML = kategorien.map(kat => {
-    const items = allKatalog.filter(k => k.kategorie === kat);
-    const cc = catColors[kat] || '#555';
-    return `<div style="margin-bottom:24px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="height:2px;width:20px;background:${cc};border-radius:2px"></div>
-        <h3 style="font-family:var(--fh);font-size:16px;font-weight:700;color:${cc}">${esc(kat)}</h3>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
-        ${items.map(k => katalogCard(k, cc, admin)).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML=`<div class="katalog-grid">${OAK_KATALOG.map(k=>katalogCard(k)).join('')}</div>`;
 }
 
-function katalogCard(k, cc, admin) {
-  const preisInfo = k.preis_gruppe && k.preis_ab
-    ? `${(k.preis_pp||0).toFixed(2)} € / Person · ab ${k.preis_ab} Pers. ${(k.preis_gruppe||0).toFixed(2)} € pauschal`
-    : `${(k.preis_pp||0).toFixed(2)} € / Person (netto)`;
-  return `<div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseout="this.style.boxShadow='none'">
-    <div style="padding:16px;flex:1">
+function katalogCard(k){
+  const preisInfo = k.preis_gruppe
+    ? `${k.preis_gruppe.toLocaleString('de-DE',{minimumFractionDigits:0})} € pauschal`
+    : `${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person`;
+  const formatBadges = k.format_optionen
+    ? k.format_optionen.map(f=>f==='online'?'🖥 Online':'📍 Vor Ort').join(' · ')
+    : '';
+  return `<div class="katalog-card">
+    <div style="height:4px;background:#2d6a2d;border-radius:10px 10px 0 0"></div>
+    <div style="padding:18px;flex:1">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
         <div>
-          <div style="font-size:15px;font-weight:600;line-height:1.3;margin-bottom:4px">${esc(k.titel)}</div>
+          <div style="font-size:15px;font-weight:600;line-height:1.3;margin-bottom:6px">${esc(k.titel)}</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            ${k.format?`<span class="badge b-info">${esc(k.format)}</span>`:''}
-            ${k.dauer?`<span class="badge b-info">⏱ ${esc(k.dauer)}</span>`:''}
             ${k.zertifikat==='ja'?'<span class="badge b-ok">🏆 Zertifikat</span>':''}
+            ${k.dauer?`<span class="badge b-info">⏱ ${esc(k.dauer)}</span>`:''}
+            ${k.maxTn?`<span class="badge b-info">👥 max. ${k.maxTn} TN</span>`:''}
+            ${k.intervall?`<span class="badge b-warn">🔁 Alle ${k.intervall} Jahre</span>`:''}
           </div>
         </div>
-        ${admin?`<div style="display:flex;gap:4px;flex-shrink:0">
-          <button class="btn btn-o btn-sm" onclick="openKatalogItemModal('${k.id}')" style="padding:4px 8px">✏</button>
-          <button class="btn btn-d btn-sm" onclick="deleteKatalogItem('${k.id}')" style="padding:4px 8px">🗑</button>
-        </div>`:''}
       </div>
-      <p style="font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:10px">${esc((k.beschreibung||'').slice(0,120))}${(k.beschreibung||'').length>120?'…':''}</p>
-      ${k.inhalte?`<div style="font-size:12px;color:var(--t3);white-space:pre-line;margin-bottom:10px">${esc(k.inhalte.split('\n').slice(0,3).join('\n'))}${k.inhalte.split('\n').length>3?'\n…':''}</div>`:''}
-      ${k.zielgruppe?`<div class="ts" style="margin-bottom:6px">👥 ${esc(k.zielgruppe)}</div>`:''}
-      ${k.rechtsgrundlage?`<div class="ts" style="margin-bottom:6px">⚖ ${esc(k.rechtsgrundlage)}</div>`:''}
+      <p style="font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:10px">${esc((k.beschreibung||'').slice(0,150))}${(k.beschreibung||'').length>150?'…':''}</p>
+      ${k.inhalte?`<div style="font-size:12px;color:var(--t3);white-space:pre-line;margin-bottom:10px;line-height:1.6">${esc(k.inhalte.split('\n').slice(0,5).join('\n'))}${k.inhalte.split('\n').length>5?'\n…':''}</div>`:''}
+      ${k.zielgruppe?`<div class="ts" style="margin-bottom:4px">👥 ${esc(k.zielgruppe)}</div>`:''}
+      ${k.rechtsgrundlage?`<div class="ts" style="margin-bottom:4px">⚖ ${esc(k.rechtsgrundlage)}</div>`:''}
+      ${formatBadges?`<div style="font-size:12px;color:var(--t2);margin-top:8px">${formatBadges}</div>`:''}
     </div>
-    <div style="padding:12px 16px;border-top:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:10px">
+    <div style="padding:14px 18px;border-top:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:10px">
       <div>
-        <div style="font-size:15px;font-weight:700;color:${cc}">${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} €<span style="font-size:11px;font-weight:400;color:var(--t2)"> / Person</span></div>
-        ${k.preis_gruppe&&k.preis_ab?`<div style="font-size:11px;color:var(--t3)">Ab ${k.preis_ab} Pers.: ${(k.preis_gruppe||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € pauschal</div>`:''}
+        <div style="font-size:18px;font-weight:800;color:var(--ok)">${preisInfo}</div>
         <div style="font-size:10px;color:var(--t3)">zzgl. MwSt.</div>
       </div>
-      <button class="btn btn-p btn-sm" onclick="openBuchungModal('${k.id}')">📩 Jetzt buchen</button>
+      <button class="btn btn-p btn-sm" onclick="openBuchungModal('${k.id}')">📩 Anfragen</button>
     </div>
   </div>`;
 }
 
-function openBuchungModal(katalogId) {
-  const k = allKatalog.find(x => x.id === katalogId); if (!k) return;
-  document.getElementById('buchung-katalog-id').value = katalogId;
-  document.getElementById('m-buchung-titel').textContent = k.titel;
-  document.getElementById('m-buchung-sub').textContent =
-    `${k.kategorie} · ${k.dauer||''} · ${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person zzgl. MwSt.`;
-  // Vorausfüllen mit aktuellem Nutzer
-  if (currentProfile) {
-    document.getElementById('b-kontakt').value = currentProfile.name || '';
-  }
-  ['b-firma','b-email','b-tel','b-tn','b-termin','b-termin2','b-nachricht'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && id !== 'b-kontakt') el.value = '';
-  });
+function openBuchungModal(katalogId){
+  const k=OAK_KATALOG.find(x=>x.id===katalogId);if(!k)return;
+  document.getElementById('buchung-katalog-id').value=katalogId;
+  document.getElementById('m-buchung-titel').textContent=k.titel;
+  document.getElementById('m-buchung-sub').textContent=k.kategorie+' · '+k.dauer+(k.preis_gruppe?' · '+k.preis_gruppe.toLocaleString('de-DE')+'€ pauschal':'');
+  if(currentProfile)document.getElementById('b-kontakt').value=currentProfile.name||'';
+  ['b-firma','b-email','b-tel','b-tn','b-termin','b-termin2','b-nachricht'].forEach(id=>{const el=document.getElementById(id);if(el&&id!=='b-kontakt')el.value='';});
   openM('m-buchung');
-  setTimeout(() => document.getElementById('b-firma')?.focus(), 120);
+  setTimeout(()=>document.getElementById('b-firma')?.focus(),120);
 }
 
-async function submitBuchung() {
-  const firma    = document.getElementById('b-firma')?.value.trim();
-  const kontakt  = document.getElementById('b-kontakt')?.value.trim();
-  const email    = document.getElementById('b-email')?.value.trim();
-  if (!firma || !kontakt || !email) { toast('Firma, Ansprechpartner und E-Mail erforderlich','err'); return; }
-  const sp = document.getElementById('buchung-spinner');
-  sp.style.display = 'inline-block';
-  const katalogId = document.getElementById('buchung-katalog-id').value;
-  const k = allKatalog.find(x => x.id === katalogId);
-  const anfrage = {
-    id: 'ANF' + Date.now(),
-    katalog_id: katalogId,
-    firma, ansprechpartner: kontakt, email,
-    telefon:        document.getElementById('b-tel')?.value.trim() || null,
-    teilnehmerzahl: parseInt(document.getElementById('b-tn')?.value) || null,
-    wunschtermin:   document.getElementById('b-termin')?.value || null,
-    wunschtermin_alternativ: document.getElementById('b-termin2')?.value || null,
-    nachricht:      document.getElementById('b-nachricht')?.value.trim() || null,
-    status: 'offen'
-  };
-  try {
-    const { error } = await getSB().from('buchungsanfragen').insert(anfrage);
-    if (error) throw error;
+async function submitBuchung(){
+  const firma=document.getElementById('b-firma').value.trim();
+  const kontakt=document.getElementById('b-kontakt').value.trim();
+  const email=document.getElementById('b-email').value.trim();
+  if(!firma||!kontakt||!email){toast('Firma, Ansprechpartner und E-Mail erforderlich','err');return;}
+  const sp=document.getElementById('buchung-spinner');sp.style.display='inline-block';
+  const katalogId=document.getElementById('buchung-katalog-id').value;
+  const k=OAK_KATALOG.find(x=>x.id===katalogId);
+  try{
+    const{error}=await getSB().from('buchungsanfragen').insert({
+      id:'ANF'+Date.now(),katalog_id:katalogId,firma,ansprechpartner:kontakt,email,
+      telefon:document.getElementById('b-tel').value.trim()||null,
+      teilnehmerzahl:parseInt(document.getElementById('b-tn').value)||null,
+      wunschtermin:document.getElementById('b-termin').value||null,
+      wunschtermin_alternativ:document.getElementById('b-termin2').value||null,
+      nachricht:document.getElementById('b-nachricht').value.trim()||null,
+      status:'offen'
+    });
+    if(error)throw error;
     closeM('m-buchung');
-    // Bestätigungsmail per mailto öffnen
-    sendBuchungsBestaetigung(k, anfrage);
-    toast('Buchungsanfrage gesendet ✓', 'ok');
-  } catch(e) {
-    toast('Fehler: ' + e.message, 'err');
-  } finally { sp.style.display = 'none'; }
+    sendBuchungsBestaetigung(k,{firma,ansprechpartner:kontakt,email,teilnehmerzahl:parseInt(document.getElementById('b-tn').value)||null,wunschtermin:document.getElementById('b-termin').value});
+    toast('Buchungsanfrage gesendet ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
 }
 
-function sendBuchungsBestaetigung(k, a) {
-  const betreff = encodeURIComponent(`Buchungsanfrage: ${k?.titel || 'EHS-Schulung'}`);
-  const tn = a.teilnehmerzahl ? a.teilnehmerzahl + ' Teilnehmer' : 'Anzahl offen';
-  const preisGesamt = k?.preis_pp && a.teilnehmerzahl
-    ? `\nGeschätzter Preis: ${(k.preis_pp * a.teilnehmerzahl).toLocaleString('de-DE',{minimumFractionDigits:2})} € (netto, zzgl. MwSt.)`
-    : '';
-  const body = encodeURIComponent(
-    `Guten Tag,\n\nhiermit senden wir Ihnen unsere Buchungsanfrage:\n\n` +
-    `Schulung: ${k?.titel || '–'}\n` +
-    `Firma: ${a.firma}\n` +
-    `Ansprechpartner: ${a.ansprechpartner}\n` +
-    `E-Mail: ${a.email}\n` +
-    (a.telefon ? `Telefon: ${a.telefon}\n` : '') +
-    `Teilnehmerzahl: ${tn}` +
-    preisGesamt + '\n' +
-    (a.wunschtermin ? `Wunschtermin: ${new Date(a.wunschtermin).toLocaleDateString('de-DE')}\n` : '') +
-    (a.wunschtermin_alternativ ? `Alternativtermin: ${new Date(a.wunschtermin_alternativ).toLocaleDateString('de-DE')}\n` : '') +
-    (a.nachricht ? `\nNachricht: ${a.nachricht}\n` : '') +
-    `\nMit freundlichen Grüßen\n${a.ansprechpartner}\n${a.firma}`
-  );
-  window.location.href = `mailto:info@oak-engineering.de?subject=${betreff}&body=${body}`;
+function sendBuchungsBestaetigung(k,a){
+  const betreff=encodeURIComponent('Buchungsanfrage: '+(k?.titel||'EHS-Schulung'));
+  const body=encodeURIComponent(`Guten Tag,\n\nhiermit senden wir unsere Buchungsanfrage:\n\nSchulung: ${k?.titel||'–'}\nFirma: ${a.firma}\nAnsprechpartner: ${a.ansprechpartner}\nE-Mail: ${a.email}\nTeilnehmerzahl: ${a.teilnehmerzahl||'–'}\n${a.wunschtermin?'Wunschtermin: '+new Date(a.wunschtermin).toLocaleDateString('de-DE')+'\n':''}\nMit freundlichen Grüßen\n${a.ansprechpartner}\n${a.firma}`);
+  window.location.href=`mailto:info@oak-engineering.de?subject=${betreff}&body=${body}`;
 }
 
-// ── Katalog verwalten (Admin) ─────────────────────────────
-async function openKatalogModal() {
-  openM('m-katalog');
-  await renderKatalogAdminList();
-}
-
-async function renderKatalogAdminList() {
-  const el = document.getElementById('katalog-admin-list');
-  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
-  try {
-    const { data } = await getSB().from('oak_katalog').select('id,data,aktiv').order('created_at',{ascending:false});
-    const all = (data||[]).map(r=>({...r.data,id:r.id,aktiv:r.aktiv}));
-    if (!all.length) { el.innerHTML='<div class="empty"><div class="empty-i">📚</div><p>Noch keine Einträge.</p></div>'; return; }
-    el.innerHTML = all.map(k => `<div class="card" style="margin-bottom:8px;padding:12px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <div>
-          <div style="font-weight:600;font-size:14px">${esc(k.titel)}</div>
-          <div class="ts">${esc(k.kategorie)} · ${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person · ${esc(k.format||'')}</div>
-        </div>
-        <div class="gap">
-          <span class="badge ${k.aktiv?'b-ok':'b-info'}">${k.aktiv?'Aktiv':'Inaktiv'}</span>
-          <button class="btn btn-o btn-sm" onclick="openKatalogItemModal('${k.id}')">✏</button>
-          <button class="btn btn-d btn-sm" onclick="deleteKatalogItem('${k.id}')">🗑</button>
-        </div>
-      </div>
-    </div>`).join('');
-  } catch(e) { el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`; }
-}
-
-function openKatalogItemModal(id) {
-  const k = id ? allKatalog.find(x=>x.id===id) : null;
-  document.getElementById('ki-edit-id').value = id||'';
-  document.getElementById('m-ki-title').textContent = k ? 'Schulung bearbeiten' : 'Schulung anlegen';
-  const set = (elId,val) => { const el=document.getElementById(elId); if(el&&val!=null) el.value=val; };
-  set('ki-titel', k?.titel||'');
-  set('ki-kategorie', k?.kategorie||'Brandschutz');
-  set('ki-beschreibung', k?.beschreibung||'');
-  set('ki-dauer', k?.dauer||'');
-  set('ki-maxtn', k?.maxTn||'');
-  set('ki-preis-pp', k?.preis_pp||'');
-  set('ki-preis-gruppe', k?.preis_gruppe||'');
-  set('ki-preis-ab', k?.preis_ab||'');
-  set('ki-format', k?.format||'Vor Ort beim Kunden');
-  set('ki-zertifikat', k?.zertifikat||'ja');
-  set('ki-inhalte', k?.inhalte||'');
-  set('ki-zielgruppe', k?.zielgruppe||'');
-  set('ki-rechtsgrundlage', k?.rechtsgrundlage||'');
-  set('ki-intervall', k?.intervall||'');
-  const cb = document.getElementById('ki-aktiv');
-  if (cb) cb.checked = k ? k.aktiv !== false : true;
-  closeM('m-katalog');
-  openM('m-katalog-item');
-  setTimeout(() => document.getElementById('ki-titel')?.focus(), 120);
-}
-
-async function saveKatalogItem() {
-  const titel = document.getElementById('ki-titel')?.value.trim();
-  const preisPP = parseFloat(document.getElementById('ki-preis-pp')?.value);
-  if (!titel) { toast('Titel erforderlich','err'); return; }
-  if (isNaN(preisPP) || preisPP <= 0) { toast('Preis pro Person erforderlich','err'); return; }
-  const sp = document.getElementById('ki-spinner');
-  sp.style.display = 'inline-block';
-  const editId = document.getElementById('ki-edit-id').value;
-  const data = {
-    id: editId || 'KAT'+Date.now(),
-    titel,
-    kategorie:      document.getElementById('ki-kategorie')?.value,
-    beschreibung:   document.getElementById('ki-beschreibung')?.value.trim(),
-    dauer:          document.getElementById('ki-dauer')?.value.trim(),
-    maxTn:          parseInt(document.getElementById('ki-maxtn')?.value)||null,
-    preis_pp:       preisPP,
-    preis_gruppe:   parseFloat(document.getElementById('ki-preis-gruppe')?.value)||null,
-    preis_ab:       parseInt(document.getElementById('ki-preis-ab')?.value)||null,
-    format:         document.getElementById('ki-format')?.value,
-    zertifikat:     document.getElementById('ki-zertifikat')?.value,
-    inhalte:        document.getElementById('ki-inhalte')?.value.trim(),
-    zielgruppe:     document.getElementById('ki-zielgruppe')?.value.trim(),
-    rechtsgrundlage:document.getElementById('ki-rechtsgrundlage')?.value.trim(),
-    intervall:      document.getElementById('ki-intervall')?.value||null,
-  };
-  const aktiv = document.getElementById('ki-aktiv')?.checked ?? true;
-  try {
-    const { error } = await getSB().from('oak_katalog').upsert(
-      { id: data.id, data, aktiv, updated_at: new Date().toISOString() },
-      { onConflict: 'id' }
-    );
-    if (error) throw error;
-    closeM('m-katalog-item');
-    openM('m-katalog');
-    await renderKatalogAdminList();
-    // Katalog auch in der Ansicht neu laden
-    renderBuchungList();
-    toast('Schulung gespeichert ✓','ok');
-  } catch(e) { toast('Fehler: '+e.message,'err'); }
-  finally { sp.style.display='none'; }
-}
-
-async function deleteKatalogItem(id) {
-  if (!confirm('Schulung aus dem Katalog löschen?')) return;
-  const { error } = await getSB().from('oak_katalog').delete().eq('id',id);
-  if (error) { toast('Fehler: '+error.message,'err'); return; }
-  await renderKatalogAdminList();
-  renderBuchungList();
-  toast('Gelöscht');
-}
-
-// ── Buchungsanfragen (Admin) ──────────────────────────────
-async function openBuchungsanfragenModal() {
+async function openBuchungsanfragenModal(){
   openM('m-anfragen');
-  const el = document.getElementById('anfragen-list');
-  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
-  try {
-    const { data } = await getSB().from('buchungsanfragen')
-      .select('*').order('created_at',{ascending:false});
-    allAnfragen = data || [];
-    if (!allAnfragen.length) { el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Buchungsanfragen.</p></div>'; return; }
-    const statusColor = {offen:'var(--warn)',bestaetigt:'var(--ok)',abgesagt:'var(--nok)'};
-    const statusLabel = {offen:'⏳ Offen',bestaetigt:'✓ Bestätigt',abgesagt:'✗ Abgesagt'};
-    el.innerHTML = allAnfragen.map(a => {
-      const k = allKatalog.find(x=>x.id===a.katalog_id);
-      return `<div class="card" style="margin-bottom:10px">
+  const el=document.getElementById('anfragen-list');
+  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
+  try{
+    const{data}=await getSB().from('buchungsanfragen').select('*').order('created_at',{ascending:false});
+    allAnfragen=data||[];
+    if(!allAnfragen.length){el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Anfragen.</p></div>';return;}
+    const statusLabel={offen:'⏳ Offen',bestaetigt:'✓ Bestätigt',abgesagt:'✗ Abgesagt'};
+    el.innerHTML=allAnfragen.map(a=>{
+      const k=OAK_KATALOG.find(x=>x.id===a.katalog_id);
+      return`<div class="card" style="margin-bottom:10px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div>
             <div style="font-weight:600;font-size:14px;margin-bottom:4px">${esc(a.firma)} – ${esc(a.ansprechpartner)}</div>
             <div class="ts">${k?esc(k.titel):'Unbekannte Schulung'}</div>
             <div class="ts">✉ ${esc(a.email)}${a.telefon?' · 📞 '+esc(a.telefon):''}</div>
             <div class="ts">👥 ${a.teilnehmerzahl||'–'} Pers.${a.wunschtermin?' · Wunsch: '+new Date(a.wunschtermin).toLocaleDateString('de-DE'):''}</div>
-            ${a.nachricht?`<div class="ts" style="margin-top:4px;font-style:italic">"${esc(a.nachricht.slice(0,100))}${a.nachricht.length>100?'…':''}"</div>`:''}
+            ${a.nachricht?`<div class="ts" style="margin-top:4px;font-style:italic">"${esc(a.nachricht.slice(0,100))}"</div>`:''}
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
-            <select style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:var(--s2);color:${statusColor[a.status]||'var(--text)'};font-family:var(--ff)" onchange="updateAnfrageStatus('${a.id}',this.value)">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <select style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:var(--s2)" onchange="updateAnfrageStatus('${a.id}',this.value)">
               ${['offen','bestaetigt','abgesagt'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
             </select>
             <button class="btn btn-p btn-sm" onclick="antwortMail('${a.id}')">✉ Antworten</button>
@@ -1801,37 +1303,25 @@ async function openBuchungsanfragenModal() {
         <div class="ts" style="margin-top:8px">Eingang: ${new Date(a.created_at).toLocaleString('de-DE')}</div>
       </div>`;
     }).join('');
-  } catch(e) { el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`; }
+  }catch(e){el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`;}
 }
 
-async function updateAnfrageStatus(id, status) {
-  const { error } = await getSB().from('buchungsanfragen').update({status}).eq('id',id);
-  if (error) { toast('Fehler: '+error.message,'err'); return; }
+async function updateAnfrageStatus(id,status){
+  const{error}=await getSB().from('buchungsanfragen').update({status}).eq('id',id);
+  if(error){toast('Fehler: '+error.message,'err');return;}
   toast('Status aktualisiert ✓','ok');
 }
 
-function antwortMail(id) {
-  const a = allAnfragen.find(x=>x.id===id); if (!a) return;
-  const k = allKatalog.find(x=>x.id===a.katalog_id);
-  const betreff = encodeURIComponent(`Ihre Buchungsanfrage: ${k?.titel||'EHS-Schulung'}`);
-  const body = encodeURIComponent(
-    `Sehr geehrte/r ${a.ansprechpartner},\n\n` +
-    `vielen Dank für Ihre Buchungsanfrage zur Schulung „${k?.titel||'–'}".\n\n` +
-    `[Hier Ihre Antwort einfügen]\n\n` +
-    `Mit freundlichen Grüßen\nOak Engineering\nEHS-Team`
-  );
-  window.location.href = `mailto:${a.email}?subject=${betreff}&body=${body}`;
+function antwortMail(id){
+  const a=allAnfragen.find(x=>x.id===id);if(!a)return;
+  const k=OAK_KATALOG.find(x=>x.id===a.katalog_id);
+  const betreff=encodeURIComponent('Ihre Buchungsanfrage: '+(k?.titel||'EHS-Schulung'));
+  const body=encodeURIComponent(`Sehr geehrte/r ${a.ansprechpartner},\n\nvielen Dank für Ihre Buchungsanfrage zur Schulung „${k?.titel||'–'}".\n\n[Hier Ihre Antwort einfügen]\n\nMit freundlichen Grüßen\nOak Engineering\nEHS-Team`);
+  window.location.href=`mailto:${a.email}?subject=${betreff}&body=${body}`;
 }
 
-function checkURLShare() {
-  const params = new URLSearchParams(window.location.search);
-  const shareParam = params.get('share'); if (!shareParam) return;
-  try {
-    const slim = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
-    if (!allSchulungen.find(x=>x.id===slim.id)) allSchulungen.push(slim);
-    setTimeout(() => startSchulungPlayer(slim.id), 500);
-  } catch(e) { console.warn('Share-URL ungültig'); }
-}
+// Dummy activeUser für Kompatibilität
+const DB = { activeUser: null };
 </script>
 </body>
 </html>
