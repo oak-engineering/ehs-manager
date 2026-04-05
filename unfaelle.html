@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>EHS Unfälle – Oak Engineering</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.unfall-card { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s; }
+.unfall-card:hover { border-color:var(--border2); }
+.uc-accent { height:3px;flex-shrink:0; }
+.uc-body { padding:14px 16px; }
+.uc-footer { padding:10px 16px;border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap; }
+.massnahme-row { display:grid;grid-template-columns:1fr 140px 140px;gap:10px;margin-bottom:8px;align-items:start; }
+@media(max-width:600px){ .massnahme-row{grid-template-columns:1fr;} }
+.analyse-item { padding:10px 13px;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:6px;background:var(--surface2); }
+.analyse-label { font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:4px; }
+.foto-grid { display:flex;flex-wrap:wrap;gap:8px;margin-top:8px; }
+.foto-thumb { width:80px;height:80px;border-radius:var(--r);border:0.5px solid var(--border);object-fit:cover;cursor:pointer; }
+.foto-add { width:80px;height:80px;border-radius:var(--r);border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:22px;background:var(--surface2);transition:all .15s; }
+.foto-add:hover { border-color:var(--accent);color:var(--accent);background:var(--surface3); }
+.schwere-btn { padding:6px 12px;border:0.5px solid var(--border);border-radius:5px;font-size:12px;cursor:pointer;font-family:var(--ff);background:var(--surface2);color:var(--text2);transition:all .12s; }
+.schwere-btn.on { border-color:var(--accent);background:var(--accent);color:var(--surface);font-weight:500; }
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon">
+      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
+    </div>
+    <div class="sb-logo-text">
+      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
+      <div class="sb-logo-sub">Oak Engineering</div>
+    </div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+    <div class="sb-section">Verwaltung</div>
+    <div class="sb-item admin-only" onclick="openSettingsModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2"/></svg></span><span class="sb-label">Einstellungen</span></div>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <span class="nav-crumb">EHS Manager</span>
+    <span class="nav-sep">›</span>
+    <span class="nav-page">Unfälle & Vorfälle</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div>
+      <div class="page-title">Unfälle & Vorfälle</div>
+      <div class="ts" id="page-sub">Wird geladen…</div>
+    </div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="exportStatistik()">📊 Statistik</button>
+      <button class="btn btn-p btn-sm admin-only" onclick="openNewUnfall()" style="display:none">+ Vorfall erfassen</button>
+    </div>
+  </div>
+
+  <!-- Kennzahlen-Kacheln -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px" id="kpi-grid">
+    <div class="card" style="padding:12px 14px;text-align:center"><div class="ts">Gesamt</div><div style="font-size:24px;font-weight:500;color:var(--text)" id="kpi-gesamt">–</div></div>
+    <div class="card" style="padding:12px 14px;text-align:center"><div class="ts">Mit Ausfall</div><div style="font-size:24px;font-weight:500;color:var(--nok)" id="kpi-ausfall">–</div></div>
+    <div class="card" style="padding:12px 14px;text-align:center"><div class="ts">Beinahe</div><div style="font-size:24px;font-weight:500;color:var(--warn)" id="kpi-beinahe">–</div></div>
+    <div class="card" style="padding:12px 14px;text-align:center"><div class="ts">Offene Maßnahmen</div><div style="font-size:24px;font-weight:500;color:var(--info)" id="kpi-massnahmen">–</div></div>
+  </div>
+
+  <!-- Filter -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+    <select id="f-typ" onchange="renderList()" style="max-width:160px;padding:7px 10px;font-size:12px">
+      <option value="">Alle Typen</option>
+      <option value="unfall">Unfall</option>
+      <option value="beinahe">Beinahe-Unfall</option>
+      <option value="gefaehrdung">Gefährdungsmeldung</option>
+    </select>
+    <select id="f-bereich" onchange="renderList()" style="max-width:180px;padding:7px 10px;font-size:12px">
+      <option value="">Alle Bereiche</option>
+    </select>
+    <select id="f-jahr" onchange="renderList()" style="max-width:120px;padding:7px 10px;font-size:12px">
+      <option value="">Alle Jahre</option>
+    </select>
+    <input id="f-suche" type="search" placeholder="Suche…" oninput="renderList()" style="max-width:200px;padding:7px 10px;font-size:12px">
+  </div>
+
+  <div id="unfall-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Vorfall anlegen / bearbeiten -->
+<div class="overlay" id="m-unfall" onclick="if(event.target===this)showCloseWarning()">
+<div class="modal modal-xl" style="max-height:94vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="m-unfall-title">Vorfall erfassen</div>
+      <div class="modal-sub" id="m-unfall-sub"></div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-unfall')">✕ Schließen</button>
+  </div>
+
+  <!-- Tabs innerhalb des Modals -->
+  <div style="padding:0 20px;border-bottom:0.5px solid var(--border);background:var(--surface)">
+    <div style="display:flex;gap:0">
+      <button class="tab on" onclick="switchModalTab('basis')" id="mtab-basis" style="border-radius:0;padding:10px 16px">Grunddaten</button>
+      <button class="tab" onclick="switchModalTab('massnahmen')" id="mtab-massnahmen" style="border-radius:0;padding:10px 16px">Maßnahmen</button>
+      <button class="tab" onclick="switchModalTab('analyse')" id="mtab-analyse" style="border-radius:0;padding:10px 16px">Analyse</button>
+      <button class="tab" onclick="switchModalTab('meldung')" id="mtab-meldung" style="border-radius:0;padding:10px 16px">Meldung</button>
+    </div>
+  </div>
+
+  <div class="modal-body" id="modal-body-content" style="flex:1;overflow-y:auto">
+
+    <!-- TAB: GRUNDDATEN -->
+    <div id="tab-basis">
+      <input type="hidden" id="edit-id">
+
+      <div class="section-block">
+        <div class="section-label">Vorfall-Typ</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:7px;padding:8px 14px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)" id="typ-unfall-lbl">
+            <input type="radio" name="u-typ" value="unfall" checked onchange="onTypChange()" style="width:auto;accent-color:var(--nok)"> 🚨 Unfall
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;padding:8px 14px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)" id="typ-beinahe-lbl">
+            <input type="radio" name="u-typ" value="beinahe" onchange="onTypChange()" style="width:auto;accent-color:var(--warn)"> ⚠ Beinahe-Unfall
+          </label>
+          <label style="display:flex;align-items:center;gap:7px;padding:8px 14px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)" id="typ-gefaehrdung-lbl">
+            <input type="radio" name="u-typ" value="gefaehrdung" onchange="onTypChange()" style="width:auto;accent-color:var(--info)"> 💡 Gefährdungsmeldung
+          </label>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div><label>Datum *</label><input id="u-datum" type="date"></div>
+        <div><label>Uhrzeit</label><input id="u-uhrzeit" type="time" value="08:00"></div>
+      </div>
+      <div class="g2">
+        <div><label>Bereich</label><select id="u-bereich"><option value="">– kein –</option></select></div>
+        <div><label>Kostenstelle</label><input id="u-kst" placeholder="KST-4711" style="font-family:var(--fm)"></div>
+      </div>
+
+      <div id="unfall-felder">
+        <div class="g2">
+          <div><label>Verletzte Person(en)</label><input id="u-person" placeholder="Name / Funktion"></div>
+          <div><label>Ausfallzeit (Tage)</label><input id="u-ausfall" type="number" min="0" value="0"></div>
+        </div>
+        <div><label>Verletzungsart / betroffene Körperstelle</label>
+          <input id="u-verletzung" placeholder="z.B. Schnittverletzung linke Hand"></div>
+        <div><label>Schwere</label>
+          <div class="gap" style="margin-top:6px">
+            <button type="button" class="schwere-btn on" id="s-gering" onclick="setSchwere('gering')">Gering</button>
+            <button type="button" class="schwere-btn" id="s-mittel" onclick="setSchwere('mittel')">Mittel</button>
+            <button type="button" class="schwere-btn" id="s-schwer" onclick="setSchwere('schwer')">Schwer</button>
+            <button type="button" class="schwere-btn" id="s-toedlich" onclick="setSchwere('toedlich')">Tödlich</button>
+          </div>
+        </div>
+        <div style="margin-top:4px"><label>Meldepflichtig (§ 193 SGB VII)</label>
+          <select id="u-meldepflichtig"><option value="nein">Nein</option><option value="ja">Ja – mind. 3 Ausfalltage</option><option value="schwer">Ja – schwerer Unfall (§ 193 Abs. 1)</option></select>
+        </div>
+      </div>
+
+      <div><label>Unfallbeschreibung *</label>
+        <textarea id="u-beschreibung" rows="4" placeholder="Was ist passiert? Hergang so detailliert wie möglich beschreiben…"></textarea>
+      </div>
+
+      <!-- Verknüpfungen -->
+      <div class="section-block">
+        <div class="section-label">Verknüpfungen (aus Datenbank)</div>
+        <div class="g2">
+          <div><label>Tätigkeit</label><select id="u-taetigkeit"><option value="">– keine –</option></select></div>
+          <div><label>Maschine</label><select id="u-maschine"><option value="">– keine –</option></select></div>
+        </div>
+        <div class="g2">
+          <div><label>Gefahrstoff</label><select id="u-gefahrstoff"><option value="">– keiner –</option></select></div>
+          <div><label>Arbeitsmittel</label><select id="u-arbeitsmittel"><option value="">– kein –</option></select></div>
+        </div>
+      </div>
+
+      <!-- Fotos -->
+      <div class="section-block">
+        <div class="section-label">Fotos & Dokumentation</div>
+        <div class="foto-grid" id="foto-grid">
+          <div class="foto-add" onclick="document.getElementById('foto-input').click()" title="Foto hinzufügen">+</div>
+        </div>
+        <input type="file" id="foto-input" accept="image/*" multiple onchange="addFotos(event)">
+        <div class="ts" style="margin-top:6px">Kamera oder Galerie · max. 5 MB pro Bild</div>
+      </div>
+    </div>
+
+    <!-- TAB: MAßNAHMEN -->
+    <div id="tab-massnahmen" style="display:none">
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="fb" style="margin-bottom:10px">
+          <div class="section-label" style="margin:0">Sofortmaßnahmen</div>
+          <button type="button" class="btn btn-sm" onclick="addMassnahme('sofort')">+ Maßnahme</button>
+        </div>
+        <div id="sofort-list"></div>
+        <div class="ts">Sofortmaßnahmen sind unmittelbar nach dem Vorfall umzusetzen</div>
+      </div>
+
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="fb" style="margin-bottom:10px">
+          <div class="section-label" style="margin:0">Langfristige Maßnahmen</div>
+          <button type="button" class="btn btn-sm" onclick="addMassnahme('langfristig')">+ Maßnahme</button>
+        </div>
+        <div id="langfristig-list"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="fb" style="margin-bottom:10px">
+          <div class="section-label" style="margin:0">Wirksamkeitskontrolle</div>
+          <button type="button" class="btn btn-sm" onclick="addMassnahme('wirksamkeit')">+ Kontrolle</button>
+        </div>
+        <div id="wirksamkeit-list"></div>
+        <div class="ts">Wurde die Maßnahme umgesetzt und ist sie wirksam?</div>
+      </div>
+    </div>
+
+    <!-- TAB: ANALYSE -->
+    <div id="tab-analyse" style="display:none">
+      <div class="info-box" style="margin-bottom:14px">
+        <strong>Unfallanalyse nach BG-Vorgaben</strong> – Identifizieren Sie die Ursachen nach dem WARUM-WARUM-Prinzip und leiten Sie systematische Schutzmaßnahmen ab.
+      </div>
+
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">1. Unmittelbare Ursache (Was ist direkt passiert?)</div>
+        <textarea id="a-unmittelbar" rows="2" placeholder="z.B. Werkzeug abgerutscht, Person gestolpert…"></textarea>
+      </div>
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">2. Mittelbare Ursache (Warum konnte es passieren?)</div>
+        <textarea id="a-mittelbar" rows="2" placeholder="z.B. Oberfläche nass, fehlende PSA, mangelhafter Zustand…"></textarea>
+      </div>
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">3. Systemursache (Warum wurde es nicht verhindert?)</div>
+        <textarea id="a-system" rows="2" placeholder="z.B. fehlende Unterweisung, unzureichende Gefährdungsbeurteilung…"></textarea>
+      </div>
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">Unfallart (BG-Klassifikation)</div>
+        <select id="a-art">
+          <option value="">– auswählen –</option>
+          <option>Sturz auf der Ebene</option>
+          <option>Sturz von Höhe</option>
+          <option>Schnitt / Stich</option>
+          <option>Quetschung / Einschluss</option>
+          <option>Stoß / Anprall</option>
+          <option>Verbrennung / Verbrühung</option>
+          <option>Chemische Einwirkung</option>
+          <option>Elektrischer Unfall</option>
+          <option>Überbelastung / Fehlbewegung</option>
+          <option>Verkehrsunfall (betrieblich)</option>
+          <option>Sonstiges</option>
+        </select>
+      </div>
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">Zusammenhang mit GBU</div>
+        <select id="a-gbu"><option value="">– keine GBU verknüpft –</option></select>
+        <div class="ts" style="margin-top:6px">Bei Verknüpfung wird die betreffende Gefährdung in der GBU automatisch aktualisiert</div>
+      </div>
+      <div class="section-block">
+        <div class="section-label">Schlussfolgerungen / Empfehlungen</div>
+        <textarea id="a-schluss" rows="3" placeholder="Was muss sich ändern, damit dieser Unfall nicht wieder passiert?"></textarea>
+      </div>
+    </div>
+
+    <!-- TAB: MELDUNG -->
+    <div id="tab-meldung" style="display:none">
+      <div class="info-box" style="margin-bottom:14px">
+        Meldepflichtige Unfälle (mind. 3 Ausfalltage oder schwere Verletzungen) müssen der zuständigen Berufsgenossenschaft gemeldet werden. Die KI erstellt die Meldung auf Basis Ihrer Angaben.
+      </div>
+
+      <div class="section-block" style="margin-bottom:12px">
+        <div class="section-label">Meldungsvorlage</div>
+        <div id="vorlage-info" style="font-size:13px;color:var(--text3);margin-bottom:8px">Keine Vorlage hochgeladen – KI nutzt Standardformat</div>
+        <div class="gap">
+          <button type="button" class="btn btn-sm" onclick="document.getElementById('vorlage-input').click()">⬆ Vorlage hochladen (PDF)</button>
+          <input type="file" id="vorlage-input" accept=".pdf" onchange="uploadVorlage(event)">
+          <button type="button" class="btn btn-p btn-sm" onclick="generateMeldung()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10"/><path d="M12 8v4l3 3"/></svg>
+            KI-Meldung generieren
+          </button>
+        </div>
+      </div>
+
+      <div id="meldung-output" style="display:none">
+        <div class="section-label">Generierte Unfallmeldung</div>
+        <textarea id="meldung-text" rows="15" style="font-size:12px;font-family:var(--fm);line-height:1.6"></textarea>
+        <div class="gap" style="margin-top:8px">
+          <button class="btn btn-sm" onclick="copyMeldung()">📋 Kopieren</button>
+          <button class="btn btn-sm" onclick="printMeldung()">🖨 Drucken</button>
+        </div>
+      </div>
+
+      <div id="ki-status" style="display:none;margin-top:10px;padding:10px 13px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);font-size:13px"></div>
+    </div>
+
+  </div><!-- /modal-body -->
+
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-unfall')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveUnfall()">
+      <span class="spinner" id="save-spinner" style="display:none"></span>
+      Speichern
+    </button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:340px">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-user')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div><label>API-Key (Claude KI)</label>
+      <div style="display:flex;gap:8px">
+        <input id="um-apikey" type="password" placeholder="sk-ant-…" style="font-family:var(--fm);font-size:12px">
+        <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">OK</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doSignOut()">↩ Abmelden</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let currentProfile = null;
+let allUnfaelle = [];
+let allBereiche = [];
+let allTaetigkeiten = [];
+let allMaschinen = [];
+let allGefahrstoffe = [];
+let allArbeitsmittel = [];
+let allGBU = [];
+
+// Maßnahmen-State
+let sofortMs = [], langfristigMs = [], wirksamkeitMs = [];
+let fotos = [];
+let currentSchwere = 'gering';
+let pendingVorlage = null;
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+function fmtDT(iso){if(!iso)return'–';try{return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
+let _tt;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  requireAuth(async (user, profile) => {
+    currentProfile = profile;
+    document.getElementById('app-root').style.display = 'flex';
+    initSidebar(profile);
+    await loadAll();
+    renderKPIs();
+    renderList();
+  });
+});
+
+function initSidebar(p) {
+  document.getElementById('u-av').textContent = p?.kuerzel||p?.name?.slice(0,2).toUpperCase()||'?';
+  document.getElementById('u-name').textContent = p?.name||'–';
+  document.getElementById('u-role').textContent = p?.rolle==='admin'?'Administrator':'Mitarbeiter';
+  document.getElementById('top-uname').textContent = p?.name||'–';
+  const admin = p?.rolle==='admin';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=admin?'':'none');
+  const col = localStorage.getItem('sb_collapsed')==='1';
+  if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+  try{getOrgSettings().then(s=>{if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}).catch(()=>{});}catch(e){}
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');
+  localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+
+async function loadAll() {
+  try {
+    [allUnfaelle, allBereiche, allTaetigkeiten, allMaschinen, allGefahrstoffe, allArbeitsmittel] = await Promise.all([
+      unfallGetAll(), bereichGetAll(), taetigkeitGetAll(),
+      maschinGetAll(), gefahrstoffGetAll(), arbeitsmittelGetAll()
+    ]);
+    // GBU aus Supabase
+    try { const {data}=await getSB().from('gbu').select('id,data'); allGBU=(data||[]).map(r=>({...r.data,id:r.id})); } catch(e){}
+    document.getElementById('page-sub').textContent = allUnfaelle.length + ' Vorfälle erfasst';
+    // Filter-Dropdowns befüllen
+    const bSel = document.getElementById('f-bereich');
+    allBereiche.forEach(b => { const o=document.createElement('option');o.value=b.id;o.textContent=b.name;bSel.appendChild(o); });
+    const jahre = [...new Set(allUnfaelle.map(u=>u.datum?.slice(0,4)).filter(Boolean))].sort().reverse();
+    const jSel = document.getElementById('f-jahr');
+    jahre.forEach(j => { const o=document.createElement('option');o.value=j;o.textContent=j;jSel.appendChild(o); });
+  } catch(e) { toast('Ladefehler: '+e.message,'err'); }
+}
+
+// ── KPIs ──────────────────────────────────────────────────
+function renderKPIs() {
+  const gesamt = allUnfaelle.length;
+  const ausfall = allUnfaelle.filter(u=>u.typ==='unfall'&&(u.ausfall||0)>0).length;
+  const beinahe = allUnfaelle.filter(u=>u.typ==='beinahe'||u.typ==='gefaehrdung').length;
+  const offene = allUnfaelle.reduce((n,u)=>{
+    const ms=[...(u.sofortMs||[]),...(u.langfristigMs||[]),...(u.wirksamkeitMs||[])];
+    return n+ms.filter(m=>!m.erledigt).length;
+  },0);
+  document.getElementById('kpi-gesamt').textContent = gesamt;
+  document.getElementById('kpi-ausfall').textContent = ausfall;
+  document.getElementById('kpi-beinahe').textContent = beinahe;
+  document.getElementById('kpi-massnahmen').textContent = offene;
+}
+
+// ── Liste ─────────────────────────────────────────────────
+function renderList() {
+  const el = document.getElementById('unfall-list');
+  const fTyp = document.getElementById('f-typ').value;
+  const fBereich = document.getElementById('f-bereich').value;
+  const fJahr = document.getElementById('f-jahr').value;
+  const fSuche = document.getElementById('f-suche').value.toLowerCase();
+
+  let data = allUnfaelle.filter(u => {
+    if (fTyp && u.typ !== fTyp) return false;
+    if (fBereich && u.bereichId !== fBereich) return false;
+    if (fJahr && !u.datum?.startsWith(fJahr)) return false;
+    if (fSuche && !JSON.stringify(u).toLowerCase().includes(fSuche)) return false;
+    return true;
+  }).sort((a,b)=>new Date(b.datum)-new Date(a.datum));
+
+  if (!data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🚨</div>
+      <p style="margin-bottom:12px">${allUnfaelle.length?'Keine Vorfälle gefunden.':'Noch keine Vorfälle erfasst.'}</p>
+      ${isAdmin(currentProfile)?'<button class="btn btn-p btn-sm" onclick="openNewUnfall()">+ Ersten Vorfall erfassen</button>':''}
+    </div>`;
+    return;
+  }
+
+  const typCfg = {
+    unfall:      {label:'Unfall',        color:'var(--nok)', bg:'var(--nok-bg)'},
+    beinahe:     {label:'Beinahe-Unfall',color:'var(--warn)',bg:'var(--warn-bg)'},
+    gefaehrdung: {label:'Gefährdungsmeldung',color:'var(--info)',bg:'var(--info-bg)'},
+  };
+  const schwereCfg = {gering:'b-ok',mittel:'b-warn',schwer:'b-nok',toedlich:'b-nok'};
+  const admin = isAdmin(currentProfile);
+
+  el.innerHTML = data.map(u => {
+    const tc = typCfg[u.typ]||typCfg.unfall;
+    const bereich = allBereiche.find(b=>b.id===u.bereichId);
+    const offene = [...(u.sofortMs||[]),...(u.langfristigMs||[]),...(u.wirksamkeitMs||[])].filter(m=>!m.erledigt).length;
+    return `<div class="unfall-card">
+      <div class="uc-accent" style="background:${tc.color}"></div>
+      <div class="uc-body">
+        <div class="fb" style="margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="badge" style="background:${tc.bg};color:${tc.color};border-color:${tc.color}40">${tc.label}</span>
+            ${u.schwere?`<span class="badge ${schwereCfg[u.schwere]||'b-neutral'}">${u.schwere.charAt(0).toUpperCase()+u.schwere.slice(1)}</span>`:''}
+            ${u.meldepflichtig==='ja'||u.meldepflichtig==='schwer'?'<span class="badge b-nok">Meldepflichtig</span>':''}
+            ${offene>0?`<span class="badge b-warn">${offene} offene Maßnahme${offene>1?'n':''}</span>`:''}
+          </div>
+          ${admin?`<div class="gap">
+            <button class="btn btn-sm" onclick="editUnfall('${u.id}')">✏ Bearbeiten</button>
+            <button class="btn btn-sm btn-d" onclick="deleteUnfall('${u.id}')">🗑</button>
+          </div>`:''}
+        </div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:5px;color:var(--text)">${esc(u.beschreibung?.slice(0,100)||'–')}${(u.beschreibung?.length||0)>100?'…':''}</div>
+        <div class="gap ts">
+          <span>📅 ${fmt(u.datum)}${u.uhrzeit?' · '+u.uhrzeit+' Uhr':''}</span>
+          ${bereich?`<span>🏢 ${esc(bereich.name)}</span>`:''}
+          ${u.kst?`<span>💼 ${esc(u.kst)}</span>`:''}
+          ${u.person?`<span>👤 ${esc(u.person)}</span>`:''}
+          ${u.ausfall>0?`<span>🏥 ${u.ausfall} Ausfalltag${u.ausfall>1?'e':''}</span>`:''}
+          ${(u.fotos||[]).length?`<span>📷 ${u.fotos.length} Foto${u.fotos.length>1?'s':''}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Anlegen / Bearbeiten ──────────────────────────────────
+function openNewUnfall() {
+  document.getElementById('edit-id').value = '';
+  document.getElementById('m-unfall-title').textContent = 'Vorfall erfassen';
+  document.getElementById('m-unfall-sub').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  // Reset
+  document.getElementById('u-datum').value = new Date().toISOString().slice(0,10);
+  document.getElementById('u-uhrzeit').value = '';
+  document.getElementById('u-kst').value = '';
+  document.getElementById('u-person').value = '';
+  document.getElementById('u-ausfall').value = '0';
+  document.getElementById('u-verletzung').value = '';
+  document.getElementById('u-beschreibung').value = '';
+  document.getElementById('a-unmittelbar').value = '';
+  document.getElementById('a-mittelbar').value = '';
+  document.getElementById('a-system').value = '';
+  document.getElementById('a-schluss').value = '';
+  document.getElementById('a-art').value = '';
+  document.getElementById('u-meldepflichtig').value = 'nein';
+  document.querySelector('input[name="u-typ"][value="unfall"]').checked = true;
+  currentSchwere = 'gering'; setSchwere('gering');
+  sofortMs = []; langfristigMs = []; wirksamkeitMs = [];
+  fotos = []; pendingVorlage = null;
+  document.getElementById('vorlage-info').textContent = 'Keine Vorlage hochgeladen – KI nutzt Standardformat';
+  document.getElementById('meldung-output').style.display = 'none';
+  document.getElementById('ki-status').style.display = 'none';
+  // Dropdowns füllen
+  fillDropdowns(null);
+  renderMassnahmen();
+  renderFotos();
+  switchModalTab('basis');
+  openM('m-unfall');
+  onTypChange();
+}
+
+function editUnfall(id) {
+  const u = allUnfaelle.find(x=>x.id===id); if(!u)return;
+  document.getElementById('edit-id').value = id;
+  document.getElementById('m-unfall-title').textContent = 'Vorfall bearbeiten';
+  document.getElementById('m-unfall-sub').textContent = fmt(u.datum);
+  const set = (elId,val)=>{ const el=document.getElementById(elId);if(el&&val!=null)el.value=val; };
+  set('u-datum',u.datum); set('u-uhrzeit',u.uhrzeit||'');
+  set('u-kst',u.kst||''); set('u-person',u.person||'');
+  set('u-ausfall',u.ausfall||0); set('u-verletzung',u.verletzung||'');
+  set('u-beschreibung',u.beschreibung||''); set('u-meldepflichtig',u.meldepflichtig||'nein');
+  set('a-unmittelbar',u.analyse?.unmittelbar||''); set('a-mittelbar',u.analyse?.mittelbar||'');
+  set('a-system',u.analyse?.system||''); set('a-schluss',u.analyse?.schluss||'');
+  set('a-art',u.analyse?.art||'');
+  const typEl = document.querySelector(`input[name="u-typ"][value="${u.typ||'unfall'}"]`);
+  if(typEl) typEl.checked = true;
+  currentSchwere = u.schwere||'gering'; setSchwere(currentSchwere);
+  sofortMs = JSON.parse(JSON.stringify(u.sofortMs||[]));
+  langfristigMs = JSON.parse(JSON.stringify(u.langfristigMs||[]));
+  wirksamkeitMs = JSON.parse(JSON.stringify(u.wirksamkeitMs||[]));
+  fotos = [...(u.fotos||[])];
+  fillDropdowns(u);
+  renderMassnahmen();
+  renderFotos();
+  switchModalTab('basis');
+  openM('m-unfall');
+  onTypChange();
+}
+
+function fillDropdowns(u) {
+  const fill = (id,arr,val) => {
+    const el = document.getElementById(id); if(!el)return;
+    el.innerHTML = '<option value="">– keine –</option>' + arr.map(x=>`<option value="${x.id}" ${u?.[id.replace('u-','')+'Id']===x.id?'selected':''}>${esc(x.name)}</option>`).join('');
+  };
+  fill('u-bereich',allBereiche,u);
+  fill('u-taetigkeit',allTaetigkeiten,u);
+  fill('u-maschine',allMaschinen,u);
+  fill('u-gefahrstoff',allGefahrstoffe,u);
+  fill('u-arbeitsmittel',allArbeitsmittel,u);
+  // GBU für Analyse-Tab
+  const gSel = document.getElementById('a-gbu');
+  gSel.innerHTML = '<option value="">– keine GBU verknüpft –</option>' + allGBU.map(g=>`<option value="${g.id}" ${u?.gbuId===g.id?'selected':''}>${esc(g.titel||g.id)}</option>`).join('');
+}
+
+function onTypChange() {
+  const typ = document.querySelector('input[name="u-typ"]:checked')?.value||'unfall';
+  document.getElementById('unfall-felder').style.display = typ==='unfall'?'':'none';
+}
+
+function setSchwere(s) {
+  currentSchwere = s;
+  ['gering','mittel','schwer','toedlich'].forEach(x=>{
+    const el=document.getElementById('s-'+x);
+    if(el)el.classList.toggle('on',x===s);
+  });
+}
+
+function showCloseWarning() {
+  if(confirm('Ungespeicherte Änderungen verwerfen?')) closeM('m-unfall');
+}
+
+// ── Modal-Tabs ────────────────────────────────────────────
+function switchModalTab(tab) {
+  ['basis','massnahmen','analyse','meldung'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    const btn=document.getElementById('mtab-'+t);
+    if(el)el.style.display=t===tab?'':'none';
+    if(btn)btn.classList.toggle('on',t===tab);
+  });
+}
+
+// ── Maßnahmen ─────────────────────────────────────────────
+function addMassnahme(typ) {
+  const m = {id:uid('M'),beschreibung:'',wer:'',bis:'',erledigt:false};
+  if(typ==='sofort') sofortMs.push(m);
+  else if(typ==='langfristig') langfristigMs.push(m);
+  else wirksamkeitMs.push(m);
+  renderMassnahmen();
+}
+
+function renderMassnahmen() {
+  const render = (list,typ) => {
+    if(!list.length) return `<div class="ts" style="padding:8px 0;text-align:center">Noch keine Maßnahmen</div>`;
+    return list.map((m,i)=>`
+      <div class="massnahme-row" id="mrow-${m.id}">
+        <div><label style="font-size:11px">Beschreibung *</label>
+          <textarea rows="2" style="font-size:12px" placeholder="Was ist zu tun?" onchange="${typ}Ms[${i}].beschreibung=this.value">${esc(m.beschreibung)}</textarea></div>
+        <div><label style="font-size:11px">Verantwortlich</label>
+          <input placeholder="Name" style="font-size:12px" value="${esc(m.wer)}" onchange="${typ}Ms[${i}].wer=this.value"></div>
+        <div>
+          <label style="font-size:11px">Termin</label>
+          <input type="date" value="${m.bis||''}" style="font-size:12px" onchange="${typ}Ms[${i}].bis=this.value">
+          <label style="display:flex;align-items:center;gap:5px;margin-top:6px;font-size:11px;cursor:pointer">
+            <input type="checkbox" ${m.erledigt?'checked':''} style="width:auto" onchange="${typ}Ms[${i}].erledigt=this.checked"> Erledigt
+          </label>
+          <button class="btn btn-d btn-xs" style="margin-top:4px;width:100%" onclick="${typ}Ms.splice(${i},1);renderMassnahmen()">✕ Entfernen</button>
+        </div>
+      </div>`).join('<div class="divider"></div>');
+  };
+  document.getElementById('sofort-list').innerHTML = render(sofortMs,'sofort');
+  document.getElementById('langfristig-list').innerHTML = render(langfristigMs,'langfristig');
+  document.getElementById('wirksamkeit-list').innerHTML = render(wirksamkeitMs,'wirksamkeit');
+}
+
+// ── Fotos ─────────────────────────────────────────────────
+function addFotos(e) {
+  const files = [...e.target.files];
+  files.forEach(f => {
+    if(f.size>5*1024*1024){toast(f.name+' zu groß (max. 5 MB)','err');return;}
+    const r = new FileReader();
+    r.onload = ev => { fotos.push({id:uid('F'),name:f.name,dataUrl:ev.target.result}); renderFotos(); };
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+}
+
+function renderFotos() {
+  const grid = document.getElementById('foto-grid');
+  const thumbs = fotos.map(f=>`
+    <div style="position:relative">
+      <img src="${f.dataUrl}" class="foto-thumb" onclick="viewFoto('${f.id}')" title="${esc(f.name)}">
+      <button onclick="removeFoto('${f.id}')" style="position:absolute;top:-5px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--nok);border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
+    </div>`).join('');
+  grid.innerHTML = thumbs + '<div class="foto-add" onclick="document.getElementById(\'foto-input\').click()" title="Foto hinzufügen">+</div>';
+}
+
+function removeFoto(id) { fotos=fotos.filter(f=>f.id!==id); renderFotos(); }
+function viewFoto(id) { const f=fotos.find(x=>x.id===id);if(!f)return;const w=window.open();w.document.write(`<img src="${f.dataUrl}" style="max-width:100%">`); }
+
+// ── Speichern ─────────────────────────────────────────────
+async function saveUnfall() {
+  const beschreibung = document.getElementById('u-beschreibung').value.trim();
+  const datum = document.getElementById('u-datum').value;
+  if(!beschreibung||!datum){toast('Beschreibung und Datum erforderlich','err');return;}
+  const sp=document.getElementById('save-spinner');sp.style.display='inline-block';
+  const editId = document.getElementById('edit-id').value;
+  const prev = editId ? allUnfaelle.find(x=>x.id===editId) : null;
+  const u = {
+    id: prev?.id||uid('UNF'),
+    typ: document.querySelector('input[name="u-typ"]:checked')?.value||'unfall',
+    datum, uhrzeit: document.getElementById('u-uhrzeit').value,
+    bereichId: document.getElementById('u-bereich').value,
+    kst: document.getElementById('u-kst').value.trim(),
+    beschreibung,
+    person: document.getElementById('u-person').value.trim(),
+    ausfall: parseInt(document.getElementById('u-ausfall').value)||0,
+    verletzung: document.getElementById('u-verletzung').value.trim(),
+    schwere: currentSchwere,
+    meldepflichtig: document.getElementById('u-meldepflichtig').value,
+    taetigkeitId: document.getElementById('u-taetigkeit').value,
+    maschinenId: document.getElementById('u-maschine').value,
+    gefahrstoffId: document.getElementById('u-gefahrstoff').value,
+    arbeitsmittelId: document.getElementById('u-arbeitsmittel').value,
+    sofortMs, langfristigMs, wirksamkeitMs,
+    fotos: fotos.map(f=>({id:f.id,name:f.name,dataUrl:f.dataUrl})),
+    analyse: {
+      unmittelbar: document.getElementById('a-unmittelbar').value.trim(),
+      mittelbar: document.getElementById('a-mittelbar').value.trim(),
+      system: document.getElementById('a-system').value.trim(),
+      schluss: document.getElementById('a-schluss').value.trim(),
+      art: document.getElementById('a-art').value,
+    },
+    gbuId: document.getElementById('a-gbu').value,
+    erfasstVon: currentProfile?.name||'–',
+    createdAt: prev?.createdAt||new Date().toISOString(),
+  };
+  try {
+    await unfallSave(u);
+    // GBU aktualisieren wenn verknüpft
+    if(u.gbuId) await updateGBUMitUnfall(u);
+    allUnfaelle = await unfallGetAll();
+    closeM('m-unfall');
+    renderKPIs();
+    renderList();
+    toast('Vorfall gespeichert ✓','ok');
+  } catch(e){ toast('Fehler: '+e.message,'err'); }
+  finally { sp.style.display='none'; }
+}
+
+async function deleteUnfall(id) {
+  if(!confirm('Vorfall löschen?'))return;
+  try {
+    await unfallDelete(id);
+    allUnfaelle = await unfallGetAll();
+    renderKPIs(); renderList(); toast('Gelöscht');
+  } catch(e){ toast('Fehler: '+e.message,'err'); }
+}
+
+// ── GBU-Verknüpfung ───────────────────────────────────────
+async function updateGBUMitUnfall(u) {
+  try {
+    const {data} = await getSB().from('gbu').select('id,data').eq('id',u.gbuId).single();
+    if(!data)return;
+    const gbu = {...data.data,id:data.id};
+    const gef = gbu.gefaehrdungen||[];
+    const bereich = allBereiche.find(b=>b.id===u.bereichId);
+    // Füge Unfall als neue Gefährdung hinzu falls noch nicht vorhanden
+    const exists = gef.some(g=>g.unfallId===u.id);
+    if(!exists) {
+      gef.push({
+        id:uid('GF'),unfallId:u.id,
+        kat:'Unfall / Vorfall',
+        text:`Vorfall vom ${fmt(u.datum)}: ${u.beschreibung?.slice(0,120)||'–'}${u.beschreibung?.length>120?'…':''}`,
+        massnahme: [...(u.sofortMs||[]),...(u.langfristigMs||[])].map(m=>m.beschreibung).filter(Boolean).join('; ')||'–',
+        verantwortlich:'', termin:'', wirksamkeit:'',
+        risiko_vorher:'', risiko_nachher:'',
+      });
+      gbu.gefaehrdungen = gef;
+      await getSB().from('gbu').update({data:gbu,updated_at:new Date().toISOString()}).eq('id',u.gbuId);
+      toast('GBU wurde aktualisiert ✓','ok');
+    }
+  } catch(e){ console.warn('GBU-Update fehlgeschlagen:',e.message); }
+}
+
+// ── Meldung ───────────────────────────────────────────────
+function uploadVorlage(e) {
+  const file = e.target.files[0]; if(!file)return;
+  const r = new FileReader();
+  r.onload = ev => { pendingVorlage={dataUrl:ev.target.result,name:file.name}; document.getElementById('vorlage-info').innerHTML=`<span style="color:var(--ok)">✓ ${esc(file.name)}</span>`; toast('Vorlage geladen ✓','ok'); };
+  r.readAsDataURL(file); e.target.value='';
+}
+
+async function generateMeldung() {
+  const key = getApiKey();
+  if(!key){toast('Bitte API-Key im Nutzermenü hinterlegen','err');return;}
+  const st = document.getElementById('ki-status');
+  st.style.display='block'; st.textContent='KI generiert Unfallmeldung…';
+  const u_datum = document.getElementById('u-datum').value;
+  const u_uhrzeit = document.getElementById('u-uhrzeit').value;
+  const u_besch = document.getElementById('u-beschreibung').value;
+  const u_person = document.getElementById('u-person').value;
+  const u_verletz = document.getElementById('u-verletzung').value;
+  const u_ausfall = document.getElementById('u-ausfall').value;
+  const a_unmittelbar = document.getElementById('a-unmittelbar').value;
+  const a_art = document.getElementById('a-art').value;
+  const settings = await getOrgSettings().catch(()=>({}));
+  const prompt = `Erstelle eine formale Unfallmeldung für die Berufsgenossenschaft.\n\nBetrieb: ${settings.firmenname||'–'}, ${settings.adresse||'–'}\nDatum: ${fmt(u_datum)} ${u_uhrzeit?u_uhrzeit+' Uhr':''}\nVerletzte Person: ${u_person||'–'}\nVerletzungsart: ${u_verletz||'–'}\nAusfallzeit: ${u_ausfall||0} Tage\nUnfallart: ${a_art||'–'}\nHergang: ${u_besch||'–'}\nUnmittelbare Ursache: ${a_unmittelbar||'–'}\n\nDie Meldung soll professionell, vollständig und BG-konform sein. Format: Fließtext mit klaren Abschnitten.`;
+  try {
+    const msgs = [{role:'user',content:[{type:'text',text:prompt}]}];
+    if(pendingVorlage){
+      msgs[0].content.unshift({type:'document',source:{type:'base64',media_type:'application/pdf',data:pendingVorlage.dataUrl.split(',')[1]}});
+      msgs[0].content[1].text = 'Nutze die hochgeladene Vorlage als Struktur. '+prompt;
+    }
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:msgs})});
+    const data = await res.json();
+    if(!res.ok){st.textContent='Fehler: '+(data.error?.message||'API');return;}
+    const text = (data.content||[]).map(b=>b.text||'').join('');
+    document.getElementById('meldung-text').value = text;
+    document.getElementById('meldung-output').style.display = 'block';
+    st.style.display='none';
+    toast('Meldung generiert ✓','ok');
+  } catch(e){ st.textContent='Fehler: '+e.message; }
+}
+
+function copyMeldung(){navigator.clipboard.writeText(document.getElementById('meldung-text').value).then(()=>toast('Kopiert ✓','ok'));}
+function printMeldung(){const w=window.open();w.document.write(`<pre style="font-family:sans-serif;white-space:pre-wrap;padding:30px">${document.getElementById('meldung-text').value}</pre>`);w.document.close();setTimeout(()=>w.print(),500);}
+
+// ── Export Statistik ──────────────────────────────────────
+function exportStatistik() {
+  const typen = {unfall:'Unfall',beinahe:'Beinahe-Unfall',gefaehrdung:'Gefährdungsmeldung'};
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Unfallstatistik</title>
+  <style>body{font-family:sans-serif;max-width:900px;margin:0 auto;padding:32px;font-size:13px}
+  h1{font-size:20px;margin-bottom:4px}h2{font-size:15px;border-bottom:1px solid #ccc;margin:20px 0 10px;padding-bottom:5px}
+  table{width:100%;border-collapse:collapse}th{background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;font-size:12px}
+  td{padding:8px 10px;border-bottom:1px solid #e0e0e0}@media print{button{display:none}}</style></head><body>
+  <h1>Unfallstatistik</h1>
+  <p style="color:#666;margin-bottom:16px">Stand: ${new Date().toLocaleDateString('de-DE')}</p>
+  <button onclick="window.print()" style="padding:8px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px">🖨 Drucken / PDF</button>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+    <div style="text-align:center;padding:14px;background:#f5f5f3;border-radius:8px"><div style="font-size:11px;color:#666">Gesamt</div><div style="font-size:28px;font-weight:700">${allUnfaelle.length}</div></div>
+    <div style="text-align:center;padding:14px;background:#fef2f2;border-radius:8px"><div style="font-size:11px;color:#666">Unfälle m. Ausfall</div><div style="font-size:28px;font-weight:700;color:#dc2626">${allUnfaelle.filter(u=>u.typ==='unfall'&&u.ausfall>0).length}</div></div>
+    <div style="text-align:center;padding:14px;background:#fffbeb;border-radius:8px"><div style="font-size:11px;color:#666">Beinahe-Unfälle</div><div style="font-size:28px;font-weight:700;color:#b45309">${allUnfaelle.filter(u=>u.typ==='beinahe').length}</div></div>
+    <div style="text-align:center;padding:14px;background:#eff6ff;border-radius:8px"><div style="font-size:11px;color:#666">Gesamte Ausfalltage</div><div style="font-size:28px;font-weight:700;color:#2563eb">${allUnfaelle.reduce((n,u)=>n+(u.ausfall||0),0)}</div></div>
+  </div>
+  <h2>Alle Vorfälle</h2>
+  <table><thead><tr><th>Datum</th><th>Typ</th><th>Beschreibung</th><th>Bereich</th><th>Schwere</th><th>Ausfall</th></tr></thead><tbody>
+  ${allUnfaelle.sort((a,b)=>new Date(b.datum)-new Date(a.datum)).map(u=>`<tr>
+    <td>${fmt(u.datum)}</td><td>${typen[u.typ]||'–'}</td>
+    <td>${esc(u.beschreibung?.slice(0,80)||'–')}</td>
+    <td>${esc(allBereiche.find(b=>b.id===u.bereichId)?.name||'–')}</td>
+    <td>${u.schwere||'–'}</td><td>${u.ausfall||0} Tage</td>
+  </tr>`).join('')}
+  </tbody></table>
+  </body></html>`;
+  const w=window.open('','_blank');w.document.write(html);w.document.close();
+}
+
+// ── User-Menü ─────────────────────────────────────────────
+function openUserMenu(){
+  const p=currentProfile;
+  document.getElementById('um-name').textContent=p?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=p?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  document.getElementById('um-apikey').value=getApiKey();
+  openM('m-user');
+}
+function saveApiKeyUM(){const k=document.getElementById('um-apikey').value.trim();localStorage.setItem('ehs_api_key',k);toast('API-Key gespeichert ✓','ok');closeM('m-user');}
+async function doSignOut(){closeM('m-user');await signOut();}
+</script>
+</body>
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>EHS Sicherheitsfachkraft – Oak Engineering</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.kpi-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:20px; }
+.kpi-card { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;text-align:center; }
+.kpi-val { font-size:28px;font-weight:500;margin:4px 0;color:var(--text); }
+.kpi-lbl { font-size:11px;color:var(--text3); }
+.kpi-ok { color:var(--ok); }
+.kpi-warn { color:var(--warn); }
+.kpi-nok { color:var(--nok); }
+.tz-row { display:grid;grid-template-columns:1fr 120px 80px 80px;gap:10px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px; }
+.tz-row:last-child { border-bottom:none; }
+.balken-wrap { background:var(--surface3);border-radius:4px;height:8px;overflow:hidden;margin-top:4px; }
+.balken { height:100%;border-radius:3px;transition:width .5s; }
+.gruppe-card { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:8px; }
+.gruppe-card.selected { border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)20; }
+.jahresbericht-section { background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:12px; }
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon">
+      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
+    </div>
+    <div class="sb-logo-text">
+      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
+      <div class="sb-logo-sub">Oak Engineering</div>
+    </div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+    <div class="sb-section">Verwaltung</div>
+    <div class="sb-item admin-only" onclick="openSettingsModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2"/></svg></span><span class="sb-label">Einstellungen</span></div>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <span class="nav-crumb">EHS Manager</span>
+    <span class="nav-sep">›</span>
+    <span class="nav-page">Sicherheitsfachkraft</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div>
+      <div class="page-title">Sicherheitsfachkraft</div>
+      <div class="ts">Einsatzzeiten · Jahresbericht · DGUV Vorschrift 2</div>
+    </div>
+  </div>
+
+  <div class="tabs" style="margin-bottom:20px">
+    <button class="tab on" onclick="switchTab('einsatz')" id="tab-einsatz">Einsatzzeiten</button>
+    <button class="tab" onclick="switchTab('begehungen')" id="tab-begehungen">Begehungen</button>
+    <button class="tab" onclick="switchTab('bericht')" id="tab-bericht">Jahresbericht</button>
+  </div>
+
+  <!-- ── TAB: EINSATZZEITEN ── -->
+  <div id="view-einsatz">
+
+    <!-- Betreuungsgruppe wählen -->
+    <div class="section-block" style="margin-bottom:18px">
+      <div class="section-label">Betreuungsgruppe (DGUV Vorschrift 2, Anlage 2)</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px" id="gruppe-grid">
+        <!-- wird per JS befüllt -->
+      </div>
+      <div class="ts">Einstellung wird auch in den Grundeinstellungen gespeichert. Zuordnung anhand WZ-Code (Wirtschaftszweig) oder Branche der Unfallversicherung.</div>
+    </div>
+
+    <!-- Beschäftigte eingeben -->
+    <div class="section-block" style="margin-bottom:18px">
+      <div class="section-label">Beschäftigte (Vollzeitäquivalente)</div>
+      <div class="g3" style="margin-bottom:10px">
+        <div>
+          <label>Vollzeit (> 30h/Woche) <span class="badge b-neutral">Faktor 1,0</span></label>
+          <input id="ma-vz" type="number" min="0" value="0" oninput="berechne()">
+        </div>
+        <div>
+          <label>Teilzeit ≤ 30h/Woche <span class="badge b-neutral">Faktor 0,75</span></label>
+          <input id="ma-tz2" type="number" min="0" value="0" oninput="berechne()">
+        </div>
+        <div>
+          <label>Teilzeit ≤ 20h/Woche <span class="badge b-neutral">Faktor 0,50</span></label>
+          <input id="ma-tz1" type="number" min="0" value="0" oninput="berechne()">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)">
+        Vollzeitäquivalente (VZÄ):
+        <strong id="vzae" style="font-size:16px;color:var(--text)">0</strong>
+        <span class="ts">= VZ × 1,0 + TZ30 × 0,75 + TZ20 × 0,50</span>
+      </div>
+    </div>
+
+    <!-- Ergebnis -->
+    <div class="kpi-grid" id="ergebnis-grid">
+      <!-- wird per JS befüllt -->
+    </div>
+
+    <!-- Detailtabelle -->
+    <div class="section-block">
+      <div class="section-label">Aufteilung Grundbetreuung</div>
+      <div id="detail-tabelle"></div>
+      <div class="divider"></div>
+      <div class="ts">
+        Gesamt = SiFa + Betriebsarzt · Mindestanteil je Disziplin: 20% der Grundbetreuung, mind. 0,2 Std./VZÄ/Jahr · Wegezeiten nicht anrechenbar
+      </div>
+    </div>
+
+    <!-- Digitale Betreuung -->
+    <div class="section-block" style="margin-top:12px">
+      <div class="section-label">Digitale Betreuung (§ DGUV V2 – max. Anteile)</div>
+      <div id="digital-info" style="font-size:13px;color:var(--text2)"></div>
+    </div>
+
+    <!-- Erbrachte Zeiten -->
+    <div class="section-block" style="margin-top:12px">
+      <div class="section-label">Erbrachte Einsatzzeiten (lfd. Jahr)</div>
+      <div class="g2">
+        <div>
+          <label>SiFa – erbrachte Stunden</label>
+          <input id="sifa-ist" type="number" step="0.5" min="0" value="0" oninput="updateErfuellung()">
+        </div>
+        <div>
+          <label>Betriebsarzt – erbrachte Stunden</label>
+          <input id="ba-ist" type="number" step="0.5" min="0" value="0" oninput="updateErfuellung()">
+        </div>
+      </div>
+      <div id="erfuellung" style="margin-top:12px;font-size:13px"></div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-p btn-sm" onclick="saveEinsatzzeiten()">Speichern</button>
+      <button class="btn btn-sm" onclick="druckeEinsatzzeiten()">🖨 Ausdruck</button>
+    </div>
+  </div>
+
+  <!-- ── TAB: BEGEHUNGEN ── -->
+  <div id="view-begehungen" style="display:none">
+    <div class="fb" style="margin-bottom:16px">
+      <div>
+        <div class="page-title" style="font-size:16px">Begehungen & Termine</div>
+        <div class="ts">Durchgeführte und geplante Begehungen dokumentieren</div>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="openNewBegehung()">+ Begehung</button>
+    </div>
+    <div id="begehungen-list"></div>
+  </div>
+
+  <!-- ── TAB: JAHRESBERICHT ── -->
+  <div id="view-bericht" style="display:none">
+    <div class="fb" style="margin-bottom:16px">
+      <div>
+        <div class="page-title" style="font-size:16px">Jahresbericht (DGUV V2 §5)</div>
+        <div class="ts">Der Jahresbericht informiert den Arbeitgeber über die geleistete Betreuung</div>
+      </div>
+      <div class="gap">
+        <select id="bericht-jahr" style="padding:7px 10px;font-size:12px">
+          <!-- Jahre werden per JS eingefügt -->
+        </select>
+        <button class="btn btn-sm" onclick="document.getElementById('vorlage-bericht').click()">⬆ Vorlage hochladen</button>
+        <input type="file" id="vorlage-bericht" accept=".pdf,.docx" onchange="uploadBerichtVorlage(event)">
+        <button class="btn btn-p btn-sm" onclick="generateBericht()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10"/><path d="M12 8v4l3 3"/></svg>
+          KI-Bericht generieren
+        </button>
+      </div>
+    </div>
+
+    <div id="vorlage-bericht-info" class="info-box" style="margin-bottom:14px">
+      Keine Vorlage hochgeladen – KI erstellt Bericht nach DGUV V2 §5 Standardstruktur
+    </div>
+
+    <!-- Vorschau Berichtsstruktur -->
+    <div class="jahresbericht-section">
+      <div class="section-label">Standard-Gliederung (DGUV V2 §5)</div>
+      <div style="font-size:13px;color:var(--text2);line-height:2">
+        <div>1. Einsatzzeiten und Betreuungsumfang</div>
+        <div>2. Durchgeführte Begehungen und Besichtigungen</div>
+        <div>3. Unfallgeschehen und Analyse</div>
+        <div>4. Durchgeführte Unterweisungen</div>
+        <div>5. Stand der Gefährdungsbeurteilungen (GBU)</div>
+        <div>6. Gefahrstoffe und CMR-Stoffe</div>
+        <div>7. Offene und erledigte Maßnahmen</div>
+        <div>8. Empfehlungen und Ausblick</div>
+      </div>
+    </div>
+
+    <div id="ki-bericht-status" style="display:none;padding:12px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);font-size:13px;margin-bottom:12px"></div>
+
+    <div id="bericht-output" style="display:none">
+      <div class="section-label">Generierter Bericht</div>
+      <textarea id="bericht-text" rows="25" style="font-size:13px;line-height:1.7;font-family:var(--ff)"></textarea>
+      <div class="gap" style="margin-top:10px">
+        <button class="btn btn-sm" onclick="copyBericht()">📋 Kopieren</button>
+        <button class="btn btn-sm" onclick="printBericht()">🖨 Drucken / PDF</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /main-area -->
+</div><!-- /app-root -->
+
+<!-- MODAL: Begehung -->
+<div class="overlay" id="m-begehung" onclick="if(event.target===this)closeM('m-begehung')">
+<div class="modal">
+  <div class="modal-hd">
+    <div class="modal-title" id="m-begehung-title">Begehung erfassen</div>
+    <button class="btn btn-sm" onclick="closeM('m-begehung')">✕ Schließen</button>
+  </div>
+  <div class="modal-body">
+    <div class="g2">
+      <div><label>Datum *</label><input id="b-datum" type="date"></div>
+      <div><label>Bereich / Abteilung</label><input id="b-bereich" placeholder="Halle 3, Verwaltung…"></div>
+    </div>
+    <div><label>Teilnehmer</label><input id="b-teilnehmer" placeholder="SiFa, Betriebsleiter…"></div>
+    <div><label>Feststellungen / Mängel</label>
+      <textarea id="b-feststellungen" rows="3" placeholder="Was wurde festgestellt?"></textarea></div>
+    <div><label>Maßnahmen</label>
+      <textarea id="b-massnahmen" rows="2" placeholder="Welche Maßnahmen wurden vereinbart?"></textarea></div>
+    <div class="g2">
+      <div><label>Verantwortlich</label><input id="b-verantw" placeholder="Name"></div>
+      <div><label>Termin</label><input id="b-termin" type="date"></div>
+    </div>
+    <div><label>Status</label>
+      <select id="b-status">
+        <option value="geplant">Geplant</option>
+        <option value="durchgefuehrt">Durchgeführt</option>
+        <option value="abgeschlossen">Abgeschlossen</option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-begehung')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveBegehung()">Speichern</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:340px">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-user')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div><label>API-Key (Claude KI)</label>
+      <div style="display:flex;gap:8px">
+        <input id="um-apikey" type="password" placeholder="sk-ant-…" style="font-family:var(--fm);font-size:12px">
+        <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">OK</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doSignOut()">↩ Abmelden</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DGUV V2 Konstanten ────────────────────────────────────
+const GRUPPEN = [
+  { id:'1', label:'Gruppe I', faktor:2.5, beispiele:'Metallverarbeitung, Chemie, Bau, Lager', farbe:'var(--nok)' },
+  { id:'2', label:'Gruppe II', faktor:1.5, beispiele:'Handel, Gastgewerbe, Gesundheit, Bildung', farbe:'var(--warn)' },
+  { id:'3', label:'Gruppe III', faktor:0.5, beispiele:'Büro, Verwaltung, Versicherung, IT', farbe:'var(--ok)' },
+];
+const MIN_ANTEIL = 0.20;  // mind. 20% der Grundbetreuung
+const MIN_STD_PRO_MA = 0.20; // mind. 0,2 Std./VZÄ/Jahr
+const MAX_DIGITAL = 0.33;    // max. 33% digital (bis 50% wenn Erstbegehung)
+
+// ── State ──────────────────────────────────────────────────
+let currentProfile = null;
+let settings = {};
+let begehungen = [];
+let allModulData = {};
+let pendingBerichtVorlage = null;
+let editBegehungId = null;
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+let _tt;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  requireAuth(async (user, profile) => {
+    currentProfile = profile;
+    document.getElementById('app-root').style.display = 'flex';
+    initSidebar(profile);
+    settings = await getOrgSettings().catch(()=>({}));
+    await loadModulData();
+    initEinsatzzeiten();
+    initBerichtJahre();
+    begehungen = JSON.parse(localStorage.getItem('ehs_begehungen_'+settings.org)||'[]');
+    renderBegehungen();
+  });
+});
+
+function initSidebar(p) {
+  document.getElementById('u-av').textContent = p?.kuerzel||p?.name?.slice(0,2).toUpperCase()||'?';
+  document.getElementById('u-name').textContent = p?.name||'–';
+  document.getElementById('u-role').textContent = p?.rolle==='admin'?'Administrator':'Mitarbeiter';
+  document.getElementById('top-uname').textContent = p?.name||'–';
+  const admin = p?.rolle==='admin';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=admin?'':'none');
+  const col = localStorage.getItem('sb_collapsed')==='1';
+  if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+  if(settings.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=settings.firmenname;}
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');
+  localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+
+async function loadModulData() {
+  try {
+    const [unfaelle,schulungen,gbu,gefahrstoffe,maschinen] = await Promise.all([
+      unfallGetAll().catch(()=>[]),
+      getSB().from('schulungen').select('id,data').then(r=>(r.data||[]).map(x=>({...x.data,id:x.id}))).catch(()=>[]),
+      getSB().from('gbu').select('id,data').then(r=>(r.data||[]).map(x=>({...x.data,id:x.id}))).catch(()=>[]),
+      gefahrstoffGetAll().catch(()=>[]),
+      maschinGetAll().catch(()=>[]),
+    ]);
+    allModulData = {unfaelle,schulungen,gbu,gefahrstoffe,maschinen};
+  } catch(e){ console.warn('Modul-Daten teilweise nicht geladen:',e.message); }
+}
+
+// ── EINSATZZEITEN ─────────────────────────────────────────
+function initEinsatzzeiten() {
+  // Gruppen-Buttons rendern
+  const grid = document.getElementById('gruppe-grid');
+  const aktGruppe = settings.betreuungsgruppe||'1';
+  grid.innerHTML = GRUPPEN.map(g=>`
+    <div class="gruppe-card ${g.id===aktGruppe?'selected':''}" id="gc-${g.id}" onclick="waehleGruppe('${g.id}')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-weight:500;font-size:14px">${g.label}</div>
+        <div style="font-size:18px;font-weight:700;color:${g.farbe}">${g.faktor} Std.</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px">pro VZÄ und Jahr</div>
+      <div style="font-size:12px;color:var(--text2)">${g.beispiele}</div>
+    </div>`).join('');
+
+  // Werte aus Einstellungen eintragen
+  document.getElementById('ma-vz').value = settings.maVZ||0;
+  document.getElementById('ma-tz2').value = settings.maTZ2||0;
+  document.getElementById('ma-tz1').value = settings.maTZ1||0;
+  document.getElementById('sifa-ist').value = settings.sifaIst||0;
+  document.getElementById('ba-ist').value = settings.baIst||0;
+  berechne();
+}
+
+function waehleGruppe(id) {
+  settings.betreuungsgruppe = id;
+  document.querySelectorAll('.gruppe-card').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('gc-'+id)?.classList.add('selected');
+  berechne();
+}
+
+function berechne() {
+  const vz = parseFloat(document.getElementById('ma-vz').value)||0;
+  const tz2 = parseFloat(document.getElementById('ma-tz2').value)||0;
+  const tz1 = parseFloat(document.getElementById('ma-tz1').value)||0;
+  const vzae = vz*1.0 + tz2*0.75 + tz1*0.5;
+  document.getElementById('vzae').textContent = vzae.toFixed(1).replace('.',',');
+
+  const gruppe = GRUPPEN.find(g=>g.id===(settings.betreuungsgruppe||'1'))||GRUPPEN[0];
+  const grundbetr = vzae * gruppe.faktor;
+  const minSifa = Math.max(grundbetr*MIN_ANTEIL, vzae*MIN_STD_PRO_MA);
+  const minBA   = Math.max(grundbetr*MIN_ANTEIL, vzae*MIN_STD_PRO_MA);
+  const maxDigital = grundbetr * MAX_DIGITAL;
+  const maxDigital50 = grundbetr * 0.5;
+
+  // KPIs
+  const kpiEl = document.getElementById('ergebnis-grid');
+  const r = (n)=>Math.round(n*10)/10;
+  kpiEl.innerHTML = `
+    <div class="kpi-card"><div class="kpi-lbl">Beschäftigte (VZÄ)</div><div class="kpi-val">${vzae.toFixed(1).replace('.',',')}</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Grundbetreuung gesamt</div><div class="kpi-val">${r(grundbetr)} Std.</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Mindest-SiFa</div><div class="kpi-val kpi-warn">${r(minSifa)} Std.</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Mindest-Betriebsarzt</div><div class="kpi-val kpi-warn">${r(minBA)} Std.</div></div>
+    <div class="kpi-card"><div class="kpi-lbl">Max. digital (33%)</div><div class="kpi-val kpi-ok">${r(maxDigital)} Std.</div></div>`;
+
+  // Detailtabelle
+  const det = document.getElementById('detail-tabelle');
+  det.innerHTML = `
+    <div class="tz-row" style="font-weight:500;font-size:12px;color:var(--text2);border-bottom:1px solid var(--border2)">
+      <div>Position</div><div style="text-align:right">Soll (Std.)</div><div style="text-align:right">Minimum</div><div style="text-align:right">Max. digital</div>
+    </div>
+    <div class="tz-row">
+      <div>Grundbetreuung gesamt<div class="ts">SiFa + Betriebsarzt</div></div>
+      <div style="text-align:right;font-weight:600">${r(grundbetr)}</div>
+      <div style="text-align:right;color:var(--warn)">–</div>
+      <div style="text-align:right;color:var(--ok)">${r(maxDigital)} (33%)</div>
+    </div>
+    <div class="tz-row">
+      <div>davon: Fachkraft für Arbeitssicherheit<div class="ts">mind. 20% der Grundbetreuung</div></div>
+      <div style="text-align:right;color:var(--text3)">frei wählbar</div>
+      <div style="text-align:right;color:var(--warn);font-weight:600">${r(minSifa)}</div>
+      <div style="text-align:right;color:var(--ok)">${r(maxDigital)} max.</div>
+    </div>
+    <div class="tz-row">
+      <div>davon: Betriebsarzt<div class="ts">mind. 20% der Grundbetreuung</div></div>
+      <div style="text-align:right;color:var(--text3)">frei wählbar</div>
+      <div style="text-align:right;color:var(--warn);font-weight:600">${r(minBA)}</div>
+      <div style="text-align:right;color:var(--ok)">${r(maxDigital)} max.</div>
+    </div>`;
+
+  // Digitale Betreuung
+  document.getElementById('digital-info').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+      <div style="padding:10px;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r)">
+        <div style="font-weight:500;margin-bottom:4px">Ohne Erstbegehung</div>
+        <div>Max. <strong>${r(maxDigital)} Std.</strong> digital (33% von ${r(grundbetr)} Std.)</div>
+      </div>
+      <div style="padding:10px;background:var(--ok-bg);border:0.5px solid var(--ok-border);border-radius:var(--r)">
+        <div style="font-weight:500;margin-bottom:4px;color:var(--ok)">Mit Erstbegehung</div>
+        <div>Max. <strong>${r(maxDigital50)} Std.</strong> digital (50% von ${r(grundbetr)} Std.)</div>
+      </div>
+    </div>`;
+
+  updateErfuellung();
+}
+
+function updateErfuellung() {
+  const sifaIst = parseFloat(document.getElementById('sifa-ist').value)||0;
+  const baIst = parseFloat(document.getElementById('ba-ist').value)||0;
+  const vzae = parseFloat(document.getElementById('vzae').textContent.replace(',','.'))||0;
+  const gruppe = GRUPPEN.find(g=>g.id===(settings.betreuungsgruppe||'1'))||GRUPPEN[0];
+  const grundbetr = vzae * gruppe.faktor;
+  const minSifa = Math.max(grundbetr*MIN_ANTEIL, vzae*MIN_STD_PRO_MA);
+  const minBA   = Math.max(grundbetr*MIN_ANTEIL, vzae*MIN_STD_PRO_MA);
+  const r = (n)=>Math.round(n*10)/10;
+  const pctSifa = grundbetr>0?Math.min(100,Math.round(sifaIst/grundbetr*100)):0;
+  const pctBA = grundbetr>0?Math.min(100,Math.round(baIst/grundbetr*100)):0;
+  const gesamt = sifaIst+baIst;
+  const pctGes = grundbetr>0?Math.min(100,Math.round(gesamt/grundbetr*100)):0;
+  const okSifa = sifaIst>=minSifa;
+  const okBA   = baIst>=minBA;
+  document.getElementById('erfuellung').innerHTML = `
+    <div style="margin-bottom:10px">
+      <div class="fb" style="margin-bottom:3px"><span>SiFa: ${sifaIst} / mind. ${r(minSifa)} Std.</span><span class="badge ${okSifa?'b-ok':'b-nok'}">${okSifa?'✓ Erfüllt':'✗ Untererfüllt'}</span></div>
+      <div class="balken-wrap"><div class="balken" style="width:${pctSifa}%;background:${okSifa?'var(--ok)':'var(--nok)'}"></div></div>
+    </div>
+    <div style="margin-bottom:10px">
+      <div class="fb" style="margin-bottom:3px"><span>Betriebsarzt: ${baIst} / mind. ${r(minBA)} Std.</span><span class="badge ${okBA?'b-ok':'b-nok'}">${okBA?'✓ Erfüllt':'✗ Untererfüllt'}</span></div>
+      <div class="balken-wrap"><div class="balken" style="width:${pctBA}%;background:${okBA?'var(--ok)':'var(--nok)'}"></div></div>
+    </div>
+    <div>
+      <div class="fb" style="margin-bottom:3px"><span>Gesamt: ${gesamt} / ${r(grundbetr)} Std. (${pctGes}%)</span><span class="badge ${pctGes>=100?'b-ok':'b-warn'}">${pctGes>=100?'✓ Vollständig':pctGes+'% erfüllt'}</span></div>
+      <div class="balken-wrap"><div class="balken" style="width:${pctGes}%;background:${pctGes>=100?'var(--ok)':'var(--warn)'}"></div></div>
+    </div>`;
+}
+
+async function saveEinsatzzeiten() {
+  const updates = {
+    maVZ:  parseInt(document.getElementById('ma-vz').value)||0,
+    maTZ2: parseInt(document.getElementById('ma-tz2').value)||0,
+    maTZ1: parseInt(document.getElementById('ma-tz1').value)||0,
+    betreuungsgruppe: settings.betreuungsgruppe||'1',
+    sifaIst: parseFloat(document.getElementById('sifa-ist').value)||0,
+    baIst:   parseFloat(document.getElementById('ba-ist').value)||0,
+  };
+  try { await saveOrgSettings(updates); settings={...settings,...updates}; toast('Gespeichert ✓','ok'); }
+  catch(e){ toast('Fehler: '+e.message,'err'); }
+}
+
+function druckeEinsatzzeiten() {
+  const vzae = document.getElementById('vzae').textContent;
+  const gruppe = GRUPPEN.find(g=>g.id===(settings.betreuungsgruppe||'1'))||GRUPPEN[0];
+  const w = window.open();
+  w.document.write(`<html><head><title>Einsatzzeiten DGUV V2</title>
+  <style>body{font-family:sans-serif;max-width:700px;margin:0 auto;padding:32px;font-size:13px}
+  h1{font-size:18px}h2{font-size:14px;margin-top:20px}table{width:100%;border-collapse:collapse}
+  th{background:#1a1a1a;color:#fff;padding:8px}td{padding:8px;border-bottom:1px solid #eee}
+  @media print{button{display:none}}</style></head><body>
+  <h1>Einsatzzeiten – DGUV Vorschrift 2</h1>
+  <p>Betrieb: ${esc(settings.firmenname||'–')} · Stand: ${new Date().toLocaleDateString('de-DE')}</p>
+  <button onclick="window.print()" style="padding:8px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:12px 0">🖨 Drucken</button>
+  <h2>Betreuungsgruppe: ${gruppe.label} (${gruppe.faktor} Std./VZÄ/Jahr)</h2>
+  <p>Beschäftigte (VZÄ): <strong>${vzae}</strong></p>
+  <div id="content">${document.getElementById('detail-tabelle').innerHTML}</div>
+  <div style="margin-top:20px">${document.getElementById('erfuellung').innerHTML}</div>
+  </body></html>`);
+  w.document.close();
+}
+
+// ── BEGEHUNGEN ────────────────────────────────────────────
+function switchTab(t) {
+  ['einsatz','begehungen','bericht'].forEach(x=>{
+    document.getElementById('view-'+x).style.display=x===t?'':'none';
+    document.getElementById('tab-'+x)?.classList.toggle('on',x===t);
+  });
+}
+
+function renderBegehungen() {
+  const el = document.getElementById('begehungen-list');
+  if(!begehungen.length){el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Noch keine Begehungen erfasst.</p></div>';return;}
+  const statusMap={geplant:{l:'Geplant',c:'b-warn'},durchgefuehrt:{l:'Durchgeführt',c:'b-info'},abgeschlossen:{l:'Abgeschlossen',c:'b-ok'}};
+  el.innerHTML=begehungen.sort((a,b)=>new Date(b.datum)-new Date(a.datum)).map(b=>`
+    <div class="card" style="margin-bottom:8px">
+      <div class="fb" style="margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="badge ${statusMap[b.status||'geplant'].c}">${statusMap[b.status||'geplant'].l}</span>
+          <span style="font-size:13px;font-weight:500">${fmt(b.datum)} – ${esc(b.bereich||'kein Bereich')}</span>
+        </div>
+        <div class="gap">
+          <button class="btn btn-sm" onclick="editBegehung('${b.id}')">✏</button>
+          <button class="btn btn-sm btn-d" onclick="deleteBegehung('${b.id}')">🗑</button>
+        </div>
+      </div>
+      ${b.teilnehmer?`<div class="ts">👥 ${esc(b.teilnehmer)}</div>`:''}
+      ${b.feststellungen?`<div style="font-size:13px;margin-top:6px;color:var(--text2)">${esc(b.feststellungen.slice(0,120))}${b.feststellungen.length>120?'…':''}</div>`:''}
+      ${b.massnahmen?`<div class="ts" style="margin-top:4px">→ ${esc(b.massnahmen.slice(0,80))}</div>`:''}
+    </div>`).join('');
+}
+
+function openNewBegehung() {
+  editBegehungId=null;
+  document.getElementById('m-begehung-title').textContent='Begehung erfassen';
+  ['b-datum','b-bereich','b-teilnehmer','b-feststellungen','b-massnahmen','b-verantw','b-termin'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('b-datum').value=new Date().toISOString().slice(0,10);
+  document.getElementById('b-status').value='durchgefuehrt';
+  openM('m-begehung');
+}
+
+function editBegehung(id) {
+  const b=begehungen.find(x=>x.id===id);if(!b)return;
+  editBegehungId=id;
+  document.getElementById('m-begehung-title').textContent='Begehung bearbeiten';
+  const set=(elId,v)=>{const el=document.getElementById(elId);if(el&&v!=null)el.value=v;};
+  set('b-datum',b.datum);set('b-bereich',b.bereich||'');set('b-teilnehmer',b.teilnehmer||'');
+  set('b-feststellungen',b.feststellungen||'');set('b-massnahmen',b.massnahmen||'');
+  set('b-verantw',b.verantwortlich||'');set('b-termin',b.termin||'');
+  set('b-status',b.status||'geplant');
+  openM('m-begehung');
+}
+
+function saveBegehung() {
+  const datum=document.getElementById('b-datum').value;
+  if(!datum){toast('Datum erforderlich','err');return;}
+  const b={
+    id:editBegehungId||uid('BEG'),datum,
+    bereich:document.getElementById('b-bereich').value.trim(),
+    teilnehmer:document.getElementById('b-teilnehmer').value.trim(),
+    feststellungen:document.getElementById('b-feststellungen').value.trim(),
+    massnahmen:document.getElementById('b-massnahmen').value.trim(),
+    verantwortlich:document.getElementById('b-verantw').value.trim(),
+    termin:document.getElementById('b-termin').value,
+    status:document.getElementById('b-status').value,
+  };
+  if(editBegehungId)begehungen[begehungen.findIndex(x=>x.id===editBegehungId)]=b;
+  else begehungen.push(b);
+  localStorage.setItem('ehs_begehungen_'+settings.org,JSON.stringify(begehungen));
+  closeM('m-begehung');renderBegehungen();toast('Begehung gespeichert ✓','ok');
+}
+
+function deleteBegehung(id){if(!confirm('Begehung löschen?'))return;begehungen=begehungen.filter(x=>x.id!==id);localStorage.setItem('ehs_begehungen_'+settings.org,JSON.stringify(begehungen));renderBegehungen();toast('Gelöscht');}
+
+// ── JAHRESBERICHT ─────────────────────────────────────────
+function initBerichtJahre() {
+  const sel = document.getElementById('bericht-jahr');
+  const aktJahr = new Date().getFullYear();
+  for(let y=aktJahr;y>=aktJahr-5;y--){const o=document.createElement('option');o.value=y;o.textContent=y;sel.appendChild(o);}
+}
+
+function uploadBerichtVorlage(e) {
+  const file = e.target.files[0]; if(!file)return;
+  const r = new FileReader();
+  r.onload = ev => {
+    pendingBerichtVorlage={dataUrl:ev.target.result,name:file.name,type:file.type};
+    document.getElementById('vorlage-bericht-info').innerHTML=`<span style="color:var(--ok)">✓ Vorlage geladen: ${esc(file.name)} – KI übernimmt die Struktur der Vorlage</span>`;
+    toast('Vorlage geladen ✓','ok');
+  };
+  r.readAsDataURL(file); e.target.value='';
+}
+
+async function generateBericht() {
+  const key = getApiKey();
+  if(!key){toast('Bitte API-Key hinterlegen','err');return;}
+  const jahr = document.getElementById('bericht-jahr').value;
+  const st = document.getElementById('ki-bericht-status');
+  st.style.display='block'; st.textContent='KI analysiert alle Module und erstellt Jahresbericht…';
+
+  // Daten zusammenstellen
+  const d = allModulData;
+  const vzae_vz = settings.maVZ||0;
+  const vzae = vzae_vz*1+(settings.maTZ2||0)*0.75+(settings.maTZ1||0)*0.5;
+  const gruppe = GRUPPEN.find(g=>g.id===(settings.betreuungsgruppe||'1'))||GRUPPEN[0];
+  const grundbetr = vzae*gruppe.faktor;
+  const unfJahr = (d.unfaelle||[]).filter(u=>u.datum?.startsWith(jahr));
+  const gbuFreig = (d.gbu||[]).filter(g=>g.status==='freigegeben').length;
+  const cmrStoffe = (d.gefahrstoffe||[]).filter(g=>(g.hsaetze||'').match(/H340|H350|H360/));
+
+  const kontext = `JAHRESBERICHT SICHERHEITSFACHKRAFT ${jahr}
+Betrieb: ${settings.firmenname||'–'} | ${settings.adresse||'–'}
+Beschäftigte: ${vzae.toFixed(1)} VZÄ | Betreuungsgruppe ${gruppe.label} (${gruppe.faktor} Std./VZÄ/Jahr)
+Grundbetreuung gesamt: ${grundbetr.toFixed(1)} Std./Jahr
+SiFa erbracht: ${settings.sifaIst||0} Std. | Betriebsarzt erbracht: ${settings.baIst||0} Std.
+
+UNFALLDATEN ${jahr}:
+- Unfälle gesamt: ${unfJahr.length}
+- Unfälle mit Ausfall: ${unfJahr.filter(u=>u.typ==='unfall'&&u.ausfall>0).length}
+- Beinahe-Unfälle: ${unfJahr.filter(u=>u.typ==='beinahe').length}
+- Ausfalltage gesamt: ${unfJahr.reduce((n,u)=>n+(u.ausfall||0),0)}
+
+GBU & BETRIEBSANWEISUNGEN:
+- GBU gesamt: ${(d.gbu||[]).length} | Freigegeben: ${gbuFreig}
+- Maschinen im Bestand: ${(d.maschinen||[]).length}
+- Gefahrstoffe: ${(d.gefahrstoffe||[]).length} | davon CMR 1A/1B: ${cmrStoffe.length}
+
+UNTERWEISUNGEN:
+- Unterweisungen gesamt: ${(d.schulungen||[]).length}
+
+BEGEHUNGEN:
+${begehungen.filter(b=>b.datum?.startsWith(jahr)).map(b=>`- ${b.datum}: ${b.bereich||'–'} (${b.status})`).join('\n')||'Keine Begehungen erfasst'}`;
+
+  const prompt = `Erstelle einen vollständigen Jahresbericht der Sicherheitsfachkraft für ${jahr} gemäß DGUV Vorschrift 2 §5.\n\nDatengrundlage:\n${kontext}\n\nDer Bericht soll professionell und vollständig sein, alle Pflichtinhalte nach DGUV V2 §5 umfassen und konkrete Empfehlungen enthalten. Struktur: 1. Einsatzzeiten, 2. Begehungen, 3. Unfallgeschehen, 4. Unterweisungen, 5. GBU-Stand, 6. Gefahrstoffe/CMR, 7. Maßnahmen, 8. Empfehlungen.`;
+
+  try {
+    const msgs = [{role:'user',content:[{type:'text',text:prompt}]}];
+    if(pendingBerichtVorlage){
+      msgs[0].content.unshift({type:'document',source:{type:'base64',media_type:pendingBerichtVorlage.type,data:pendingBerichtVorlage.dataUrl.split(',')[1]}});
+      msgs[0].content[1].text='Übernimm die Struktur der hochgeladenen Vorlage und befülle sie mit diesen Daten:\n'+kontext;
+    }
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:msgs})});
+    const data=await res.json();
+    if(!res.ok){st.textContent='Fehler: '+(data.error?.message||'API');return;}
+    const text=(data.content||[]).map(b=>b.text||'').join('');
+    document.getElementById('bericht-text').value=text;
+    document.getElementById('bericht-output').style.display='block';
+    st.style.display='none';
+    toast('Jahresbericht generiert ✓','ok');
+  } catch(e){st.textContent='Fehler: '+e.message;}
+}
+
+function copyBericht(){navigator.clipboard.writeText(document.getElementById('bericht-text').value).then(()=>toast('Kopiert ✓','ok'));}
+function printBericht(){
+  const text=document.getElementById('bericht-text').value;
+  const jahr=document.getElementById('bericht-jahr').value;
+  const w=window.open();
+  w.document.write(`<html><head><title>Jahresbericht SiFa ${jahr}</title>
+  <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:40px;font-size:13px;line-height:1.7}
+  pre{white-space:pre-wrap;font-family:inherit}@media print{button{display:none}}</style></head><body>
+  <button onclick="window.print()" style="padding:8px 16px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;margin-bottom:20px">🖨 Drucken / PDF</button>
+  <pre>${esc(text)}</pre></body></html>`);
+  w.document.close();
+}
+
+// ── User-Menü ─────────────────────────────────────────────
+function openUserMenu(){
+  const p=currentProfile;
+  document.getElementById('um-name').textContent=p?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=p?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  document.getElementById('um-apikey').value=getApiKey();
+  openM('m-user');
+}
+function saveApiKeyUM(){const k=document.getElementById('um-apikey').value.trim();localStorage.setItem('ehs_api_key',k);toast('API-Key gespeichert ✓','ok');closeM('m-user');}
+async function doSignOut(){closeM('m-user');await signOut();}
+</script>
+</body>
+</html>
