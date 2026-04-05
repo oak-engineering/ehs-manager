@@ -2,353 +2,412 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>EHS Manager – Oak Engineering</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="auth.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 <style>
-:root{
-  --bg:#f5f5f3;--s1:#ffffff;--s2:#f0efec;--s3:#e8e7e3;
-  --border:#d8d7d2;--b2:#c0bfba;--accent:#1a1a1a;
-  --ok:#2d6a2d;--nok:#c0392b;--warn:#b7860a;
-  --text:#1a1a1a;--t2:#555550;--t3:#999990;
-  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;--fh:'Barlow',sans-serif;
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; margin-bottom: 28px; }
+.module-card {
+  background: var(--surface); border: 0.5px solid var(--border);
+  border-radius: var(--r-lg); overflow: hidden; cursor: pointer;
+  text-decoration: none; color: var(--text);
+  transition: border-color .15s, box-shadow .15s;
+  display: flex; flex-direction: column;
+  position: relative;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);font-family:var(--ff);color:var(--text)}
-.topnav{height:56px;background:#1a1a1a;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 2px 12px rgba(0,0,0,.2);flex-shrink:0}
-.logo-wrap{display:flex;align-items:center;gap:12px}
-.logo-img{height:30px;filter:invert(1)}
-.logo-divider{width:1px;height:22px;background:rgba(255,255,255,.2)}
-.logo-sub{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:.06em;text-transform:uppercase}
-.user-chip{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);cursor:pointer;font-size:12px;color:rgba(255,255,255,.8)}
-.user-chip:hover{background:rgba(255,255,255,.18)}
-.user-av{width:24px;height:24px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#1a1a1a;flex-shrink:0}
-.role-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
-.role-admin{background:rgba(183,134,10,.2);color:#b7860a;border:1px solid rgba(183,134,10,.3)}
-.role-ma{background:rgba(45,106,45,.15);color:#2d6a2d;border:1px solid rgba(45,106,45,.25)}
-.main{max-width:1100px;margin:0 auto;padding:32px 20px 60px}
-.hero{margin-bottom:36px}
-.hero-title{font-family:var(--fh);font-size:28px;font-weight:800;margin-bottom:6px}
-.hero-sub{font-size:14px;color:var(--t2);line-height:1.6}
-.section-title{font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:14px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em}
-.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px}
-.module-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);display:flex;flex-direction:column;position:relative;overflow:hidden}
-.module-card:hover:not(.locked){border-color:var(--b2);box-shadow:0 4px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
-.module-card.locked{cursor:default;opacity:.65}
-.module-card.locked::after{content:'🔒';position:absolute;top:12px;right:12px;font-size:18px}
-.module-icon{font-size:36px;margin-bottom:12px}
-.module-name{font-family:var(--fh);font-size:17px;font-weight:700;margin-bottom:4px}
-.module-desc{font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:14px;flex:1}
-.module-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
-.stat-chip{padding:3px 9px;border-radius:20px;font-size:11px;font-family:var(--fm);background:var(--s2);border:1px solid var(--border);color:var(--t2)}
-.stat-chip.warn{background:rgba(183,134,10,.1);border-color:rgba(183,134,10,.25);color:var(--warn)}
-.stat-chip.nok{background:rgba(192,57,43,.1);border-color:rgba(192,57,43,.25);color:var(--nok)}
-.stat-chip.ok{background:rgba(45,106,45,.1);border-color:rgba(45,106,45,.25);color:var(--ok)}
-.module-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0}
-.locked-msg{font-size:12px;color:var(--t3);margin-top:8px;font-style:italic}
-.admin-section{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px}
-.admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
-.admin-btn{padding:12px 16px;border-radius:8px;border:1px solid var(--border);background:var(--s2);cursor:pointer;font-family:var(--ff);font-size:13px;font-weight:500;text-align:left;transition:all .18s;display:flex;align-items:center;gap:10px}
-.admin-btn:hover{border-color:var(--b2);background:var(--s3)}
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
-.overlay.on{display:flex}
-.modal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;width:100%;max-width:400px;margin:auto;box-shadow:0 8px 32px rgba(0,0,0,.1)}
-.modal-t{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:18px}
-.modal-act{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
-.btn{padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-family:var(--ff);font-size:13px;font-weight:500;transition:all .18s;display:inline-flex;align-items:center;gap:6px}
-.btn-p{background:#1a1a1a;color:#fff}.btn-p:hover{background:#333}
-.btn-o{background:transparent;border:1px solid var(--border);color:var(--t2)}.btn-o:hover{border-color:var(--accent);color:var(--text)}
-.btn-d{background:transparent;border:1px solid rgba(192,57,43,.3);color:var(--nok)}
-.btn-sm{padding:6px 11px;font-size:12px}
-.divider{height:1px;background:var(--border);margin:14px 0}
-.ts{font-size:12px;color:var(--t3)}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a1a;border:1px solid #333;border-radius:7px;padding:10px 20px;font-size:13px;z-index:400;opacity:0;transition:all .3s;pointer-events:none;color:#fff}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{background:var(--ok)}.toast.err{background:var(--nok)}
-label{display:block;font-size:12px;color:var(--t2);margin-bottom:5px;font-weight:500}
-input,select{width:100%;padding:10px 12px;background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--ff);font-size:14px;outline:none;transition:border-color .2s;-webkit-appearance:none}
-input:focus,select:focus{border-color:#1a1a1a}
-@media(max-width:600px){.module-grid{grid-template-columns:1fr}.admin-grid{grid-template-columns:1fr 1fr}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.module-card{animation:fadeIn .3s ease both}
-.module-card:nth-child(2){animation-delay:.05s}
-.module-card:nth-child(3){animation-delay:.1s}
-.module-card:nth-child(4){animation-delay:.15s}
-.module-card:nth-child(5){animation-delay:.2s}
+.module-card:hover:not(.locked) { border-color: var(--border2); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+.module-card.locked { opacity: .55; cursor: default; }
+.mc-accent { height: 2px; flex-shrink: 0; }
+.mc-body { padding: 18px; flex: 1; }
+.mc-icon {
+  width: 36px; height: 36px; border-radius: var(--r);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px; flex-shrink: 0;
+}
+.mc-icon svg { width: 18px; height: 18px; stroke-width: 1.5; }
+.mc-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 5px; letter-spacing: -.01em; }
+.mc-desc { font-size: 12px; color: var(--text3); line-height: 1.5; margin-bottom: 12px; }
+.mc-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
+.mc-stat { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.mc-footer { padding: 10px 18px; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text3); display: flex; align-items: center; justify-content: space-between; }
+.mc-locked-badge { position: absolute; top: 12px; right: 12px; }
+.mc-coming { font-size: 11px; color: var(--text3); font-style: italic; }
+
+.admin-section { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 18px; margin-bottom: 22px; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 8px; margin-top: 12px; }
+.admin-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 13px; border-radius: var(--r);
+  border: 0.5px solid var(--border);
+  background: var(--surface2);
+  cursor: pointer; font-family: var(--ff);
+  font-size: 12px; color: var(--text2);
+  transition: all .12s; text-align: left;
+}
+.admin-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
+.admin-btn-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.admin-btn-icon svg { width: 14px; height: 14px; stroke-width: 1.5; }
 </style>
 </head>
 <body>
+<div id="app-root" style="display:none">
 
-<div id="app-content" style="display:none;flex-direction:column;min-height:100vh">
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon">
+      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
+    </div>
+    <div class="sb-logo-text">
+      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
+      <div class="sb-logo-sub">Oak Engineering</div>
+    </div>
+  </a>
 
-<nav class="topnav">
-  <div class="logo-wrap">
-    <img src="logo.png" alt="Oak Engineering" class="logo-img" onerror="this.style.display='none'">
-    <div class="logo-divider"></div>
-    <span class="logo-sub">EHS Manager</span>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="dashboard.html" class="sb-item" id="snav-dashboard">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <span class="sb-label">Dashboard</span>
+    </a>
+
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item" id="snav-datenbank">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
+      <span class="sb-label">Datenbank</span>
+    </a>
+    <a href="schulungen.html" class="sb-item" id="snav-unterweisungen">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
+      <span class="sb-label">Unterweisungen</span>
+      <span class="sb-badge" id="snav-badge-unterweisungen" style="display:none"></span>
+    </a>
+    <a href="gbu.html" class="sb-item" id="snav-gbu">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+      <span class="sb-label">GBU & BA</span>
+    </a>
+    <a href="unfaelle.html" class="sb-item" id="snav-unfaelle">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+      <span class="sb-label">Unfälle</span>
+      <span class="sb-badge" id="snav-badge-unfaelle" style="display:none"></span>
+    </a>
+    <a href="sifa.html" class="sb-item" id="snav-sifa">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+      <span class="sb-label">Sicherheitsfachkraft</span>
+    </a>
+
+    <div class="sb-section">Verwaltung</div>
+    <div class="sb-item admin-only" onclick="openSettingsModal()" id="snav-settings" style="display:none">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l-1.41-1.41M6.34 6.34L4.93 4.93"/></svg></span>
+      <span class="sb-label">Einstellungen</span>
+    </div>
+    <div class="sb-item admin-only" onclick="openNutzerModal()" id="snav-nutzer" style="display:none">
+      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+      <span class="sb-label">Nutzerverwaltung</span>
+    </div>
+  </nav>
+
+  <div class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">
+    <svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg>
   </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <span id="role-display"></span>
-    <div class="user-chip" onclick="openUserMenu()">
-      <div class="user-av" id="u-av">?</div>
-      <span id="u-name">–</span>
+
+  <div class="sb-footer">
+    <div class="sb-user" onclick="openUserMenuModal()">
+      <div class="sb-avatar" id="sb-av">?</div>
+      <div>
+        <div class="sb-user-name" id="sb-uname">–</div>
+        <div class="sb-user-role" id="sb-urole">–</div>
+      </div>
     </div>
   </div>
-</nav>
+</aside>
 
-<div class="main">
-
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero-title" id="hero-title">Guten Tag 👋</div>
-    <div class="hero-sub" id="hero-sub">Willkommen im EHS Manager von Oak Engineering. Wählen Sie ein Modul.</div>
-  </div>
-
-  <!-- Admin-Bereich -->
-  <div class="admin-section" id="admin-section" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-family:var(--fh);font-size:15px;font-weight:700">⚙ Administration</div>
+<!-- MAIN AREA -->
+<div class="main-area">
+  <!-- TOPNAV -->
+  <nav class="topnav">
+    <div class="topnav-left">
+      <span class="nav-crumb">EHS Manager</span>
+      <span class="nav-sep">›</span>
+      <span class="nav-page">Startseite</span>
     </div>
-    <div class="admin-grid">
-      <button class="admin-btn" onclick="openNutzerModal()">
-        <span style="font-size:20px">👥</span>
-        <div><div style="font-weight:600">Nutzerverwaltung</div><div class="ts">Rollen & Zugriffsrechte</div></div>
-      </button>
-      <button class="admin-btn" onclick="window.location.href='schulungen.html'">
-        <span style="font-size:20px">🛒</span>
-        <div><div style="font-weight:600">Buchungsanfragen</div><div class="ts">Oak Schulungskatalog</div></div>
-      </button>
-      <button class="admin-btn" id="admin-stats-btn">
-        <span style="font-size:20px">📊</span>
-        <div><div style="font-weight:600">Systemstatus</div><div class="ts" id="admin-stats-text">Wird geladen…</div></div>
-      </button>
+    <div class="topnav-right">
+      <span class="nav-badge-admin admin-only" id="top-admin-badge" style="display:none">Admin</span>
+      <div class="nav-btn-top" onclick="openUserMenuModal()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+        <span id="top-uname">–</span>
+      </div>
     </div>
-  </div>
+  </nav>
 
-  <!-- Module -->
-  <div class="section-title">Module</div>
-  <div class="module-grid" id="module-grid">
-    <!-- wird per JS befüllt -->
-  </div>
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="page-hd">
+      <div>
+        <div class="page-title" id="hero-title">Guten Tag 👋</div>
+        <div class="ts" id="hero-sub"></div>
+      </div>
+    </div>
 
-  <!-- Fußzeile -->
-  <div style="text-align:center;font-size:12px;color:var(--t3);margin-top:16px">
-    EHS Manager · Oak Engineering · Version 1.0
-    <span style="margin:0 8px">·</span>
-    <a href="https://oak-engineering.de" target="_blank" style="color:var(--t3);text-decoration:none">oak-engineering.de</a>
-  </div>
+    <!-- Admin-Bereich -->
+    <div class="admin-section admin-only" id="admin-section" style="display:none">
+      <div style="font-size:13px;font-weight:500;color:var(--text2)">Administration</div>
+      <div class="admin-grid">
+        <button class="admin-btn" onclick="openNutzerModal()">
+          <div class="admin-btn-icon" style="background:var(--info-bg)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Nutzerverwaltung</div><div style="font-size:11px;color:var(--text3)" id="admin-users-count">–</div></div>
+        </button>
+        <button class="admin-btn" onclick="openSettingsModal()">
+          <div class="admin-btn-icon" style="background:var(--surface3)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2"/></svg>
+          </div>
+          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Grundeinstellungen</div><div style="font-size:11px;color:var(--text3)">Firma, SiFa, Dark Mode</div></div>
+        </button>
+        <button class="admin-btn" onclick="window.location.href='schulungen.html'">
+          <div class="admin-btn-icon" style="background:var(--ok-bg)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Buchungsanfragen</div><div style="font-size:11px;color:var(--text3)" id="admin-anfragen-count">– offen</div></div>
+        </button>
+      </div>
+    </div>
 
+    <!-- Module -->
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:500;margin-bottom:12px">Module</div>
+    <div class="module-grid" id="module-grid"></div>
+    <div style="text-align:center;font-size:11px;color:var(--text4);margin-top:12px">EHS Manager · Oak Engineering · Version 2.0</div>
+  </main>
 </div>
-</div><!-- /app-content -->
+
+</div><!-- /app-root -->
 
 <!-- MODAL: User-Menü -->
-<div class="overlay" id="m-usermenu" onclick="if(event.target===this)closeM('m-usermenu')">
-<div class="modal">
-  <div class="modal-t" id="um-name">Mein Konto</div>
-  <div class="ts" id="um-rolle" style="margin-bottom:16px"></div>
-  <div class="divider"></div>
-  <div style="margin-bottom:14px">
-    <label>Claude API-Key (für KI-Funktionen)</label>
-    <div style="display:flex;gap:8px">
-      <input id="um-api-key" type="password" placeholder="sk-ant-…" style="font-size:12px;font-family:var(--fm)">
-      <button class="btn btn-p btn-sm" onclick="saveApiKey()">Speichern</button>
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:340px">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="um-name">Mein Konto</div>
+      <div class="modal-sub" id="um-role"></div>
     </div>
-    <div class="ts" style="margin-top:4px" id="um-api-status"></div>
+    <button class="btn btn-sm" onclick="closeM('m-user')">✕</button>
   </div>
-  <div class="divider"></div>
-  <button class="btn btn-d" style="width:100%;justify-content:center;margin-top:8px" onclick="doSignOut()">↩ Abmelden</button>
+  <div class="modal-body">
+    <div class="divider" style="margin:0"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doLogout()">↩ Abmelden</button>
+  </div>
 </div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// SHELL – Modulübersicht
-// ═══════════════════════════════════════════════════════════
-
-const MODULES_CONFIG = [
+// ── Konfiguration der Modulkacheln ────────────────────────
+const MODULES_CFG = [
   {
-    id: 'datenbank',
-    name: 'Datenbank',
-    icon: '🗄',
-    desc: 'Maschinen, Gefahrstoffe, Arbeitsmittel, PSA, Beauftragte, Bereiche, Tätigkeiten, Besucher und Rechtskataster verwalten.',
-    href: 'datenbank.html',
-    accent: '#2980b9',
+    id:'datenbank', href:'datenbank.html',
+    name:'Datenbank',
+    desc:'Maschinen, Gefahrstoffe, Arbeitsmittel, PSA, Beauftragte, Bereiche und Besucher verwalten.',
+    accent:'#2563eb', iconBg:'#eff6ff', iconColor:'#2563eb',
+    icon:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
     stats: async () => {
       try {
-        const data = await dbGet('maschinen');
-        const gsData = await dbGet('gefahrstoffe');
-        const m = Array.isArray(data) ? data : [];
-        const g = Array.isArray(gsData) ? gsData : [];
-        const chips = [
-          { label: m.length + ' Maschinen', cls: '' },
-          { label: g.length + ' Gefahrstoffe', cls: '' },
-        ];
-        const ohneGS = g.filter(x => !x.sdb_datei).length;
-        if (ohneGS > 0) chips.push({ label: ohneGS + ' ohne SDB', cls: 'nok' });
+        const [m,g] = await Promise.all([
+          getSB().from('maschinen').select('id',{count:'exact',head:true}),
+          getSB().from('gefahrstoffe').select('id',{count:'exact',head:true}).eq('aktiv',true)
+        ]);
+        const chips = [{l:(m.count||0)+' Maschinen',c:'b-neutral'},{l:(g.count||0)+' Gefahrstoffe',c:'b-neutral'}];
         return chips;
       } catch { return []; }
     }
   },
   {
-    id: 'schulungen',
-    name: 'Schulungen',
-    icon: '📚',
-    desc: 'Online-Schulungen erstellen und durchführen, Präsenztermine planen, Teilnahme dokumentieren. Oak Engineering Schulungen buchen.',
-    href: 'schulungen.html',
-    accent: '#2d6a2d',
+    id:'unterweisungen', href:'schulungen.html',
+    name:'Unterweisungen',
+    desc:'Online-Unterweisungen erstellen und durchführen, Präsenztermine planen, Teilnahme dokumentieren.',
+    accent:'#16a34a', iconBg:'#f0fdf4', iconColor:'#16a34a',
+    icon:'<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
     stats: async () => {
       try {
-        const { data } = await getSB().from('protokolle')
-          .select('id,bestanden,datum')
-          .gte('datum', new Date(Date.now()-30*24*60*60*1000).toISOString());
-        const total = data?.length || 0;
-        const best = data?.filter(p=>p.bestanden).length || 0;
-        const { data: sch } = await getSB().from('schulungen').select('id');
-        return [
-          { label: (sch?.length||0) + ' Schulungen', cls: '' },
-          { label: total + ' Durchführungen (30 Tage)', cls: '' },
-          ...(total > 0 ? [{ label: Math.round(best/total*100) + '% bestanden', cls: best/total >= 0.8 ? 'ok' : 'warn' }] : []),
-        ];
+        const {count} = await getSB().from('schulungen').select('id',{count:'exact',head:true});
+        const {count:proto} = await getSB().from('protokolle').select('id',{count:'exact',head:true})
+          .gte('datum',new Date(Date.now()-30*24*60*60*1000).toISOString());
+        return [{l:(count||0)+' Unterweisungen',c:'b-neutral'},{l:(proto||0)+' Durchf. (30 Tage)',c:'b-neutral'}];
       } catch { return []; }
     }
   },
   {
-    id: 'gbu',
-    name: 'GBU & Betriebsanweisungen',
-    icon: '📋',
-    desc: 'Gefährdungsbeurteilungen KI-gestützt erstellen, Betriebsanweisungen nach TRGS 555 / BetrSichV §12 generieren und exportieren.',
-    href: 'gbu.html',
-    accent: '#8e44ad',
+    id:'gbu', href:'gbu.html',
+    name:'GBU & Betriebsanweisungen',
+    desc:'Gefährdungsbeurteilungen erstellen, Betriebsanweisungen generieren und verwalten.',
+    accent:'#7c3aed', iconBg:'#f5f3ff', iconColor:'#7c3aed',
+    icon:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
     stats: async () => {
       try {
-        const gbuListe = await dbGet('gbu_liste') || [];
-        const freigegeben = gbuListe.filter(g=>g.status==='freigegeben').length;
-        return [
-          { label: gbuListe.length + ' GBU', cls: '' },
-          ...(freigegeben ? [{ label: freigegeben + ' freigegeben', cls: 'ok' }] : []),
-        ];
-      } catch { return []; }
+        const {count} = await getSB().from('gbu').select('id',{count:'exact',head:true});
+        return [{l:(count||0)+' GBU',c:'b-neutral'}];
+      } catch { return [{l:'Noch keine GBU',c:'b-neutral'}]; }
     }
   },
   {
-    id: 'dashboard',
-    name: 'Dashboard',
-    icon: '📊',
-    desc: 'Kennzahlen, Auswertungen und Übersichten auf einen Blick. Überfällige Prüfungen, Schulungsquoten und mehr.',
-    href: 'dashboard.html',
-    accent: '#e67e22',
+    id:'unfaelle', href:'unfaelle.html',
+    name:'Unfälle & Beinahe-Unfälle',
+    desc:'Unfälle dokumentieren, analysieren, Maßnahmen ableiten und Meldungen erstellen.',
+    accent:'#dc2626', iconBg:'#fef2f2', iconColor:'#dc2626',
+    icon:'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    stats: async () => {
+      try {
+        const {count} = await getSB().from('unfaelle').select('id',{count:'exact',head:true});
+        return [{l:(count||0)+' Vorfälle',c:'b-neutral'}];
+      } catch { return [{l:'Noch keine Vorfälle',c:'b-ok'}]; }
+    }
+  },
+  {
+    id:'sifa', href:'sifa.html',
+    name:'Sicherheitsfachkraft',
+    desc:'Einsatzzeiten berechnen (DGUV V2), Jahresbericht erstellen und exportieren.',
+    accent:'#b45309', iconBg:'#fffbeb', iconColor:'#b45309',
+    icon:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
+    stats: async () => [{l:'Einsatzzeiten DGUV V2',c:'b-neutral'}]
+  },
+  {
+    id:'dashboard', href:'dashboard.html',
+    name:'Dashboard',
+    desc:'Kennzahlen aus allen Modulen grafisch aufbereitet – filterbar nach Bereich, Kostenstelle und Zeitraum.',
+    accent:'#0891b2', iconBg:'#ecfeff', iconColor:'#0891b2',
+    icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
     kommt: true,
-    stats: async () => [{ label: 'In Entwicklung', cls: 'warn' }]
+    stats: async () => [{l:'In Entwicklung',c:'b-warn'}]
   },
 ];
 
-let currentProfile = null;
+// ── State ──────────────────────────────────────────────────
+let _profile = null;
+let _collapsed = localStorage.getItem('sb_collapsed') === '1';
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
 let _tt;
 function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
 function openM(id){document.getElementById(id)?.classList.add('on');}
 function closeM(id){document.getElementById(id)?.classList.remove('on');}
-function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
 
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  if (_collapsed) _applySidebarCollapsed(true);
   requireAuth(async (user, profile) => {
-    currentProfile = profile;
-    document.getElementById('app-content').style.display = 'flex';
+    _profile = profile;
+    document.getElementById('app-root').style.display = 'flex';
     updateUI(profile);
     renderModules(profile);
-    loadAdminStats(profile);
+    loadAdminStats();
   });
 });
 
 function updateUI(p) {
-  // Hero-Begrüßung
-  const stunde = new Date().getHours();
-  const gruss = stunde < 12 ? 'Guten Morgen' : stunde < 17 ? 'Guten Tag' : 'Guten Abend';
+  const kz = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
+  const name = p?.name || '–';
+  document.getElementById('sb-av').textContent = kz;
+  document.getElementById('sb-uname').textContent = name;
+  document.getElementById('sb-urole').textContent = p?.rolle === 'admin' ? 'Administrator' : 'Mitarbeiter';
+  document.getElementById('top-uname').textContent = name;
+  // Hero
+  const h = new Date().getHours();
+  const gruss = h < 12 ? 'Guten Morgen' : h < 17 ? 'Guten Tag' : 'Guten Abend';
   document.getElementById('hero-title').textContent = `${gruss}, ${p?.name?.split(' ')[0] || 'Willkommen'} 👋`;
-  document.getElementById('hero-sub').textContent =
-    `${new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · EHS Manager Oak Engineering`;
-  // Nav
-  document.getElementById('u-av').textContent = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
-  document.getElementById('u-name').textContent = p?.name || '–';
-  document.getElementById('role-display').innerHTML =
-    `<span class="role-badge ${p?.rolle==='admin'?'role-admin':'role-ma'}">${p?.rolle==='admin'?'Admin':'Mitarbeiter'}</span>`;
-  // Admin-Bereich
-  if (isAdmin(p)) document.getElementById('admin-section').style.display = 'block';
+  document.getElementById('hero-sub').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + ' · EHS Manager';
+  // Admin-Elemente
+  const admin = p?.rolle === 'admin';
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
+  // Firma
+  getOrgSettings().then(s => {
+    if (s.firmenname) document.getElementById('sb-firm').textContent = s.firmenname;
+  });
+  // Aktuellen Nav-Link markieren
+  document.getElementById('snav-dashboard')?.classList.remove('active');
 }
 
 async function renderModules(p) {
   const grid = document.getElementById('module-grid');
-  grid.innerHTML = MODULES_CONFIG.map((m,i) => {
-    const hasRead = canRead(m.id, p);
-    const locked = !hasRead;
-    const kommt = m.kommt;
-    const cls = `module-card${locked?' locked':''}${kommt?' locked':''}`;
-    const href = locked || kommt ? 'javascript:void(0)' : m.href;
-    const onclick = locked
-      ? `showAccessDenied('${m.id}')`
-      : kommt ? '' : '';
-    return `<a class="${cls}" href="${href}" ${onclick?`onclick="${onclick}"`:''}
-              style="animation-delay:${i*0.06}s">
-      <div class="module-accent" style="background:${m.accent}"></div>
-      <div class="module-icon">${m.icon}</div>
-      <div class="module-name">${m.name}</div>
-      <div class="module-desc">${m.desc}</div>
-      <div class="module-stats" id="stats-${m.id}">
-        <span class="stat-chip" style="color:var(--t3)">Wird geladen…</span>
+  grid.innerHTML = MODULES_CFG.map((m,i) => {
+    const hasAccess = canRead(m.id, p) || isAdmin(p);
+    const locked = !hasAccess;
+    return `<a class="module-card${locked?' locked':''}" href="${locked||m.kommt?'javascript:void(0)':m.href}"
+        onclick="${locked?`showAccessDenied('${m.id}');return false`:m.kommt?'':''}">
+      <div class="mc-accent" style="background:${m.accent}"></div>
+      <div class="mc-body">
+        <div class="mc-icon" style="background:${m.iconBg}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="${m.iconColor}" stroke-width="1.5">${m.icon}</svg>
+        </div>
+        <div class="mc-name">${m.name}</div>
+        <div class="mc-desc">${m.desc}</div>
+        <div class="mc-stats" id="mstats-${m.id}">
+          <span class="badge b-neutral" style="color:var(--text4)">Wird geladen…</span>
+        </div>
       </div>
-      ${locked ? '<div class="locked-msg">Kein Zugriff – Admin kontaktieren</div>' : ''}
-      ${kommt ? '<div class="locked-msg">In Kürze verfügbar</div>' : ''}
+      <div class="mc-footer">
+        ${locked ? '<span style="color:var(--nok);font-size:11px">🔒 Kein Zugriff</span>' :
+          m.kommt ? '<span class="mc-coming">In Kürze verfügbar</span>' :
+          `<span style="color:var(--text3)">Öffnen →</span>`}
+        <span></span>
+      </div>
     </a>`;
   }).join('');
+
   // Stats asynchron laden
-  for (const m of MODULES_CONFIG) {
+  for (const m of MODULES_CFG) {
     try {
       const chips = await m.stats();
-      const el = document.getElementById('stats-'+m.id);
+      const el = document.getElementById('mstats-'+m.id);
       if (el) el.innerHTML = chips.length
-        ? chips.map(c => `<span class="stat-chip ${c.cls||''}">${c.label}</span>`).join('')
-        : '<span class="stat-chip">–</span>';
+        ? chips.map(c => `<span class="badge ${c.c}">${c.l}</span>`).join('')
+        : '<span class="badge b-neutral">–</span>';
     } catch {}
   }
 }
 
-async function loadAdminStats(p) {
-  if (!isAdmin(p)) return;
+async function loadAdminStats() {
+  if (_profile?.rolle !== 'admin') return;
   try {
-    const [{ count: nutzer }, { count: anfragen }] = await Promise.all([
-      getSB().from('profiles').select('*', {count:'exact',head:true}),
-      getSB().from('buchungsanfragen').select('*', {count:'exact',head:true}).eq('status','offen')
+    const [users, anfragen] = await Promise.all([
+      getSB().from('profiles').select('id',{count:'exact',head:true}),
+      getSB().from('buchungsanfragen').select('id',{count:'exact',head:true}).eq('status','offen')
     ]);
-    document.getElementById('admin-stats-text').textContent =
-      `${nutzer||0} Nutzer · ${anfragen||0} offene Anfragen`;
+    const uc = document.getElementById('admin-users-count');
+    const ac = document.getElementById('admin-anfragen-count');
+    if (uc) uc.textContent = (users.count||0) + ' Nutzer';
+    if (ac) ac.textContent = (anfragen.count||0) + ' offen';
   } catch {}
 }
 
+// ── Sidebar ───────────────────────────────────────────────
+function toggleSidebar() {
+  _collapsed = !_collapsed;
+  localStorage.setItem('sb_collapsed', _collapsed ? '1' : '0');
+  _applySidebarCollapsed(_collapsed);
+}
+
+function _applySidebarCollapsed(c) {
+  const sb = document.getElementById('sidebar');
+  const icon = document.getElementById('sb-toggle-icon');
+  if (c) {
+    sb.classList.add('collapsed');
+    if (icon) icon.innerHTML = '<polyline points="4,2 7,5 4,8"/>';
+  } else {
+    sb.classList.remove('collapsed');
+    if (icon) icon.innerHTML = '<polyline points="6,2 3,5 6,8"/>';
+  }
+}
+
 // ── User-Menü ─────────────────────────────────────────────
-function openUserMenu() {
-  const p = currentProfile;
+function openUserMenuModal() {
+  const p = _profile;
   document.getElementById('um-name').textContent = p?.name || 'Mein Konto';
-  document.getElementById('um-rolle').textContent =
-    (p?.rolle==='admin' ? '👑 Administrator' : '👤 Mitarbeiter') + (p?.kuerzel ? ' · ' + p.kuerzel : '');
-  document.getElementById('um-api-key').value = getApiKey();
-  document.getElementById('um-api-status').textContent = '';
-  openM('m-usermenu');
+  document.getElementById('um-role').textContent = p?.rolle === 'admin' ? '👑 Administrator' : '👤 Mitarbeiter';
+  openM('m-user');
 }
 
-function saveApiKey() {
-  const k = document.getElementById('um-api-key').value.trim();
-  localStorage.setItem('ehs_api_key', k);
-  document.getElementById('um-api-status').textContent = k ? '✓ Gespeichert' : 'Gelöscht';
-  toast('API-Key gespeichert ✓', 'ok');
-}
-
-async function doSignOut() {
-  closeM('m-usermenu');
-  await signOut();
-}
+async function doLogout() { closeM('m-user'); await signOut(); }
 </script>
 </body>
 </html>
