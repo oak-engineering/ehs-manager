@@ -108,6 +108,22 @@ async function requireAuth(onReady) {
 
 async function _loadAndStart(user, onReady) {
   const { data: profile } = await getSB().from('profiles').select('*').eq('id', user.id).single();
+  // Neue Kunden: eigene organisation_id vergeben wenn noch auf Default
+  if (profile && (!profile.organisation_id || profile.organisation_id === 'oak-engineering')) {
+    // Prüfe ob es sich um den Oak-Admin handelt
+    const isOakAdmin = profile.id === 'b490aa4e-36d6-4dff-b4ac-26a4b38e65bc';
+    if (!isOakAdmin && !profile.organisation_id) {
+      // Neue Organisation anlegen
+      const newOrgId = 'org-' + user.id.slice(0, 8);
+      await getSB().from('profiles').update({ organisation_id: newOrgId }).eq('id', user.id);
+      profile.organisation_id = newOrgId;
+      // Einstellungen initialisieren
+      await getSB().from('einstellungen').upsert(
+        { organisation_id: newOrgId, data: { firmenname: '', betreuungsgruppe: '1' } },
+        { onConflict: 'organisation_id' }
+      );
+    }
+  }
   _profile = profile;
   _hideLogin();
   onReady(user, profile);

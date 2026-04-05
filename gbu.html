@@ -434,18 +434,18 @@ function applyRoleUI(){
 
 async function loadDB() {
   try {
-    const [masch,gf,am,bereiche] = await Promise.all([
-      dbGet('maschinen'), dbGet('gefahrstoffe'), dbGet('arbeitsmittel'), dbGet('bereiche')
+    const [masch,gf,am,bereiche,psa,taet] = await Promise.all([
+      maschinGetAll(), gefahrstoffGetAll(), arbeitsmittelGetAll(),
+      bereichGetAll(), psaGetAll(), taetigkeitGetAll()
     ]);
     DB.maschinen     = masch    || [];
     DB.gefahrstoffe  = gf       || [];
     DB.arbeitsmittel = am       || [];
     DB.bereiche      = bereiche || [];
-    const [psa, taet] = await Promise.all([psaGetAll(), dbGet('taetigkeiten')]);
-    DB.psa          = psa       || [];
-    DB.taetigkeiten = taet      || [];
-    // GBU laden (aus Supabase key-value)
-    allGBU = await dbGet('gbu_liste') || [];
+    DB.psa           = psa      || [];
+    DB.taetigkeiten  = taet     || [];
+    // GBU laden aus eigener Supabase-Tabelle
+    allGBU = await gbuGetAll();
   } catch(e) { toast('Fehler beim Laden: '+e.message,'err'); }
 }
 
@@ -641,7 +641,8 @@ async function saveGBU(){
   };
   try{
     if(prev)allGBU[allGBU.indexOf(prev)]=g;else allGBU.push(g);
-    await dbSet('gbu_liste',allGBU);
+    await gbuSave(g);
+    allGBU = await gbuGetAll();
     closeM('m-gbu');renderGBUList();toast('GBU gespeichert ✓','ok');
   }catch(e){toast('Fehler: '+e.message,'err');}
   finally{sp.style.display='none';}
@@ -650,7 +651,7 @@ async function saveGBU(){
 async function deleteGBU(id){
   if(!confirm('GBU löschen?'))return;
   allGBU=allGBU.filter(x=>x.id!==id);
-  await dbSet('gbu_liste',allGBU);renderGBUList();toast('GBU gelöscht');
+  await gbuDelete(id);allGBU=await gbuGetAll();renderGBUList();toast('GBU gelöscht');
 }
 
 function exportGBU(){exportGBUById(document.getElementById('gbu-edit-id').value);}

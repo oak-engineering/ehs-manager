@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>EHS Admin – Entwicklerübersicht</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.org-card { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s; }
+.org-card:hover { border-color:var(--border2); }
+.org-hd { padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer; }
+.org-body { padding:0 16px 14px;border-top:0.5px solid var(--border);display:none; }
+.org-body.open { display:block; }
+.user-row { display:grid;grid-template-columns:32px 1fr 120px 100px 80px;gap:10px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12px; }
+.user-row:last-child { border-bottom:none; }
+.stat-pill { display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;background:var(--surface3);color:var(--text2);margin-right:4px; }
+.kpi-mini { text-align:center;padding:10px;background:var(--surface2);border-radius:var(--r);border:0.5px solid var(--border); }
+.kpi-mini-val { font-size:20px;font-weight:500;color:var(--text); }
+.kpi-mini-lbl { font-size:10px;color:var(--text3);margin-top:2px; }
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none;flex-direction:column;height:100vh">
+
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+      <div style="width:24px;height:24px;background:rgba(255,255,255,.15);border-radius:5px;display:flex;align-items:center;justify-content:center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+    </a>
+    <span class="nav-sep">›</span>
+    <span class="nav-page">Entwicklerübersicht</span>
+    <span style="padding:2px 8px;border-radius:4px;background:rgba(220,38,38,.3);color:#fca5a5;font-size:10px;font-weight:600;margin-left:8px">INTERN</span>
+  </div>
+  <div class="topnav-right">
+    <div class="nav-btn-top" onclick="loadAll()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      Aktualisieren
+    </div>
+    <div class="nav-btn-top" onclick="doSignOut()">↩ Logout</div>
+  </div>
+</nav>
+
+<div style="flex:1;overflow-y:auto;padding:24px;background:var(--bg)">
+
+  <!-- Zugriffssperre -->
+  <div id="access-block" style="display:none;text-align:center;padding:60px 20px">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <div style="font-size:18px;font-weight:500;color:var(--text);margin-bottom:8px">Kein Zugriff</div>
+    <p style="font-size:13px;color:var(--text3)">Diese Seite ist nur für Oak Engineering Administratoren zugänglich.</p>
+    <a href="index.html" class="btn btn-p" style="margin-top:16px;display:inline-flex">← Zurück</a>
+  </div>
+
+  <div id="admin-content" style="display:none">
+    <div class="page-hd">
+      <div>
+        <div class="page-title">Entwicklerübersicht</div>
+        <div class="ts" id="last-update">Wird geladen…</div>
+      </div>
+      <div class="gap">
+        <input id="suche" type="search" placeholder="Organisation oder Nutzer suchen…" oninput="renderOrgs()" style="width:240px;padding:7px 11px;font-size:12px">
+      </div>
+    </div>
+
+    <!-- System-KPIs -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:22px" id="system-kpis">
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-orgs">–</div><div class="kpi-mini-lbl">Organisationen</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-nutzer">–</div><div class="kpi-mini-lbl">Nutzer gesamt</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-maschinen">–</div><div class="kpi-mini-lbl">Maschinen</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-gefahrstoffe">–</div><div class="kpi-mini-lbl">Gefahrstoffe</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-unfaelle">–</div><div class="kpi-mini-lbl">Unfälle</div></div>
+      <div class="kpi-mini"><div class="kpi-mini-val" id="kpi-buchungen">–</div><div class="kpi-mini-lbl">Buchungsanfragen</div></div>
+    </div>
+
+    <!-- Organisations-Liste -->
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:10px">Organisationen</div>
+    <div id="org-list"></div>
+
+    <!-- Alle Nutzer -->
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin:20px 0 10px">Alle Nutzer</div>
+    <div class="card" style="overflow:hidden;padding:0">
+      <div class="user-row" style="background:var(--surface2);font-weight:500;font-size:11px;color:var(--text3)">
+        <div></div><div>Name / E-Mail</div><div>Organisation</div><div>Rolle</div><div>Aktion</div>
+      </div>
+      <div id="user-list"><div style="padding:20px;text-align:center;color:var(--text3)">Wird geladen…</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Konfiguration ──────────────────────────────────────────
+// Nur diese User-IDs haben Zugriff auf die Admin-Seite
+const SUPER_ADMINS = [
+  'b490aa4e-36d6-4dff-b4ac-26a4b38e65bc', // Nikolai Krawielitzki
+];
+
+let allProfiles = [];
+let allSettings = [];
+let objCounts = {};
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+let _tt;
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  requireAuth(async (user, profile) => {
+    document.getElementById('app-root').style.display = 'flex';
+    // Zugriffsprüfung
+    if (!SUPER_ADMINS.includes(user.id)) {
+      document.getElementById('access-block').style.display = 'block';
+      return;
+    }
+    document.getElementById('admin-content').style.display = 'block';
+    await loadAll();
+  });
+});
+
+async function loadAll() {
+  document.getElementById('last-update').textContent = 'Wird geladen…';
+  try {
+    const sb = getSB();
+    // Alle Profile
+    const { data: profiles } = await sb.from('profiles').select('*').order('created_at');
+    allProfiles = profiles || [];
+
+    // Alle Einstellungen (eine pro Org)
+    const { data: settings } = await sb.from('einstellungen').select('*');
+    allSettings = settings || [];
+
+    // Objekt-Zählungen
+    const [masch, gf, unf, buch, gbu] = await Promise.all([
+      sb.from('maschinen').select('id,organisation_id'),
+      sb.from('gefahrstoffe').select('id,organisation_id'),
+      sb.from('unfaelle').select('id,organisation_id'),
+      sb.from('buchungsanfragen').select('id,status'),
+      sb.from('gbu').select('id,organisation_id'),
+    ]);
+    objCounts = {
+      maschinen: masch.data || [],
+      gefahrstoffe: gf.data || [],
+      unfaelle: unf.data || [],
+      buchungsanfragen: buch.data || [],
+      gbu: gbu.data || [],
+    };
+
+    // System-KPIs
+    const orgs = [...new Set(allProfiles.map(p=>p.organisation_id).filter(Boolean))];
+    document.getElementById('kpi-orgs').textContent = orgs.length;
+    document.getElementById('kpi-nutzer').textContent = allProfiles.length;
+    document.getElementById('kpi-maschinen').textContent = objCounts.maschinen.length;
+    document.getElementById('kpi-gefahrstoffe').textContent = objCounts.gefahrstoffe.length;
+    document.getElementById('kpi-unfaelle').textContent = objCounts.unfaelle.length;
+    document.getElementById('kpi-buchungen').textContent = objCounts.buchungsanfragen.filter(b=>b.status==='offen').length + ' offen';
+
+    document.getElementById('last-update').textContent = 'Zuletzt aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+    renderOrgs();
+    renderUsers();
+  } catch(e) {
+    toast('Ladefehler: '+e.message, 'err');
+    document.getElementById('last-update').textContent = 'Fehler beim Laden';
+  }
+}
+
+// ── Organisations-Übersicht ───────────────────────────────
+function renderOrgs() {
+  const suche = document.getElementById('suche').value.toLowerCase();
+  const orgs = [...new Set(allProfiles.map(p=>p.organisation_id).filter(Boolean))];
+  const el = document.getElementById('org-list');
+
+  if (!orgs.length) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><p>Keine Organisationen gefunden.</p></div>';
+    return;
+  }
+
+  el.innerHTML = orgs.filter(orgId => {
+    const s = allSettings.find(x=>x.organisation_id===orgId);
+    const firma = s?.data?.firmenname || orgId;
+    const nutzer = allProfiles.filter(p=>p.organisation_id===orgId).map(p=>p.name).join(' ');
+    return !suche || firma.toLowerCase().includes(suche) || orgId.toLowerCase().includes(suche) || nutzer.toLowerCase().includes(suche);
+  }).map(orgId => {
+    const s = allSettings.find(x=>x.organisation_id===orgId);
+    const firma = s?.data?.firmenname || '(kein Firmenname)';
+    const adresse = s?.data?.adresse || '';
+    const gruppe = s?.data?.betreuungsgruppe ? 'Gruppe ' + s.data.betreuungsgruppe : '–';
+    const nutzer = allProfiles.filter(p=>p.organisation_id===orgId);
+    const admins = nutzer.filter(p=>p.rolle==='admin').length;
+    const masch = objCounts.maschinen.filter(x=>x.organisation_id===orgId).length;
+    const gf = objCounts.gefahrstoffe.filter(x=>x.organisation_id===orgId).length;
+    const unf = objCounts.unfaelle.filter(x=>x.organisation_id===orgId).length;
+    const gbuCount = objCounts.gbu.filter(x=>x.organisation_id===orgId).length;
+    const isOak = orgId === 'oak-engineering';
+
+    return `<div class="org-card">
+      <div class="org-hd" onclick="toggleOrg('${orgId}')">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0">
+          <div style="width:36px;height:36px;border-radius:var(--r);background:${isOak?'#1a1a1a':'var(--info-bg)'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${isOak?'#fff':'var(--info)'}" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div style="min-width:0">
+            <div style="font-weight:500;font-size:14px;color:var(--text)">${esc(firma)}${isOak?` <span style="font-size:10px;background:#1a1a1a;color:#fff;padding:1px 6px;border-radius:3px;vertical-align:middle">Oak</span>`:''}</div>
+            <div class="ts">${esc(orgId)}${adresse?' · '+esc(adresse):''}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          <span class="stat-pill">👥 ${nutzer.length} Nutzer</span>
+          <span class="stat-pill">🏭 ${masch}</span>
+          <span class="stat-pill">☣ ${gf}</span>
+          <span class="stat-pill">🚨 ${unf}</span>
+          <span class="stat-pill">📋 ${gbuCount} GBU</span>
+          <span class="stat-pill">DGUV ${gruppe}</span>
+          <span style="color:var(--text3);font-size:14px" id="org-arrow-${orgId}">▸</span>
+        </div>
+      </div>
+      <div class="org-body" id="org-body-${orgId}">
+        <div style="padding-top:12px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px">Nutzer dieser Organisation</div>
+          ${nutzer.map(n => `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)">
+              <div style="width:28px;height:28px;border-radius:50%;background:${n.rolle==='admin'?'#1a1a1a':'var(--surface3)'};color:${n.rolle==='admin'?'#fff':'var(--text)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0">${(n.kuerzel||n.name?.slice(0,2)||'?').toUpperCase().slice(0,2)}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:500;color:var(--text)">${esc(n.name||'–')}</div>
+                <div class="ts">${esc(n.kuerzel||'')} · ID: ${n.id.slice(0,8)}…</div>
+              </div>
+              <span class="badge ${n.rolle==='admin'?'role-admin':'role-ma'}">${n.rolle==='admin'?'Admin':'Mitarbeiter'}</span>
+              <select style="padding:4px 8px;border-radius:5px;font-size:11px;border:0.5px solid var(--border);background:var(--surface2);font-family:var(--ff)" onchange="changeRolle('${n.id}',this.value)">
+                <option value="mitarbeiter" ${n.rolle!=='admin'?'selected':''}>Mitarbeiter</option>
+                <option value="admin" ${n.rolle==='admin'?'selected':''}>Admin</option>
+              </select>
+            </div>`).join('')}
+          ${nutzer.length===0?'<div class="ts" style="padding:10px 0">Keine Nutzer in dieser Organisation.</div>':''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleOrg(orgId) {
+  const body = document.getElementById('org-body-'+orgId);
+  const arrow = document.getElementById('org-arrow-'+orgId);
+  const isOpen = body.classList.toggle('open');
+  if (arrow) arrow.textContent = isOpen ? '▾' : '▸';
+}
+
+// ── Nutzer-Liste ──────────────────────────────────────────
+function renderUsers() {
+  const suche = document.getElementById('suche').value.toLowerCase();
+  const el = document.getElementById('user-list');
+  const filtered = allProfiles.filter(p =>
+    !suche ||
+    (p.name||'').toLowerCase().includes(suche) ||
+    (p.organisation_id||'').toLowerCase().includes(suche) ||
+    (p.rolle||'').toLowerCase().includes(suche)
+  );
+
+  if (!filtered.length) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3)">Keine Nutzer gefunden.</div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(n => {
+    const s = allSettings.find(x=>x.organisation_id===n.organisation_id);
+    const firma = s?.data?.firmenname || n.organisation_id || '–';
+    return `<div class="user-row">
+      <div style="width:28px;height:28px;border-radius:50%;background:${n.rolle==='admin'?'#1a1a1a':'var(--surface3)'};color:${n.rolle==='admin'?'#fff':'var(--text)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500">${(n.kuerzel||n.name?.slice(0,2)||'?').toUpperCase().slice(0,2)}</div>
+      <div>
+        <div style="font-weight:500;color:var(--text)">${esc(n.name||'–')}</div>
+        <div class="ts">${n.id.slice(0,12)}…</div>
+      </div>
+      <div class="ts">${esc(firma)}</div>
+      <div><span class="badge ${n.rolle==='admin'?'role-admin':'role-ma'}">${n.rolle==='admin'?'Admin':'Mitarbeiter'}</span></div>
+      <div>
+        <select style="padding:4px 8px;border-radius:5px;font-size:11px;border:0.5px solid var(--border);background:var(--surface2);font-family:var(--ff)" onchange="changeRolle('${n.id}',this.value)">
+          <option value="mitarbeiter" ${n.rolle!=='admin'?'selected':''}>Mitarbeiter</option>
+          <option value="admin" ${n.rolle==='admin'?'selected':''}>Admin</option>
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function changeRolle(userId, rolle) {
+  try {
+    await getSB().from('profiles').update({ rolle }).eq('id', userId);
+    const p = allProfiles.find(x=>x.id===userId);
+    if (p) p.rolle = rolle;
+    toast('Rolle aktualisiert ✓', 'ok');
+    renderOrgs();
+    renderUsers();
+  } catch(e) { toast('Fehler: '+e.message, 'err'); }
+}
+
+async function doSignOut() { await signOut(); }
+</script>
+</body>
+</html>
