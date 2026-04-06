@@ -221,7 +221,7 @@
       <div id="s-dok-info" style="margin-bottom:8px;font-size:13px;color:var(--t3)">Noch keine Datei hochgeladen</div>
       <div class="gap">
         <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('inp-schulung-pdf').click()">⬆ PDF hochladen</button>
-        <input type="file" id="inp-schulung-pdf" accept=".pdf" onchange="uploadSchulungPDF(event)">
+        <input type="file" id="inp-schulung-pdf" accept=".pdf" onchange="uploadSchulungPDF(event)" style="display:none">
         <button type="button" class="btn btn-o btn-sm" id="btn-ki-fragen" onclick="generateKIFragen()" style="display:none">🤖 KI-Fragen generieren</button>
       </div>
       <div id="ki-fragen-status" style="display:none;margin-top:8px;padding:10px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px;font-size:13px"></div>

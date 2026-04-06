@@ -222,7 +222,7 @@
         <div class="foto-grid" id="foto-grid">
           <div class="foto-add" onclick="document.getElementById('foto-input').click()" title="Foto hinzufügen">+</div>
         </div>
-        <input type="file" id="foto-input" accept="image/*" multiple onchange="addFotos(event)">
+        <input type="file" id="foto-input" accept="image/*" multiple onchange="addFotos(event)" style="display:none">
         <div class="ts" style="margin-top:6px">Kamera oder Galerie · max. 5 MB pro Bild</div>
       </div>
     </div>
@@ -313,7 +313,7 @@
         <div id="vorlage-info" style="font-size:13px;color:var(--text3);margin-bottom:8px">Keine Vorlage hochgeladen – KI nutzt Standardformat</div>
         <div class="gap">
           <button type="button" class="btn btn-sm" onclick="document.getElementById('vorlage-input').click()">⬆ Vorlage hochladen (PDF)</button>
-          <input type="file" id="vorlage-input" accept=".pdf" onchange="uploadVorlage(event)">
+          <input type="file" id="vorlage-input" accept=".pdf" onchange="uploadVorlage(event)" style="display:none">
           <button type="button" class="btn btn-p btn-sm" onclick="generateMeldung()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10"/><path d="M12 8v4l3 3"/></svg>
             KI-Meldung generieren

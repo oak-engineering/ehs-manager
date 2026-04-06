@@ -140,7 +140,7 @@ function renderForm(){
           <div class="jn-btn" id="jn-nein-${i}" onclick="setJaNein(${i},'nein')">❌ Nein / Mangel</div>
         </div>` 
       : f.typ==='foto' ? `
-        <input type="file" accept="image/*" id="f-val-${i}" onchange="previewFoto(${i},this)" style="font-size:13px">
+        <input type="file" accept="image/*" id="f-val-${i}" onchange="previewFoto(${i},this)" style="font-size:13px" style="display:none">
         <div id="f-prev-${i}"></div>`
       : f.typ==='zahl' ? `
         <input class="cl-input" type="number" id="f-val-${i}" placeholder="Wert eingeben…">`

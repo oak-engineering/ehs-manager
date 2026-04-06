@@ -202,7 +202,7 @@
           <!-- Jahre werden per JS eingefügt -->
         </select>
         <button class="btn btn-sm" onclick="document.getElementById('vorlage-bericht').click()">⬆ Vorlage hochladen</button>
-        <input type="file" id="vorlage-bericht" accept=".pdf,.docx" onchange="uploadBerichtVorlage(event)">
+        <input type="file" id="vorlage-bericht" accept=".pdf,.docx" onchange="uploadBerichtVorlage(event)" style="display:none">
         <button class="btn btn-p btn-sm" onclick="generateBericht()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10"/><path d="M12 8v4l3 3"/></svg>
           KI-Bericht generieren
