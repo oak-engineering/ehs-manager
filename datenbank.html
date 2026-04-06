@@ -169,9 +169,9 @@
 <script>
 'use strict';
 
-let _profile = null;
 let _dashLoaded = false;
 let _activeTab = '';
+let _dbProfile = null;
 
 // ── Utils ──────────────────────────────────────────────────
 let _tt;
@@ -196,7 +196,7 @@ function updateDarkUI(d){
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
   requireAuth(async(user,profile)=>{
-    _profile=profile;
+    _dbProfile=profile;
     document.getElementById('app-root').style.display='flex';
     document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
     document.getElementById('u-name').textContent=profile?.name||'–';
@@ -389,8 +389,8 @@ function statusCard(title,tab,rows){
 
 // ── User-Menü ──────────────────────────────────────────────
 function openUserMenu(){
-  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';
-  document.getElementById('um-role').textContent=_profile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  document.getElementById('um-name').textContent=_dbProfile?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=_dbProfile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
   document.getElementById('um-key').value=localStorage.getItem('ehs_api_key')||'';
   openM('m-user');
 }
