@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>PSA – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;max-width:140px;}
+.m-filter input[type=search]{width:160px;max-width:none;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+.psa-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.psa-card:hover{border-color:var(--border2);}
+.psa-card-accent{height:3px;}
+.psa-card-body{padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.psa-card-left{flex:1;min-width:0;}
+.psa-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.psa-card-meta{font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.psa-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.ampel-io{background:rgba(22,163,74,.1);color:var(--ok);border:0.5px solid rgba(22,163,74,.25);}
+.ampel-faellig{background:rgba(220,38,38,.1);color:var(--nok);border:0.5px solid rgba(220,38,38,.25);}
+.ampel-bald{background:rgba(180,83,9,.1);color:var(--warn);border:0.5px solid rgba(180,83,9,.25);}
+.ampel{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;}
+.klassen-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.klassen-chip{padding:3px 10px;border-radius:20px;font-size:11px;border:0.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .12s;user-select:none;}
+.klassen-chip.sel{background:var(--accent);color:var(--surface);border-color:var(--accent);}
+.import-preview{overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:180px;overflow-y:auto;margin-top:8px;}
+.import-preview table{border-collapse:collapse;min-width:max-content;width:100%;}
+.import-preview th{padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap;}
+.import-preview td{padding:4px 8px;border:0.5px solid var(--border);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">PSA</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">PSA</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="downloadTemplate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="18"/><line x1="15" y1="15" x2="12" y2="18"/></svg>
+        Template
+      </button>
+      <button class="btn btn-sm write-only" onclick="openImport()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Importieren
+      </button>
+      <button class="btn btn-sm" onclick="openExport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportieren
+      </button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Anlegen</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <select id="f-kat" onchange="onKatFilter();renderList()"><option value="">Alle Kategorien</option></select>
+    <select id="f-unterkat" onchange="renderList()"><option value="">Alle Typen</option></select>
+    <select id="f-ablauf" onchange="renderList()">
+      <option value="">Alle Status</option>
+      <option value="io">🟢 Gültig</option>
+      <option value="bald">🟡 Läuft bald ab</option>
+      <option value="abgelaufen">🔴 Abgelaufen</option>
+    </select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="psa-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Anlegen/Bearbeiten -->
+<div class="overlay" id="m-psa" onclick="if(event.target===this)closeM('m-psa')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-psa-title">PSA anlegen</div><div class="modal-sub" id="m-psa-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-psa')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-psa')">Abbrechen</button>
+    <button class="btn btn-p" onclick="savePSA()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Import -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">PSA importieren</div><button class="btn btn-sm" onclick="closeM('m-import')">✕</button></div>
+  <div class="modal-body">
+    <div class="section-block">
+      <div class="section-label">Schritt 1 – Vorlage herunterladen</div>
+      <p class="ts" style="margin-bottom:8px">Vorlage herunterladen, befüllen und als CSV hochladen.</p>
+      <button class="btn btn-sm" onclick="downloadTemplate()">⬇ Vorlage herunterladen (.csv)</button>
+    </div>
+    <div class="section-block">
+      <div class="section-label">Schritt 2 – CSV hochladen</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Datei auswählen…
+        <input type="file" accept=".csv" onchange="previewImport(event)" style="display:none">
+      </label>
+      <div id="import-preview-wrap" style="display:none;margin-top:10px">
+        <div class="import-preview" id="import-table"></div>
+        <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between">
+          <div class="ts" id="import-info"></div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="import-overwrite" style="width:auto;accent-color:var(--accent)"> Duplikate überschreiben
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="import-result" style="display:none"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-import')">Schließen</button>
+    <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
+      <span class="spinner" id="import-sp" style="display:none"></span>Importieren
+    </button>
+  </div>
+</div></div>
+
+<!-- MODAL: Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">PSA exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body">
+    <div><label>Kategorie</label><select id="exp-kat"><option value="">Alle</option></select></div>
+    <div><label>Ablauf-Status</label><select id="exp-status"><option value="">Alle</option><option value="io">Gültig</option><option value="bald">Bald ablaufend</option><option value="abgelaufen">Abgelaufen</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body">
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// PSA-KATEGORIEN MIT VOLLSTÄNDIGEN NORMEN + KLASSEN
+// ═══════════════════════════════════════════════════════════
+const PSA_KATEGORIEN = {
+
+  'Kopfschutz': {
+    icon:'🪖',
+    unterkat:{
+      'Industrieschutzhelm':     {norm:'EN ISO 3873', klassen:['Klasse A','Klasse B','Klasse C'], hinweis:'A=elektr. Isolierung, B=Hochspannung, C=keine elektr. Eignung'},
+      'Anstoßkappe':             {norm:'EN 812', klassen:[], hinweis:'Schutz vor leichten Stößen'},
+      'Schweißerhaube':          {norm:'EN 175', klassen:[], hinweis:'Schutz beim Schweißen'},
+    }
+  },
+
+  'Augenschutz': {
+    icon:'👓',
+    unterkat:{
+      'Bügelbrille':             {norm:'EN ISO 16321-1', klassen:['ohne Dichtrand','mit Seitenschutz'], hinweis:'Schutz vor groben Partikeln und Spritzern'},
+      'Korbbrille (dicht)':      {norm:'EN ISO 16321-1', klassen:['Kennz. 3','Kennz. 34'], hinweis:'Dicht schließend, Schutz vor Spritzern und Stäuben; 34 = mit Belüftung'},
+      'Bügelbrille mit Dichtlippe':{norm:'EN ISO 16321-1', klassen:['Kennz. 34'], hinweis:'Alternative zur Korbbrille bei mittel/niedriger Freisetzung'},
+      'Gesichtsschutz / Visier': {norm:'EN ISO 16321-1', klassen:['Klasse 1','Klasse 2','Klasse 3'], hinweis:'1=optische Klasse, 2=mechanisch, 3=chemisch'},
+      'Schweißerschutzschirm':   {norm:'EN 175', klassen:['DIN 1','DIN 2','DIN 3','DIN 4','DIN 5','DIN 6','DIN 7','DIN 8','DIN 9','DIN 10','DIN 11','DIN 12','DIN 13'], hinweis:'Schutzstufe je nach Schweißverfahren'},
+      'Laserschutzbrille':       {norm:'EN 207 / EN 208', klassen:[], hinweis:'Wellenlänge und OD-Wert beachten'},
+    }
+  },
+
+  'Gehörschutz': {
+    icon:'🎧',
+    unterkat:{
+      'Einwegstöpsel':           {norm:'EN ISO 4869-2', klassen:['SNR 20–25 dB','SNR 25–30 dB','SNR 30–37 dB'], hinweis:'SNR = Single Number Rating'},
+      'Wiederverwendb. Stöpsel': {norm:'EN ISO 4869-2', klassen:['SNR 20–30 dB'], hinweis:'Mit Kordel'},
+      'Kapselgehörschutz':       {norm:'EN ISO 4869-2', klassen:['SNR 25–33 dB'], hinweis:'Auf Helm montierbar'},
+      'Otoplastik (Maßanfertigung)':{norm:'EN ISO 4869-2', klassen:[], hinweis:'Individuell angepasst'},
+    }
+  },
+
+  'Atemschutz': {
+    icon:'😷',
+    unterkat:{
+      'Filtermaske FFP':         {norm:'EN 149', klassen:['FFP1 (80 % Abscheidegrad)','FFP2 (94 % Abscheidegrad)','FFP3 (99 % Abscheidegrad)'], hinweis:'FFP1=Staub, FFP2=Feinstaub/Viren, FFP3=sehr feine Partikel/Asbestfasern'},
+      'Halbmaske mit Gasfilter': {norm:'EN 140 + EN 14387', klassen:['A (organ. Gase)','B (anorg. Gase)','E (Schwefeldioxid)','K (Ammoniak)','Hg (Quecksilber)','P1/P2/P3 (Partikel)','ABEK kombiniert'], hinweis:'Klasse 1/2/3 = Kapazität klein/mittel/groß'},
+      'Vollmaske':               {norm:'EN 136 + EN 14387', klassen:['Klasse 1','Klasse 2','Klasse 3'], hinweis:'Klasse 3 = höchste Dichtigkeitsanforderungen'},
+      'Gebläseatemschutz (PAPR)':{norm:'EN 12941 / EN 12942', klassen:['TH1','TH2','TH3'], hinweis:'TH1–TH3 = Schutzfaktor 4–500'},
+      'Druckluft-Atemschutz':    {norm:'EN 137', klassen:['Klasse 2','Klasse 3'], hinweis:'Pressluftflasche, unabhängig von Umgebungsluft'},
+    }
+  },
+
+  'Handschutz': {
+    icon:'🧤',
+    unterkat:{
+      'Mechanikschutz':          {norm:'EN 388', klassen:['Abrieb 0–4','Schnitt 0–4 (A) / TDM-Klasse','Weiterreiß 0–4','Durchstich 0–4','Stich (TDM) A–F','Handgelenk P/C'], hinweis:'EN 388:2016 mit Buchstabenklassen für TDM-Schnittschutz'},
+      'Chemikalienschutz':       {norm:'EN 374-1 / EN 374-2 / EN 374-3', klassen:['Typ A (≥30 min, ≥6 Chem.)','Typ B (≥30 min, ≥3 Chem.)','Typ C (≥10 min, ≥1 Chem.)'], hinweis:'Permeationszeiten je Chemikalie aus Datenblatt prüfen'},
+      'Hitzeschutz':             {norm:'EN 407', klassen:['P1: Brennverhalten 0–4','P2: Kontakthitze 0–4','P3: Konvektive Hitze 0–4','P4: Strahlungshitze 0–4','P5: Metallspritzer klein','P6: Metallspritzer groß'], hinweis:'Jede Leistung separat bewertet'},
+      'Kälteschutz':             {norm:'EN 511', klassen:['Konvektionskälte 0–4','Kontaktkälte 0–4','Wasserdichtheit 0/1'], hinweis:''},
+      'Schnittschutz (masch.)':  {norm:'EN ISO 13997 / EN 388', klassen:['TDM A (≥2N)','TDM B (≥5N)','TDM C (≥10N)','TDM D (≥15N)','TDM E (≥22N)','TDM F (≥30N)'], hinweis:'Für Arbeiten mit maschinell bewegten Schneiden'},
+      'Elektroschutz':           {norm:'EN 60903', klassen:['Klasse 00 (500V)','Klasse 0 (1000V)','Klasse 1 (7500V)','Klasse 2 (17000V)','Klasse 3 (26500V)','Klasse 4 (36000V)'], hinweis:'Maximale Gebrauchsspannung beachten'},
+      'Antivibrationshandschuh': {norm:'EN ISO 10819', klassen:['M-Wert','H-Wert'], hinweis:'Vibrationsdämpfung bei Hand-Arm-Vibration'},
+      'Einweghandschuh':         {norm:'EN 455-1 bis 4', klassen:['puderfrei','puderhaltig'], hinweis:'Medizinisch / Labor'},
+    }
+  },
+
+  'Fußschutz': {
+    icon:'👢',
+    unterkat:{
+      'Sicherheitsschuhe S1':    {norm:'EN ISO 20345', klassen:['S1: Stahlkappe, geschl. Ferse, antistatisch, kraftstoffbeständig'], hinweis:'Grundschutz, keine Durchtrittsicherung'},
+      'Sicherheitsschuhe S1P':   {norm:'EN ISO 20345', klassen:['S1P: S1 + Durchtrittsicherung P'], hinweis:'Mit Durchtrittsicherung'},
+      'Sicherheitsschuhe S2':    {norm:'EN ISO 20345', klassen:['S2: S1 + Wasserdurchdringungsschutz'], hinweis:''},
+      'Sicherheitsschuhe S3':    {norm:'EN ISO 20345', klassen:['S3: S2 + Durchtrittsicherung P'], hinweis:'Häufigste Variante im Betrieb'},
+      'Sicherheitsschuhe S4/S5': {norm:'EN ISO 20345', klassen:['S4: Vollgummi ohne Durchtritt','S5: Vollgummi + Durchtritt'], hinweis:'Nass- und Chemiebereiche'},
+      'Rutschhemmung':           {norm:'EN ISO 13287', klassen:['SRA (Keramik + Wasser)','SRB (Stahl + Glycerin)','SRC (SRA + SRB)'], hinweis:'SRC = höchste Rutschhemmung'},
+      'Antistatisch (ESD)':      {norm:'EN 61340-5-1', klassen:['ESD (100 kΩ – 35 MΩ)'], hinweis:'Für ESD-sensible Bereiche'},
+      'Wärmeschutz (HI)':        {norm:'EN ISO 20345', klassen:['HI1 (Wärmeisolierung Boden)','HI2 (erweitert)'], hinweis:''},
+      'Kälteschutz (CI)':        {norm:'EN ISO 20345', klassen:['CI (Kälteisolierung Boden)'], hinweis:''},
+    }
+  },
+
+  'Körperschutz': {
+    icon:'🦺',
+    unterkat:{
+      'Warnschutzkleidung':      {norm:'EN ISO 20471', klassen:['Klasse 1 (0,14 m² Retrorefl.)','Klasse 2 (0,5 m² Retrorefl.)','Klasse 3 (0,8 m² Retrorefl.)'], hinweis:'Klasse 3 = höchste Sichtbarkeit'},
+      'Hitzeschutzkleidung':     {norm:'EN ISO 11612', klassen:['A1/A2 (Flamme)','B (konv. Hitze)','C (Strahlhitze)','D (Aluminisierung)','E (Metallspritzer)','F (Kontakthitze)'], hinweis:'Jeder Code separat'},
+      'Chemikalienschutz Typ 1': {norm:'EN 943-1', klassen:['Typ 1a (gasdicht, SCBA intern)','Typ 1b (gasdicht, SCBA extern)','Typ 1c (gasdicht, Überdruckbeatmung)'], hinweis:'Vollständiger Körperschutz gasdicht'},
+      'Chemikalienschutz Typ 2': {norm:'EN 943-2', klassen:[], hinweis:'Nicht gasdicht, Notfall'},
+      'Chemikalienschutz Typ 3': {norm:'EN 14605', klassen:[], hinweis:'Flüssigkeitsdicht, Spritzschutz'},
+      'Chemikalienschutz Typ 4': {norm:'EN 14605', klassen:[], hinweis:'Sprühdicht'},
+      'Chemikalienschutz Typ 5': {norm:'EN 13982-1', klassen:[], hinweis:'Partikelschutz (Staub)'},
+      'Chemikalienschutz Typ 6': {norm:'EN 13034', klassen:[], hinweis:'Begrenzte Spritzschutzwirkung'},
+      'Schweißerschutzkleidung': {norm:'EN ISO 11611', klassen:['Klasse 1 (geringere Exposition)','Klasse 2 (erhöhte Exposition)'], hinweis:''},
+      'Elektrolichtbogenschutz': {norm:'EN IEC 61482-2', klassen:['APC 1 (4 cal/cm²)','APC 2 (7 cal/cm²)'], hinweis:'ATPV = Lichtbogenwert in cal/cm²'},
+      'Kälteschutzkleidung':     {norm:'EN 342', klassen:['Wärmedurchgangswiderstand Icler','Luftdurchlässigkeit'], hinweis:''},
+      'Regenschutz':             {norm:'EN 343', klassen:['Wasserabw. 1–3','Wasserdampf 1–3'], hinweis:''},
+    }
+  },
+
+  'Absturzschutz (PSAgA)': {
+    icon:'🪢',
+    unterkat:{
+      'Auffanggurt':             {norm:'EN 361', klassen:[], hinweis:'Vollkörpergurt, jährliche Prüfung nach DGUV R 112-198'},
+      'Haltegurt':               {norm:'EN 358', klassen:[], hinweis:'Nur Positionierung, kein Absturz'},
+      'Sitzgurt':                {norm:'EN 813', klassen:[], hinweis:'Sitzhalterung'},
+      'Verbindungsmittel':       {norm:'EN 354 / EN 355 / EN 360', klassen:['EN 354: Verbindungsgl.','EN 355: Falldämpfer','EN 360: Höhensicherungsgerät'], hinweis:'Max. freier Fall beachten'},
+      'Mitlaufende Auffangger.': {norm:'EN 353-1 / EN 353-2', klassen:['Typ 1 (Führungsseil)','Typ 2 (starres Führungsm.)'], hinweis:''},
+      'Steigschutz':             {norm:'EN 353-1', klassen:[], hinweis:'An Steigeisen / Leitern'},
+    }
+  },
+
+};
+
+// Alle Kategorien flach für Filter
+const ALLE_KATEGORIEN = Object.keys(PSA_KATEGORIEN);
+
+// ── State ──────────────────────────────────────────────────
+let _profile=null,_canWrite=false;
+let _items=[],_settings={};
+let _importParsed=null;
+
+// ── Utils ──────────────────────────────────────────────────
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display=profile?.rolle==='admin'?'':'none');
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}_settings=s?.db_psa||{};}catch(e){_settings={};}
+    fillKatFilter();
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    _items=await psaGetAll()||[];
+    fillExportFilter();renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+// ── Ablauf-Ampel ───────────────────────────────────────────
+function getAblaufAmpel(item){
+  if(!item.ablaufdatum)return null;
+  const ablauf=new Date(item.ablaufdatum);const heute=new Date();
+  const diff=(ablauf-heute)/(1000*60*60*24);
+  if(diff<0)return{status:'abgelaufen',label:'🔴 Abgelaufen am '+fmt(item.ablaufdatum),cls:'ampel-faellig'};
+  if(diff<=30)return{status:'bald',label:'🟡 Läuft ab in '+Math.round(diff)+' Tagen',cls:'ampel-bald'};
+  return{status:'io',label:'🟢 Gültig bis '+fmt(item.ablaufdatum),cls:'ampel-io'};
+}
+
+// ── Filter ─────────────────────────────────────────────────
+function fillKatFilter(){
+  const fKat=document.getElementById('f-kat');
+  fKat.innerHTML='<option value="">Alle Kategorien</option>'+ALLE_KATEGORIEN.map(k=>`<option value="${esc(k)}">${PSA_KATEGORIEN[k].icon} ${esc(k)}</option>`).join('');
+}
+function fillExportFilter(){
+  document.getElementById('exp-kat').innerHTML='<option value="">Alle</option>'+ALLE_KATEGORIEN.map(k=>`<option value="${esc(k)}">${PSA_KATEGORIEN[k].icon} ${esc(k)}</option>`).join('');
+}
+function onKatFilter(){
+  const kat=document.getElementById('f-kat').value;
+  const unterkatEl=document.getElementById('f-unterkat');
+  if(!kat||!PSA_KATEGORIEN[kat]){unterkatEl.innerHTML='<option value="">Alle Typen</option>';return;}
+  const uk=PSA_KATEGORIEN[kat].unterkat;
+  unterkatEl.innerHTML='<option value="">Alle Typen</option>'+Object.keys(uk).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+}
+function getFiltered(){
+  const fKat=document.getElementById('f-kat')?.value||'';
+  const fUk=document.getElementById('f-unterkat')?.value||'';
+  const fAb=document.getElementById('f-ablauf')?.value||'';
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _items.filter(x=>{
+    if(fKat&&x.kategorie!==fKat)return false;
+    if(fUk&&x.unterkat!==fUk)return false;
+    if(fS&&!JSON.stringify(x).toLowerCase().includes(fS))return false;
+    if(fAb){const a=getAblaufAmpel(x);if(!a||a.status!==fAb)return false;}
+    return true;
+  });
+}
+
+// ── Liste rendern ──────────────────────────────────────────
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' PSA-Eintrag'+(data.length!==1?'e':'');
+  const el=document.getElementById('psa-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🦺</div><p style="margin-bottom:12px">${_items.length?'Keine Treffer.':'Noch keine PSA erfasst.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Ersten PSA-Eintrag anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(item=>{
+    const kat=PSA_KATEGORIEN[item.kategorie];
+    const ampel=getAblaufAmpel(item);
+    const accentCol=ampel?.status==='abgelaufen'?'#dc2626':ampel?.status==='bald'?'#b45309':'rgba(22,163,74,.6)';
+    const borderCol=ampel?.status==='abgelaufen'?'rgba(220,38,38,.4)':ampel?.status==='bald'?'rgba(180,83,9,.3)':'';
+    const klassen=item.klassen||[];
+    return`<div class="psa-card" style="${borderCol?'border-color:'+borderCol:''}">
+      <div class="psa-card-accent" style="background:${accentCol}"></div>
+      <div class="psa-card-body">
+        <div class="psa-card-left">
+          <div class="psa-card-title">
+            ${kat?.icon||'🦺'} ${esc(item.name||'–')}
+            ${item.kategorie?`<span class="badge b-neutral" style="font-size:10px">${esc(item.kategorie)}</span>`:''}
+            ${item.unterkat?`<span class="badge b-info" style="font-size:10px">${esc(item.unterkat)}</span>`:''}
+            ${ampel?`<span class="ampel ${ampel.cls}">${ampel.label}</span>`:''}
+          </div>
+          <div class="psa-card-meta">
+            ${item.norm?`<span>📋 ${esc(item.norm)}</span>`:''}
+            ${item.lieferant?`<span>🏭 ${esc(item.lieferant)}</span>`:''}
+            ${item.artikelnr?`<span>🔢 ${esc(item.artikelnr)}</span>`:''}
+            ${item.ablaufdatum?`<span>📅 Ablauf: ${fmt(item.ablaufdatum)}</span>`:''}
+          </div>
+          ${klassen.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${klassen.map(k=>`<span style="padding:1px 8px;border-radius:20px;font-size:11px;background:var(--info-bg);color:var(--info);border:0.5px solid var(--info-border)">${esc(k)}</span>`).join('')}</div>`:''}
+          ${item.hinweis_einsatz?`<div class="ts" style="margin-top:4px">ℹ ${esc(item.hinweis_einsatz)}</div>`:''}
+          ${item.notizen?`<div class="ts" style="margin-top:3px">📝 ${esc(item.notizen)}</div>`:''}
+        </div>
+        <div class="psa-card-actions">
+          ${item.produktlink?`<button class="btn btn-sm" onclick="window.open('${esc(item.produktlink)}','_blank')" title="Produktlink">🔗</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${item.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deletePSA('${item.id}')">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-psa-title').textContent='PSA anlegen';
+  document.getElementById('m-psa-sub').textContent='';
+  renderForm({});openM('m-psa');
+}
+function openEdit(id){
+  const item=_items.find(x=>x.id===id);if(!item)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-psa-title').textContent='PSA bearbeiten';
+  document.getElementById('m-psa-sub').textContent=item.name||'';
+  renderForm(item);openM('m-psa');
+}
+
+function renderForm(item){
+  const katOpts=ALLE_KATEGORIEN.map(k=>`<option value="${esc(k)}"${item.kategorie===k?' selected':''}>${PSA_KATEGORIEN[k].icon} ${esc(k)}</option>`).join('');
+  const selKat=item.kategorie||'';
+  const ukOpts=selKat&&PSA_KATEGORIEN[selKat]?Object.keys(PSA_KATEGORIEN[selKat].unterkat).map(u=>`<option value="${esc(u)}"${item.unterkat===u?' selected':''}>${esc(u)}</option>`).join(''):'';
+  const selUk=item.unterkat||'';
+  const ukDef=selKat&&selUk?PSA_KATEGORIEN[selKat]?.unterkat?.[selUk]:null;
+  const alleKlassen=ukDef?.klassen||[];
+  const selKlassen=item.klassen||[];
+
+  document.getElementById('m-body').innerHTML=`
+    <div><label>Bezeichnung / Produktname *</label><input id="f-name" value="${esc(item.name||'')}" placeholder="z.B. uvex pheos cx2 Schutzbrille" autofocus></div>
+    <div class="g2">
+      <div><label>Kategorie</label>
+        <select id="f-kategorie" onchange="onFormKatChange(this.value)">
+          <option value="">– wählen –</option>${katOpts}
+        </select>
+      </div>
+      <div><label>Typ / Unterkategorie</label>
+        <select id="f-unterkat" onchange="onFormUkChange(document.getElementById('f-kategorie').value,this.value)">
+          <option value="">– wählen –</option>${ukOpts}
+        </select>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div><label>Norm <span class="ts">(wird je Typ auto-ausgefüllt)</span></label>
+        <input id="f-norm" value="${esc(item.norm||ukDef?.norm||'')}" placeholder="z.B. EN ISO 20345"></div>
+      <div><label>Ablaufdatum</label>
+        <input id="f-ablaufdatum" type="date" value="${esc(item.ablaufdatum||'')}"></div>
+    </div>
+
+    <div id="klassen-section" style="${alleKlassen.length?'':'display:none'}">
+      <label>Schutzklasse / Ausführung</label>
+      <div class="ts" id="klassen-hinweis" style="margin-bottom:6px">${esc(ukDef?.hinweis||'')}</div>
+      <div class="klassen-grid" id="klassen-grid">
+        ${alleKlassen.map(k=>`<div class="klassen-chip${selKlassen.includes(k)?' sel':''}" onclick="toggleKlasse(this)">${esc(k)}</div>`).join('')}
+      </div>
+    </div>
+
+    <div class="g2">
+      <div><label>Lieferant</label><input id="f-lieferant" value="${esc(item.lieferant||'')}" placeholder="z.B. uvex, 3M, Honeywell"></div>
+      <div><label>Artikel-Nr.</label><input id="f-artikelnr" value="${esc(item.artikelnr||'')}"></div>
+    </div>
+
+    <div><label>Produktlink (Hersteller / Händler)</label>
+      <div style="display:flex;gap:8px">
+        <input id="f-produktlink" value="${esc(item.produktlink||'')}" placeholder="https://…" style="flex:1">
+        ${item.produktlink?`<button type="button" class="btn btn-sm" onclick="window.open(document.getElementById('f-produktlink').value,'_blank')">🔗</button>`:''}
+      </div>
+    </div>
+
+    <div><label>Einsatzhinweis <span class="ts">(für GBU – z.B. bei welchen Tätigkeiten / Gefährdungen)</span></label>
+      <input id="f-hinweis" value="${esc(item.hinweis_einsatz||'')}" placeholder="z.B. Einzusetzen bei Gefahrstoffen mit H-Satz H314, EMKG Haut GG HD+"></div>
+
+    <div><label>Notizen</label><textarea id="f-notizen">${esc(item.notizen||'')}</textarea></div>
+  `;
+}
+
+function toggleKlasse(el){el.classList.toggle('sel');}
+
+function onFormKatChange(kat){
+  const ukSel=document.getElementById('f-unterkat');
+  if(!kat||!PSA_KATEGORIEN[kat]){ukSel.innerHTML='<option value="">– wählen –</option>';clearKlassen();return;}
+  const uk=PSA_KATEGORIEN[kat].unterkat;
+  ukSel.innerHTML='<option value="">– wählen –</option>'+Object.keys(uk).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+  clearKlassen();
+}
+
+function onFormUkChange(kat,uk){
+  const ukDef=kat&&uk?PSA_KATEGORIEN[kat]?.unterkat?.[uk]:null;
+  const normEl=document.getElementById('f-norm');if(normEl&&ukDef?.norm&&!normEl.dataset.manuell)normEl.value=ukDef.norm;
+  const klassen=ukDef?.klassen||[];
+  const sec=document.getElementById('klassen-section');const grid=document.getElementById('klassen-grid');const hint=document.getElementById('klassen-hinweis');
+  if(!sec||!grid)return;
+  sec.style.display=klassen.length?'':'none';
+  if(hint)hint.textContent=ukDef?.hinweis||'';
+  grid.innerHTML=klassen.map(k=>`<div class="klassen-chip" onclick="toggleKlasse(this)">${esc(k)}</div>`).join('');
+}
+
+function clearKlassen(){
+  const sec=document.getElementById('klassen-section');const grid=document.getElementById('klassen-grid');
+  if(sec)sec.style.display='none';if(grid)grid.innerHTML='';
+}
+
+function getSelKlassen(){return[...document.querySelectorAll('.klassen-chip.sel')].map(el=>el.textContent.trim());}
+
+async function savePSA(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Bezeichnung ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_items.find(x=>x.id===editId);
+  const g=id=>document.getElementById('f-'+id)?.value??'';
+  const obj={
+    id:prev?.id||uid('PSA'),name,
+    kategorie:g('kategorie'),unterkat:g('unterkat'),
+    norm:g('norm'),ablaufdatum:g('ablaufdatum'),
+    klassen:getSelKlassen(),
+    lieferant:g('lieferant'),artikelnr:g('artikelnr'),
+    produktlink:g('produktlink'),
+    hinweis_einsatz:g('hinweis'),
+    notizen:g('notizen'),
+    createdAt:prev?.createdAt||new Date().toISOString(),
+    // GBU-relevante Daten strukturiert speichern
+    gbu_daten:{
+      kategorie:g('kategorie'),unterkat:g('unterkat'),
+      norm:g('norm'),klassen:getSelKlassen(),
+      hinweis_einsatz:g('hinweis'),
+    },
+  };
+  try{
+    await psaSave(obj);_items=await psaGetAll()||[];
+    closeM('m-psa');renderList();toast('Gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deletePSA(id){
+  const item=_items.find(x=>x.id===id);
+  if(!confirm(`"${item?.name||'PSA'}" löschen?`))return;
+  try{await psaDelete(id);_items=await psaGetAll()||[];renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── Import / Export / Template ─────────────────────────────
+const IMPORT_COLS=[
+  {key:'name',          label:'Bezeichnung',      required:true,  example:'uvex pheos Schutzbrille'},
+  {key:'kategorie',     label:'Kategorie',         required:false, example:'Augenschutz'},
+  {key:'unterkat',      label:'Typ',               required:false, example:'Bügelbrille'},
+  {key:'norm',          label:'Norm',              required:false, example:'EN ISO 16321-1'},
+  {key:'klassen',       label:'Klassen (Semikolon)',required:false,example:'Kennz. 34'},
+  {key:'ablaufdatum',   label:'Ablaufdatum',        required:false, example:'2027-12-31'},
+  {key:'lieferant',     label:'Lieferant',          required:false, example:'uvex'},
+  {key:'artikelnr',     label:'Artikel-Nr',         required:false, example:'9301-714'},
+  {key:'produktlink',   label:'Produktlink',         required:false, example:'https://'},
+  {key:'hinweis_einsatz',label:'Einsatzhinweis',    required:false, example:''},
+  {key:'notizen',       label:'Notizen',            required:false, example:''},
+];
+
+function downloadTemplate(){
+  const csv='\uFEFF'+IMPORT_COLS.map(c=>c.label).join(';')+'\n'+IMPORT_COLS.map(c=>c.required?'* Pflichtfeld':'optional').join(';')+'\n'+IMPORT_COLS.map(c=>c.example||'').join(';')+'\n';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Template_PSA_Import.csv';a.click();URL.revokeObjectURL(url);
+  toast('Template heruntergeladen ✓','ok');
+}
+
+function openImport(){
+  document.getElementById('import-preview-wrap').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('btn-import-run').style.display='none';
+  _importParsed=null;openM('m-import');
+}
+
+function parseCSV(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return{headers:[],rows:[]};
+  const parseRow=line=>{const cols=[];let cur='',inQ=false;for(const ch of line){if(ch==='"'){inQ=!inQ;}else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}cols.push(cur.trim());return cols;};
+  const headers=parseRow(lines[0]);
+  const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;
+  const rows=lines.slice(dataStart).filter(l=>l.trim()).map(parseRow);
+  return{headers,rows};
+}
+
+function previewImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const{headers,rows}=parseCSV(ev.target.result);_importParsed={headers,rows};
+    const knownLabels=IMPORT_COLS.map(c=>c.label.toLowerCase());
+    const unbekannt=headers.filter(h=>!knownLabels.includes(h.toLowerCase())&&h);
+    document.getElementById('import-table').innerHTML=`<table>
+      <tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>
+      ${rows.slice(0,5).map(row=>`<tr>${headers.map((_,i)=>`<td>${esc(row[i]||'')}</td>`).join('')}</tr>`).join('')}
+    </table>`;
+    document.getElementById('import-info').innerHTML=`<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''}</span>`+(unbekannt.length?`<span style="color:var(--warn);margin-left:8px">⚠ Unbekannte Spalten: ${unbekannt.join(', ')}</span>`:'');
+    document.getElementById('import-preview-wrap').style.display='block';
+    document.getElementById('btn-import-run').style.display='inline-flex';
+    document.getElementById('import-result').style.display='none';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function runImport(){
+  if(!_importParsed)return;
+  const sp=document.getElementById('import-sp');sp.style.display='inline-block';
+  document.getElementById('btn-import-run').disabled=true;
+  const{headers,rows}=_importParsed;const overwrite=document.getElementById('import-overwrite')?.checked||false;
+  const hMap={};headers.forEach((h,i)=>{const col=IMPORT_COLS.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)hMap[i]=col.key;});
+  let imported=0,skipped=0;const errors=[];
+  for(const row of rows){
+    if(row.every(c=>!c.trim()))continue;
+    const obj={id:uid('PSA'),createdAt:new Date().toISOString()};
+    Object.entries(hMap).forEach(([i,key])=>{const val=row[parseInt(i)]?.trim()||'';
+      if(key==='klassen')obj[key]=val.split(';').map(s=>s.trim()).filter(Boolean);
+      else obj[key]=val;
+    });
+    if(!obj.norm&&obj.kategorie&&obj.unterkat)obj.norm=PSA_KATEGORIEN[obj.kategorie]?.unterkat?.[obj.unterkat]?.norm||'';
+    obj.gbu_daten={kategorie:obj.kategorie,unterkat:obj.unterkat,norm:obj.norm,klassen:obj.klassen||[],hinweis_einsatz:obj.hinweis_einsatz||''};
+    if(!obj.name){errors.push('Zeile ohne Bezeichnung');skipped++;continue;}
+    const dupe=_items.find(x=>x.name?.toLowerCase()===obj.name.toLowerCase());
+    if(dupe&&!overwrite){skipped++;continue;}if(dupe&&overwrite)obj.id=dupe.id;
+    try{await psaSave(obj);imported++;}catch(e){errors.push(obj.name+': '+e.message);skipped++;}
+  }
+  _items=await psaGetAll()||[];renderList();
+  const res=document.getElementById('import-result');const hasErr=errors.length>0;
+  res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;margin-top:8px;background:${hasErr?'var(--warn-bg)':'var(--ok-bg)'};border:0.5px solid ${hasErr?'var(--warn-border)':'var(--ok-border)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;
+  res.innerHTML=`<div style="font-weight:500">${imported} von ${rows.length} importiert${skipped?' · '+skipped+' übersprungen':''}</div>`+(errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+'</div>':'');
+  sp.style.display='none';document.getElementById('btn-import-run').disabled=false;
+  if(imported>0)toast(imported+' PSA importiert ✓','ok');
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const fKat=document.getElementById('exp-kat').value;
+  const fSt=document.getElementById('exp-status').value;
+  let data=_items.filter(x=>{
+    if(fKat&&x.kategorie!==fKat)return false;
+    if(fSt){const a=getAblaufAmpel(x);if(!a||a.status!==fSt)return false;}
+    return true;
+  });
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const cols=[...IMPORT_COLS];
+  const csv='\uFEFF'+cols.map(c=>escape(c.label)).join(';')+'\n'+
+    data.map(m=>cols.map(c=>{
+      if(c.key==='klassen')return escape((m.klassen||[]).join('; '));
+      return escape(m[c.key]||'');
+    }).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='PSA_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
+  a.click();URL.revokeObjectURL(url);closeM('m-export');toast('CSV exportiert ✓','ok');
+}
+
+function openUserMenu(){
+  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=_profile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  openM('m-user');
+}
+</script>
+</body>
+</html>

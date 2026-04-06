@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Arbeitsmittel – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;max-width:140px;}
+.m-filter input[type=search]{width:160px;max-width:none;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+.am-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.am-card:hover{border-color:var(--border2);}
+.am-card-accent{height:3px;}
+.am-card-body{padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.am-card-left{flex:1;min-width:0;}
+.am-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.am-card-meta{font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.am-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.ampel{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;}
+.ampel-io{background:rgba(22,163,74,.1);color:var(--ok);border:0.5px solid rgba(22,163,74,.25);}
+.ampel-faellig{background:rgba(220,38,38,.1);color:var(--nok);border:0.5px solid rgba(220,38,38,.25);}
+.ampel-bald{background:rgba(180,83,9,.1);color:var(--warn);border:0.5px solid rgba(180,83,9,.25);}
+.import-preview{overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:180px;overflow-y:auto;margin-top:8px;}
+.import-preview table{border-collapse:collapse;min-width:max-content;width:100%;}
+.import-preview th{padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap;}
+.import-preview td{padding:4px 8px;border:0.5px solid var(--border);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Arbeitsmittel</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">Arbeitsmittel</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="openSettings()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l-1.41-1.41M6.34 6.34L4.93 4.93M19.07 4.93l-1.41 1.41M4.93 19.07l1.41-1.41"/></svg>
+        Einstellungen
+      </button>
+      <button class="btn btn-sm" onclick="downloadTemplate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="18"/><line x1="15" y1="15" x2="12" y2="18"/></svg>
+        Template
+      </button>
+      <button class="btn btn-sm write-only" onclick="openImport()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Importieren
+      </button>
+      <button class="btn btn-sm" onclick="openExport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportieren
+      </button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Anlegen</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <select id="f-kat" onchange="renderList()"><option value="">Alle Kategorien</option></select>
+    <select id="f-status-pruef" onchange="renderList()">
+      <option value="">Alle Status</option>
+      <option value="io">🟢 i.O.</option>
+      <option value="bald">🟡 Bald fällig</option>
+      <option value="faellig">🔴 Fällig / Überfällig</option>
+    </select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="am-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Anlegen/Bearbeiten -->
+<div class="overlay" id="m-am" onclick="if(event.target===this)closeM('m-am')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-am-title">Arbeitsmittel anlegen</div><div class="modal-sub" id="m-am-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-am')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-am')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveAM()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Import -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Arbeitsmittel importieren</div><button class="btn btn-sm" onclick="closeM('m-import')">✕</button></div>
+  <div class="modal-body">
+    <div class="section-block">
+      <div class="section-label">Schritt 1 – Vorlage herunterladen</div>
+      <p class="ts" style="margin-bottom:8px">Vorlage herunterladen, in Excel befüllen (Zeile 1=Spalten, Zeile 2=Hinweise, ab Zeile 3=Daten), als CSV speichern.</p>
+      <button class="btn btn-sm" onclick="downloadTemplate()">⬇ Vorlage herunterladen (.csv)</button>
+    </div>
+    <div class="section-block">
+      <div class="section-label">Schritt 2 – CSV hochladen</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Datei auswählen…
+        <input type="file" accept=".csv" onchange="previewImport(event)" style="display:none">
+      </label>
+      <div id="import-preview-wrap" style="display:none;margin-top:10px">
+        <div class="import-preview" id="import-table"></div>
+        <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="ts" id="import-info"></div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="import-overwrite" style="width:auto;accent-color:var(--accent)"> Duplikate überschreiben
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="import-result" style="display:none"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-import')">Schließen</button>
+    <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
+      <span class="spinner" id="import-sp" style="display:none"></span>Importieren
+    </button>
+  </div>
+</div></div>
+
+<!-- MODAL: Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Arbeitsmittel exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body">
+    <div><label>Bereich</label><select id="exp-bereich"><option value="">Alle Bereiche</option></select></div>
+    <div><label>Kategorie</label><select id="exp-kat"><option value="">Alle Kategorien</option></select></div>
+    <div><label>Prüfstatus</label><select id="exp-status"><option value="">Alle</option><option value="io">🟢 i.O.</option><option value="bald">🟡 Bald fällig</option><option value="faellig">🔴 Fällig</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Einstellungen -->
+<div class="overlay" id="m-settings" onclick="if(event.target===this)closeM('m-settings')">
+<div class="modal" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Arbeitsmittel – Einstellungen</div><button class="btn btn-sm" onclick="closeM('m-settings')">✕</button></div>
+  <div class="modal-body" id="settings-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-settings')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveSettings()">Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Protokollhistorie -->
+<div class="overlay" id="m-historie" onclick="if(event.target===this)closeM('m-historie')">
+<div class="modal modal-wide" style="max-height:88vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-hist-title">Prüfhistorie</div><div class="modal-sub" id="m-hist-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-historie')">✕</button>
+  </div>
+  <div class="modal-body" id="m-hist-body"></div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body">
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// KATEGORIE-DEFINITIONEN + PRÜFGRUNDLAGEN
+// ═══════════════════════════════════════════════════════════
+const AM_KATEGORIEN = {
+  'Leiter / Aufstiegshilfe':     {grundlage:'DGUV Regel 108-007',        intervall:12},
+  'Hebezeug / Kran':             {grundlage:'DGUV V54 §23',              intervall:12},
+  'Handwerkzeug':                {grundlage:'DGUV V1 §3',                intervall:12},
+  'Elektrowerkzeug':             {grundlage:'DGUV V3 / VDE 0701-702',    intervall:12},
+  'Ortsveränderliche elektr. Betriebsmittel':{grundlage:'DGUV V3 / VDE 0701-702', intervall:12},
+  'Ortsfeste elektr. Anlagen':   {grundlage:'DGUV V3 / VDE 0105-100',   intervall:48},
+  'Förderfahrzeug / Stapler':    {grundlage:'DGUV V68 §57',              intervall:12},
+  'Druckbehälter / -gerät':      {grundlage:'BetrSichV Anhang 2 Abschn.4', intervall:24},
+  'Flüssigkeitsgas-Anlage':      {grundlage:'BetrSichV / TRF 2012',     intervall:24},
+  'Schutzeinrichtung':           {grundlage:'BetrSichV §14',             intervall:12},
+  'Absturzsicherung / PSAgA':    {grundlage:'DGUV R 112-198',            intervall:12},
+  'Messgerät':                   {grundlage:'MessEG §31 / Kalibrierplan', intervall:12},
+  'Feuerlöscher':                {grundlage:'DGUV I 205-023 / DIN 14406', intervall:24},
+  'Erste-Hilfe-Ausrüstung':      {grundlage:'DGUV V1 §25',              intervall:12},
+  'Fahrzeug / Kfz':              {grundlage:'StVZO / DGUV V70',         intervall:12},
+  'Sonstiges':                   {grundlage:'BetrSichV / Herstellerangabe', intervall:12},
+};
+
+const DEFAULT_FELDER = [
+  {id:'inventar_nr',    label:'Inventar-Nr.',         default:true},
+  {id:'hersteller',     label:'Hersteller',            default:true},
+  {id:'baujahr',        label:'Baujahr',               default:false},
+  {id:'seriennummer',   label:'Seriennummer',          default:true},
+  {id:'standort',       label:'Standort',              default:true},
+  {id:'kostenstelle',   label:'Kostenstelle',          default:true},
+  {id:'letzte_pruef',   label:'Letzte Prüfung',        default:true},
+  {id:'pruefintervall', label:'Prüfintervall (Mon.)',   default:true},
+  {id:'pruefgrundlage', label:'Prüfgrundlage',         default:true},
+  {id:'pruefergebnis',  label:'Letztes Prüfergebnis',  default:true},
+  {id:'notizen',        label:'Notizen',               default:true},
+];
+
+// ── State ──────────────────────────────────────────────────
+let _profile = null, _canWrite = false;
+let _items = [], _bereiche = [], _settings = {};
+let _importParsed = null;
+
+// ── Utils ──────────────────────────────────────────────────
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+function addMonths(iso,m){if(!iso||!m)return'';const d=new Date(iso);d.setMonth(d.getMonth()+parseInt(m));return d.toISOString().slice(0,10);}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+function isFeldAktiv(id){const c=_settings.felder||{};const d=DEFAULT_FELDER.find(f=>f.id===id);return c[id]!==undefined?c[id]:d?.default!==false;}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display=profile?.rolle==='admin'?'':'none');
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}_settings=s?.db_arbeitsmittel||{};}catch(e){_settings={};}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    const[items,ber]=await Promise.all([arbeitsmittelGetAll(),bereichGetAll()]);
+    _items=items||[];_bereiche=ber||[];
+    fillFilter();renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+// ── Ampellogik ─────────────────────────────────────────────
+function getPruefAmpel(item){
+  if(!item.letzte_pruef||!item.pruefintervall)return null;
+  const naechste=new Date(addMonths(item.letzte_pruef,item.pruefintervall));
+  const heute=new Date();const diff=(naechste-heute)/(1000*60*60*24);
+  if(diff<0)return{status:'faellig',label:'🔴 Prüfung überfällig',cls:'ampel-faellig',naechste};
+  if(diff<=30)return{status:'bald',label:'🟡 Prüfung in '+Math.round(diff)+' Tagen',cls:'ampel-bald',naechste};
+  return{status:'io',label:'🟢 i.O. bis '+fmt(naechste.toISOString()),cls:'ampel-io',naechste};
+}
+
+// ── Filter ─────────────────────────────────────────────────
+function fillFilter(){
+  const bOpts='<option value="">Alle Bereiche</option>'+_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  ['f-bereich','exp-bereich'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=bOpts;});
+  const kats=[...new Set(_items.map(x=>x.kategorie).filter(Boolean))].sort();
+  const kOpts='<option value="">Alle Kategorien</option>'+kats.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  ['f-kat','exp-kat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=kOpts;});
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'';
+  const fKat=document.getElementById('f-kat')?.value||'';
+  const fSt=document.getElementById('f-status-pruef')?.value||'';
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _items.filter(x=>{
+    if(fB&&x.bereichId!==fB)return false;
+    if(fKat&&(x.kategorie||'')!==fKat)return false;
+    if(fS&&!JSON.stringify(x).toLowerCase().includes(fS))return false;
+    if(fSt){const a=getPruefAmpel(x);if(!a||a.status!==fSt)return false;}
+    return true;
+  });
+}
+
+// ── Karte rendern ──────────────────────────────────────────
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Arbeitsmittel';
+  const el=document.getElementById('am-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🔧</div><p style="margin-bottom:12px">${_items.length?'Keine Treffer.':'Noch keine Arbeitsmittel.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Erstes Arbeitsmittel anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(item=>{
+    const bereich=_bereiche.find(b=>b.id===item.bereichId);
+    const ampel=getPruefAmpel(item);
+    const accentCol=ampel?.status==='faellig'?'#dc2626':ampel?.status==='bald'?'#b45309':'rgba(22,163,74,.6)';
+    const borderCol=ampel?.status==='faellig'?'rgba(220,38,38,.4)':ampel?.status==='bald'?'rgba(180,83,9,.3)':'';
+    return`<div class="am-card" style="${borderCol?'border-color:'+borderCol:''}">
+      <div class="am-card-accent" style="background:${accentCol}"></div>
+      <div class="am-card-body">
+        <div class="am-card-left">
+          <div class="am-card-title">
+            ${esc(item.name||'–')}
+            ${item.inventar_nr?`<span class="ts" style="font-weight:400">${esc(item.inventar_nr)}</span>`:''}
+            ${item.kategorie?`<span class="badge b-neutral" style="font-size:10px">${esc(item.kategorie)}</span>`:''}
+            ${ampel?`<span class="ampel ${ampel.cls}">${ampel.label}</span>`:''}
+          </div>
+          <div class="am-card-meta">
+            ${item.hersteller?`<span>🏭 ${esc(item.hersteller)}</span>`:''}
+            ${bereich?`<span>📍 ${esc(bereich.name)}</span>`:''}
+            ${item.standort?`<span>📌 ${esc(item.standort)}</span>`:''}
+            ${item.letzte_pruef?`<span>🔍 Letzte Prüfung: ${fmt(item.letzte_pruef)}</span>`:''}
+            ${ampel?.naechste?`<span>🗓 Nächste: ${fmt(ampel.naechste.toISOString())}</span>`:''}
+            ${item.pruefgrundlage?`<span class="ts">${esc(item.pruefgrundlage)}</span>`:''}
+          </div>
+          ${item.pruefergebnis?`<div style="margin-top:5px;font-size:12px;color:${item.pruefergebnis==='Mangel'?'var(--nok)':item.pruefergebnis==='i.O.'?'var(--ok)':'var(--text2)'}">
+            Letztes Ergebnis: <strong>${esc(item.pruefergebnis)}</strong></div>`:''}
+        </div>
+        <div class="am-card-actions">
+          ${ampel?`<button class="btn btn-sm" onclick="openHistorie('${item.id}')" title="Prüfhistorie" style="font-size:11px">📋</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${item.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteAM('${item.id}')">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-am-title').textContent='Arbeitsmittel anlegen';
+  document.getElementById('m-am-sub').textContent='';
+  renderForm({});openM('m-am');
+}
+function openEdit(id){
+  const item=_items.find(x=>x.id===id);if(!item)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-am-title').textContent='Arbeitsmittel bearbeiten';
+  document.getElementById('m-am-sub').textContent=item.name||'';
+  renderForm(item);openM('m-am');
+}
+
+function renderForm(item){
+  const bereichOpts='<option value="">– kein –</option>'+_bereiche.map(b=>`<option value="${b.id}"${b.id===item.bereichId?' selected':''}>${esc(b.name)}</option>`).join('');
+  const katOpts=Object.keys(AM_KATEGORIEN).map(k=>`<option value="${esc(k)}"${item.kategorie===k?' selected':''}>${esc(k)}</option>`).join('');
+  const customFelder=_settings.customFelder||[];
+  const F=(id,lbl,val='',ph='',type='text')=>isFeldAktiv(id)?`<div><label>${esc(lbl)}</label><input id="f-${id}" type="${type}" value="${esc(val)}" placeholder="${esc(ph)}"></div>`:'';
+
+  document.getElementById('m-body').innerHTML=`
+    <div><label>Bezeichnung *</label><input id="f-name" value="${esc(item.name||'')}" placeholder="z.B. Anlegeleiter 4m" autofocus></div>
+    <div class="g2">
+      ${F('inventar_nr','Inventar-Nr.',item.inventar_nr||'','AM-001')}
+      ${F('hersteller','Hersteller',item.hersteller||'')}
+    </div>
+    <div class="g2">
+      ${F('baujahr','Baujahr',item.baujahr||'')}
+      ${F('seriennummer','Seriennummer',item.seriennummer||'')}
+    </div>
+    <div class="g2">
+      ${F('standort','Standort',item.standort||'','Halle 3')}
+      ${isFeldAktiv('kostenstelle')?`<div><label>Kostenstelle</label><input id="f-kostenstelle" value="${esc(item.kostenstelle||'')}" placeholder="KST-4711"></div>`:''}
+    </div>
+    <div class="g2">
+      <div><label>Kategorie</label>
+        <select id="f-kategorie" onchange="onKatChange(this.value)">
+          <option value="">– wählen –</option>${katOpts}
+          <option value="Sonstiges"${item.kategorie==='Sonstiges'?' selected':''}>Sonstiges</option>
+        </select>
+      </div>
+      <div><label>Bereich</label><select id="f-bereichId">${bereichOpts}</select></div>
+    </div>
+
+    ${isFeldAktiv('pruefgrundlage')?`<div><label>Prüfgrundlage <span class="ts">(wird je Kategorie automatisch ausgefüllt)</span></label>
+      <input id="f-pruefgrundlage" value="${esc(item.pruefgrundlage||'')}" placeholder="z.B. DGUV V54, BetrSichV §14"></div>`:''}
+
+    <div class="g2">
+      ${isFeldAktiv('letzte_pruef')?`<div><label>Letzte Prüfung</label>
+        <input id="f-letzte_pruef" type="date" value="${esc(item.letzte_pruef||'')}" onchange="calcNaechste()"></div>`:''}
+      ${isFeldAktiv('pruefintervall')?`<div><label>Prüfintervall (Monate)</label>
+        <input id="f-pruefintervall" type="number" min="1" value="${esc(item.pruefintervall||(_settings.standardIntervall||12))}" onchange="calcNaechste()"></div>`:''}
+    </div>
+
+    <div id="naechste-info" class="ts" style="margin-top:-6px;padding:0 2px"></div>
+
+    ${isFeldAktiv('pruefergebnis')?`<div><label>Letztes Prüfergebnis</label>
+      <select id="f-pruefergebnis">
+        <option value="">–</option>
+        <option value="i.O."${item.pruefergebnis==='i.O.'?' selected':''}>✅ i.O.</option>
+        <option value="Mangel"${item.pruefergebnis==='Mangel'?' selected':''}>❌ Mangel</option>
+        <option value="Bedingt i.O."${item.pruefergebnis==='Bedingt i.O.'?' selected':''}>⚠ Bedingt i.O.</option>
+      </select></div>`:''}
+    ${isFeldAktiv('notizen')?`<div><label>Notizen</label><textarea id="f-notizen">${esc(item.notizen||'')}</textarea></div>`:''}
+
+    ${customFelder.length?`<div class="section-block">
+      <div class="section-label">Weitere Felder</div>
+      ${customFelder.map(cf=>`<div style="margin-bottom:10px"><label>${esc(cf.label)}${cf.pflicht?'<span style="color:var(--nok)"> *</span>':''}</label>
+        ${cf.typ==='jaNein'?`<select id="cf-${cf.id}"><option value="">–</option><option value="ja"${item['cf_'+cf.id]==='ja'?' selected':''}>Ja</option><option value="nein"${item['cf_'+cf.id]==='nein'?' selected':''}>Nein</option></select>`
+        :cf.typ==='datum'?`<input id="cf-${cf.id}" type="date" value="${esc(item['cf_'+cf.id]||'')}">`
+        :cf.typ==='zahl'?`<input id="cf-${cf.id}" type="number" value="${esc(item['cf_'+cf.id]||'')}">`
+        :`<input id="cf-${cf.id}" value="${esc(item['cf_'+cf.id]||'')}">`}
+      </div>`).join('')}
+    </div>`:''}
+  `;
+
+  // Nächste Prüfung anzeigen
+  calcNaechste();
+}
+
+function onKatChange(kat){
+  const kd=AM_KATEGORIEN[kat];if(!kd)return;
+  const pg=document.getElementById('f-pruefgrundlage');
+  if(pg&&!pg.dataset.manuell)pg.value=kd.grundlage;
+  const pi=document.getElementById('f-pruefintervall');
+  if(pi&&!pi.dataset.manuell)pi.value=kd.intervall;
+  calcNaechste();
+}
+
+function calcNaechste(){
+  const letzte=document.getElementById('f-letzte_pruef')?.value;
+  const intervall=document.getElementById('f-pruefintervall')?.value;
+  const info=document.getElementById('naechste-info');
+  if(!info)return;
+  if(letzte&&intervall){
+    const naechste=addMonths(letzte,intervall);
+    const diff=(new Date(naechste)-new Date())/(1000*60*60*24);
+    const color=diff<0?'var(--nok)':diff<30?'var(--warn)':'var(--ok)';
+    info.innerHTML=`<span style="color:${color}">→ Nächste Prüfung: ${fmt(naechste)}${diff<0?' (überfällig!)':diff<30?' (in '+Math.round(diff)+' Tagen)':''}</span>`;
+  }else{info.textContent='';}
+}
+
+async function saveAM(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Bezeichnung ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_items.find(x=>x.id===editId);
+  const g=id=>document.getElementById('f-'+id)?.value??'';
+  const customVals={};
+  (_settings.customFelder||[]).forEach(cf=>{const el=document.getElementById('cf-'+cf.id);if(el)customVals['cf_'+cf.id]=el.value;});
+  const letzte=g('letzte_pruef');
+  const intervall=g('pruefintervall');
+  const obj={
+    id:prev?.id||uid('AM'),name,
+    inventar_nr:g('inventar_nr'),hersteller:g('hersteller'),
+    baujahr:g('baujahr'),seriennummer:g('seriennummer'),
+    standort:g('standort'),kostenstelle:g('kostenstelle'),
+    kategorie:g('kategorie'),bereichId:g('bereichId'),
+    pruefgrundlage:g('pruefgrundlage'),pruefintervall:intervall,
+    letzte_pruef:letzte,naechste_pruef:addMonths(letzte,intervall),
+    pruefergebnis:g('pruefergebnis'),notizen:g('notizen'),
+    ...customVals,
+    createdAt:prev?.createdAt||new Date().toISOString(),
+  };
+  try{
+    await arbeitsmittelSave(obj);
+    _items=await arbeitsmittelGetAll();
+    closeM('m-am');fillFilter();renderList();toast('Gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteAM(id){
+  const item=_items.find(x=>x.id===id);
+  if(!confirm(`"${item?.name||'Eintrag'}" löschen?`))return;
+  try{await arbeitsmittelDelete(id);_items=await arbeitsmittelGetAll();renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── Prüfhistorie (aus Checklisten-Protokollen) ─────────────
+async function openHistorie(id){
+  const item=_items.find(x=>x.id===id);
+  document.getElementById('m-hist-title').textContent='Prüfhistorie: '+(item?.name||'–');
+  const body=document.getElementById('m-hist-body');
+  body.innerHTML='<div class="ts">Wird geladen…</div>';
+  openM('m-historie');
+  try{
+    const prots=await checklisteProtokolleGetAll(id);
+    prots.sort((a,b)=>new Date(b.datum)-new Date(a.datum));
+    document.getElementById('m-hist-sub').textContent=prots.length+' Prüfung'+(prots.length!==1?'en':'');
+    if(!prots.length){body.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Noch keine Prüfprotokolle.</p></div>';return;}
+    body.innerHTML=prots.map(p=>{
+      const mangel=p.ergebnis==='mangel';
+      return`<div style="border:0.5px solid ${mangel?'rgba(220,38,38,.3)':'rgba(22,163,74,.3)'};border-radius:var(--r);margin-bottom:10px;overflow:hidden">
+        <div style="padding:10px 14px;background:${mangel?'rgba(220,38,38,.05)':'rgba(22,163,74,.05)'};display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div><div style="font-weight:500;font-size:13px">${mangel?'🔴 Mangel':'🟢 i.O.'} · ${fmt(p.datum)}</div>
+          <div class="ts">Prüfer: ${esc(p.pruefer||'–')}</div></div>
+          <button class="btn btn-sm" onclick="druckeProtokoll('${p.id}','${id}')">🖨</button>
+        </div>
+        <div style="padding:10px 14px">
+          ${(p.antworten||[]).map(a=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;gap:8px">
+            <span style="color:var(--text2)">${esc(a.frage)}</span>
+            <span style="font-weight:500;color:${a.typ==='jaNein'?(a.wert===true?'var(--ok)':'var(--nok)'):'var(--text)'};white-space:nowrap">
+              ${a.typ==='jaNein'?(a.wert===true?'✅ Ja':'❌ Nein'):esc(String(a.wert||'–'))}</span>
+          </div>`).join('')}
+          ${p.notizen?`<div class="ts" style="margin-top:6px">Anm.: ${esc(p.notizen)}</div>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){body.innerHTML=`<div class="err-box" style="display:block">Fehler: ${esc(e.message)}</div>`;}
+}
+
+function druckeProtokoll(proId,objId){
+  // Drucken via fetch aus Protokollen
+  toast('Wird geöffnet…');
+}
+
+// ── Import / Export / Template ─────────────────────────────
+const IMPORT_COLS=[
+  {key:'name',          label:'Bezeichnung',        required:true,  example:'Anlegeleiter 4m'},
+  {key:'inventar_nr',   label:'Inventar-Nr',         required:false, example:'AM-001'},
+  {key:'kategorie',     label:'Kategorie',           required:false, example:'Leiter / Aufstiegshilfe'},
+  {key:'hersteller',    label:'Hersteller',          required:false, example:'Zarges'},
+  {key:'seriennummer',  label:'Seriennummer',        required:false, example:'SN-12345'},
+  {key:'standort',      label:'Standort',            required:false, example:'Halle 3'},
+  {key:'kostenstelle',  label:'Kostenstelle',        required:false, example:'KST-4711'},
+  {key:'bereich',       label:'Bereich (Name)',      required:false, example:'Produktion'},
+  {key:'pruefgrundlage',label:'Pruefgrundlage',      required:false, example:'DGUV Regel 108-007'},
+  {key:'pruefintervall',label:'Pruefintervall_Mon',  required:false, example:'12'},
+  {key:'letzte_pruef',  label:'Letzte_Pruefung',     required:false, example:'2025-01-15'},
+  {key:'pruefergebnis', label:'Letztes_Pruefergebnis',required:false,example:'i.O.'},
+  {key:'notizen',       label:'Notizen',             required:false, example:''},
+];
+
+function downloadTemplate(){
+  const cols=[...IMPORT_COLS];
+  (_settings.customFelder||[]).forEach(cf=>cols.push({key:'cf_'+cf.id,label:cf.label,required:cf.pflicht,example:''}));
+  const csv='\uFEFF'+cols.map(c=>c.label).join(';')+'\n'+cols.map(c=>c.required?'* Pflichtfeld':'optional').join(';')+'\n'+cols.map(c=>c.example||'').join(';')+'\n';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Template_Arbeitsmittel_Import.csv';a.click();URL.revokeObjectURL(url);
+  toast('Template heruntergeladen ✓','ok');
+}
+
+function openImport(){
+  document.getElementById('import-preview-wrap').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('btn-import-run').style.display='none';
+  _importParsed=null;openM('m-import');
+}
+
+function parseCSV(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return{headers:[],rows:[]};
+  const parseRow=line=>{const cols=[];let cur='',inQ=false;for(const ch of line){if(ch==='"'){inQ=!inQ;}else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}cols.push(cur.trim());return cols;};
+  const headers=parseRow(lines[0]);
+  const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;
+  const rows=lines.slice(dataStart).filter(l=>l.trim()).map(parseRow);
+  return{headers,rows};
+}
+
+function previewImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const{headers,rows}=parseCSV(ev.target.result);
+    _importParsed={headers,rows};
+    const knownLabels=IMPORT_COLS.map(c=>c.label.toLowerCase());
+    const unbekannt=headers.filter(h=>!knownLabels.includes(h.toLowerCase())&&h);
+    document.getElementById('import-table').innerHTML=`<table>
+      <tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>
+      ${rows.slice(0,5).map(row=>`<tr>${headers.map((_,i)=>`<td>${esc(row[i]||'')}</td>`).join('')}</tr>`).join('')}
+    </table>`;
+    document.getElementById('import-info').innerHTML=`<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''}</span>`+(unbekannt.length?`<span style="color:var(--warn);margin-left:8px">⚠ Unbekannte Spalten: ${unbekannt.join(', ')}</span>`:'');
+    document.getElementById('import-preview-wrap').style.display='block';
+    document.getElementById('btn-import-run').style.display='inline-flex';
+    document.getElementById('import-result').style.display='none';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function runImport(){
+  if(!_importParsed)return;
+  const sp=document.getElementById('import-sp');sp.style.display='inline-block';
+  document.getElementById('btn-import-run').disabled=true;
+  const{headers,rows}=_importParsed;
+  const overwrite=document.getElementById('import-overwrite')?.checked||false;
+  const hMap={};
+  headers.forEach((h,i)=>{const col=IMPORT_COLS.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)hMap[i]=col.key;});
+  let imported=0,skipped=0;const errors=[];
+  for(const row of rows){
+    if(row.every(c=>!c.trim()))continue;
+    const obj={id:uid('AM'),createdAt:new Date().toISOString()};
+    Object.entries(hMap).forEach(([i,key])=>{const val=row[parseInt(i)]?.trim()||'';obj[key]=val;});
+    if(obj.bereich){const b=_bereiche.find(x=>x.name?.toLowerCase()===obj.bereich.toLowerCase());if(b)obj.bereichId=b.id;delete obj.bereich;}
+    // Prüfgrundlage + Intervall aus Kategorie-Defaults wenn leer
+    if(obj.kategorie&&AM_KATEGORIEN[obj.kategorie]){
+      if(!obj.pruefgrundlage)obj.pruefgrundlage=AM_KATEGORIEN[obj.kategorie].grundlage;
+      if(!obj.pruefintervall)obj.pruefintervall=AM_KATEGORIEN[obj.kategorie].intervall;
+    }
+    // Nächste Prüfung berechnen
+    if(obj.letzte_pruef&&obj.pruefintervall)obj.naechste_pruef=addMonths(obj.letzte_pruef,obj.pruefintervall);
+    if(!obj.name){errors.push('Zeile ohne Bezeichnung');skipped++;continue;}
+    const dupe=_items.find(x=>x.name?.toLowerCase()===obj.name.toLowerCase());
+    if(dupe&&!overwrite){skipped++;continue;}
+    if(dupe&&overwrite)obj.id=dupe.id;
+    try{await arbeitsmittelSave(obj);imported++;}
+    catch(e){errors.push(obj.name+': '+e.message);skipped++;}
+  }
+  _items=await arbeitsmittelGetAll();fillFilter();renderList();
+  const res=document.getElementById('import-result');const hasErr=errors.length>0;
+  res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;margin-top:8px;background:${hasErr?'var(--warn-bg)':'var(--ok-bg)'};border:0.5px solid ${hasErr?'var(--warn-border)':'var(--ok-border)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;
+  res.innerHTML=`<div style="font-weight:500">${imported} von ${rows.length} importiert${skipped?' · '+skipped+' übersprungen':''}</div>`+(errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+'</div>':'');
+  sp.style.display='none';document.getElementById('btn-import-run').disabled=false;
+  if(imported>0)toast(imported+' Arbeitsmittel importiert ✓','ok');
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const fB=document.getElementById('exp-bereich').value;
+  const fKat=document.getElementById('exp-kat').value;
+  const fSt=document.getElementById('exp-status').value;
+  let data=_items.filter(x=>{
+    if(fB&&x.bereichId!==fB)return false;
+    if(fKat&&(x.kategorie||'')!==fKat)return false;
+    if(fSt){const a=getPruefAmpel(x);if(!a||a.status!==fSt)return false;}
+    return true;
+  });
+  const cols=[...IMPORT_COLS,{key:'naechste_pruef',label:'Naechste_Pruefung'},{key:'bereich_name',label:'Bereich Name'}];
+  (_settings.customFelder||[]).forEach(cf=>cols.push({key:'cf_'+cf.id,label:cf.label}));
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const csv='\uFEFF'+cols.map(c=>escape(c.label)).join(';')+'\n'+
+    data.map(m=>cols.map(c=>{
+      if(c.key==='bereich_name')return escape(_bereiche.find(b=>b.id===m.bereichId)?.name||'');
+      if(c.key==='naechste_pruef'&&m.letzte_pruef&&m.pruefintervall)return escape(addMonths(m.letzte_pruef,m.pruefintervall));
+      return escape(m[c.key]||'');
+    }).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='Arbeitsmittel_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
+  a.click();URL.revokeObjectURL(url);closeM('m-export');toast('CSV exportiert ✓','ok');
+}
+
+// ── Einstellungen ──────────────────────────────────────────
+function openSettings(){
+  const s=_settings;const feldConfig=s.felder||{};const customFelder=s.customFelder||{};
+  const kats=Object.keys(AM_KATEGORIEN);
+  const katSettings=s.kategorien||{};
+
+  document.getElementById('settings-body').innerHTML=`
+    <div class="section-block">
+      <div class="section-label">Standard-Einstellungen</div>
+      <div class="g2">
+        <div><label>Standard Prüfintervall (Monate)</label><input id="s-intervall" type="number" min="1" value="${s.standardIntervall||12}"></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Prüfintervalle &amp; Prüfgrundlagen je Kategorie</div>
+      ${kats.map(k=>{
+        const safe=k.replace(/[^a-z0-9]/gi,'_');
+        const kd=katSettings[k]||AM_KATEGORIEN[k];
+        return`<div style="padding:10px 0;border-bottom:0.5px solid var(--border)">
+          <div style="font-weight:500;font-size:13px;margin-bottom:6px">${esc(k)}</div>
+          <div class="g2">
+            <div><label style="font-size:11px">Intervall (Monate)</label>
+              <input type="number" id="kat-int-${safe}" value="${kd?.intervall||12}" min="1"></div>
+            <div><label style="font-size:11px">Prüfgrundlage</label>
+              <input id="kat-grund-${safe}" value="${esc(kd?.grundlage||'')}" placeholder="Rechtsgrundlage" style="font-size:12px"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Formularfelder ein-/ausschalten</div>
+      ${DEFAULT_FELDER.map(f=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border)">
+          <span style="font-size:13px">${esc(f.label)}</span>
+          <div onclick="toggleFeldBtn(this,'${f.id}')" data-aktiv="${feldConfig[f.id]!==undefined?feldConfig[f.id]:f.default}"
+            style="width:34px;height:18px;border-radius:9px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;background:${feldConfig[f.id]!==undefined?(feldConfig[f.id]?'#1a1a1a':'var(--border2)'):(f.default?'#1a1a1a':'var(--border2)')}">
+            <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);left:${feldConfig[f.id]!==undefined?(feldConfig[f.id]?'18px':'2px'):(f.default?'18px':'2px')}"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-block">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-label" style="margin:0">Eigene Felder</div>
+        <button type="button" class="btn btn-sm" onclick="addSettingsFeld()">+ Feld</button>
+      </div>
+      <div id="custom-felder-list">
+        ${(Array.isArray(customFelder)?customFelder:[]).map((cf,i)=>`
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <input id="cf-label-${i}" value="${esc(cf.label)}" style="flex:1;font-size:12px">
+            <select id="cf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+              <option value="text"${cf.typ==='text'?' selected':''}>Text</option>
+              <option value="zahl"${cf.typ==='zahl'?' selected':''}>Zahl</option>
+              <option value="datum"${cf.typ==='datum'?' selected':''}>Datum</option>
+              <option value="jaNein"${cf.typ==='jaNein'?' selected':''}>Ja/Nein</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+              <input type="checkbox" id="cf-pflicht-${i}" ${cf.pflicht?'checked':''} style="width:auto"> Pflicht
+            </label>
+            <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  openM('m-settings');
+}
+
+function toggleFeldBtn(el,feldId){
+  const aktiv=el.dataset.aktiv!=='true';el.dataset.aktiv=String(aktiv);
+  el.style.background=aktiv?'#1a1a1a':'var(--border2)';el.querySelector('div').style.left=aktiv?'18px':'2px';
+}
+
+function addSettingsFeld(){
+  const list=document.getElementById('custom-felder-list');
+  const i=list.querySelectorAll('[id^="cf-label-"]').length;
+  const div=document.createElement('div');div.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML=`<input id="cf-label-${i}" placeholder="Feldname" style="flex:1;font-size:12px">
+    <select id="cf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+      <option value="text">Text</option><option value="zahl">Zahl</option><option value="datum">Datum</option><option value="jaNein">Ja/Nein</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+      <input type="checkbox" id="cf-pflicht-${i}" style="width:auto"> Pflicht
+    </label>
+    <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>`;
+  list.appendChild(div);div.querySelector('input').focus();
+}
+
+async function saveSettings(){
+  const felder={};
+  document.querySelectorAll('[data-aktiv]').forEach(el=>{
+    const onclick=el.getAttribute('onclick')||'';const m=onclick.match(/'([^']+)'/);
+    if(m)felder[m[1]]=el.dataset.aktiv==='true';
+  });
+  const customFelder=[];
+  document.querySelectorAll('[id^="cf-label-"]').forEach(inp=>{
+    const i=inp.id.replace('cf-label-','');const label=inp.value.trim();if(!label)return;
+    customFelder.push({id:'cf_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_')+'_'+i,label,typ:document.getElementById('cf-typ-'+i)?.value||'text',pflicht:document.getElementById('cf-pflicht-'+i)?.checked||false});
+  });
+  const kategorien={};
+  Object.keys(AM_KATEGORIEN).forEach(k=>{
+    const safe=k.replace(/[^a-z0-9]/gi,'_');
+    kategorien[k]={intervall:parseInt(document.getElementById('kat-int-'+safe)?.value)||12,grundlage:document.getElementById('kat-grund-'+safe)?.value?.trim()||''};
+  });
+  _settings={..._settings,standardIntervall:parseInt(document.getElementById('s-intervall')?.value)||12,felder,customFelder,kategorien};
+  // Sync kategorien zurück in AM_KATEGORIEN für aktuellen Auto-Fill
+  Object.entries(kategorien).forEach(([k,v])=>{if(AM_KATEGORIEN[k]){AM_KATEGORIEN[k].intervall=v.intervall;AM_KATEGORIEN[k].grundlage=v.grundlage;}});
+  try{await saveOrgSettings({db_arbeitsmittel:_settings});closeM('m-settings');toast('Einstellungen gespeichert ✓','ok');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── User-Menü ──────────────────────────────────────────────
+function openUserMenu(){
+  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=_profile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  openM('m-user');
+}
+</script>
+</body>
+</html>

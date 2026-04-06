@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Tätigkeiten – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;}
+.m-filter input[type=search]{width:200px;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+.t-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.t-card:hover{border-color:var(--border2);}
+.t-card-body{padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.t-card-left{flex:1;min-width:0;}
+.t-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.t-card-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.t-card-meta{font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.t-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.link-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;background:var(--info-bg);color:var(--info);border:0.5px solid var(--info-border);text-decoration:none;cursor:pointer;}
+.link-chip:hover{opacity:.8;}
+.dok-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px;}
+.dok-row:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Tätigkeiten</span>
+  </div>
+  <div class="topnav-right">
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">Tätigkeiten</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="openExport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportieren
+      </button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Anlegen</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="t-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Anlegen/Bearbeiten -->
+<div class="overlay" id="m-taet" onclick="if(event.target===this)closeM('m-taet')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-taet-title">Tätigkeit anlegen</div><div class="modal-sub" id="m-taet-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-taet')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-taet')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveTaet()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Tätigkeiten exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body">
+    <div><label>Bereich</label><select id="exp-bereich"><option value="">Alle Bereiche</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body"><button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+let _profile=null,_canWrite=false;
+let _items=[],_bereiche=[];
+let _editDoks=[];
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}catch(e){}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    const[items,ber]=await Promise.all([taetigkeitGetAll(),bereichGetAll()]);
+    _items=items||[];_bereiche=ber||[];
+    fillFilter();renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+function fillFilter(){
+  const opts='<option value="">Alle Bereiche</option>'+_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  ['f-bereich','exp-bereich'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=opts;});
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'';
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _items.filter(x=>{
+    if(fB&&x.bereichId!==fB)return false;
+    if(fS&&!JSON.stringify(x).toLowerCase().includes(fS))return false;
+    return true;
+  });
+}
+
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Tätigkeit'+(data.length!==1?'en':'');
+  const el=document.getElementById('t-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">⚙</div><p style="margin-bottom:12px">${_items.length?'Keine Treffer.':'Noch keine Tätigkeiten.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Erste Tätigkeit anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(t=>{
+    const bereich=_bereiche.find(b=>b.id===t.bereichId);
+    const doks=t.dokumente||[];
+    const links=t.links||[];
+    return`<div class="t-card">
+      <div class="t-card-body">
+        <div class="t-card-left">
+          <div class="t-card-title">
+            ${t.nr?`<span class="badge b-neutral" style="font-size:10px">${esc(t.nr)}</span>`:''}
+            ${esc(t.name||'–')}
+          </div>
+          ${t.beschreibung?`<div class="t-card-desc">${esc(t.beschreibung)}</div>`:''}
+          <div class="t-card-meta">
+            ${bereich?`<span>📍 ${esc(bereich.name)}</span>`:''}
+            ${doks.length?`<span>📄 ${doks.length} Dokument${doks.length!==1?'e':''}</span>`:''}
+            ${links.length?`<span>🔗 ${links.length} Link${links.length!==1?'s':''}</span>`:''}
+          </div>
+          ${links.length?`<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+            ${links.map(l=>`<a class="link-chip" href="${esc(l.url)}" target="_blank" rel="noopener">🔗 ${esc(l.titel||l.url)}</a>`).join('')}
+          </div>`:''}
+        </div>
+        <div class="t-card-actions">
+          ${doks.length?`<button class="btn btn-sm" onclick="showDoks('${t.id}')" title="Dokumente" style="font-size:11px">📄</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${t.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteTaet('${t.id}')">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-taet-title').textContent='Tätigkeit anlegen';
+  document.getElementById('m-taet-sub').textContent='';
+  _editDoks=[];renderForm({});openM('m-taet');
+}
+function openEdit(id){
+  const item=_items.find(x=>x.id===id);if(!item)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-taet-title').textContent='Tätigkeit bearbeiten';
+  document.getElementById('m-taet-sub').textContent=item.name||'';
+  _editDoks=JSON.parse(JSON.stringify(item.dokumente||[]));
+  renderForm(item);openM('m-taet');
+}
+
+function renderForm(t){
+  const bereichOpts='<option value="">– kein –</option>'+_bereiche.map(b=>`<option value="${b.id}"${b.id===t.bereichId?' selected':''}>${esc(b.name)}</option>`).join('');
+  const links=t.links||[];
+  document.getElementById('m-body').innerHTML=`
+    <div class="g2">
+      <div><label>Bezeichnung *</label><input id="f-name" value="${esc(t.name||'')}" placeholder="z.B. Schweißarbeiten" autofocus></div>
+      <div><label>Nummer / Kennung</label><input id="f-nr" value="${esc(t.nr||'')}" placeholder="T-001"></div>
+    </div>
+    <div><label>Bereich</label><select id="f-bereichId">${bereichOpts}</select></div>
+    <div><label>Beschreibung der Tätigkeit</label>
+      <textarea id="f-beschreibung" rows="5" placeholder="Detaillierte Beschreibung des Arbeitsablaufs, eingesetzte Verfahren, Umgebungsbedingungen…">${esc(t.beschreibung||'')}</textarea></div>
+    <div><label>Notizen</label><textarea id="f-notizen" rows="2">${esc(t.notizen||'')}</textarea></div>
+
+    <!-- Verlinkungen zu Technischen Richtlinien -->
+    <div class="section-block">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="section-label" style="margin:0">Verlinkungen (TRGS, DGUV, Hersteller etc.)</div>
+        <button type="button" class="btn btn-sm" onclick="addLink()">+ Link</button>
+      </div>
+      <div id="links-list">
+        ${links.map((l,i)=>renderLinkRow(l,i)).join('')}
+      </div>
+      ${!links.length?'<div class="ts" style="padding:4px 0">Noch keine Links. Z.B. TRGS 528, DGUV Regel 109-002…</div>':''}
+    </div>
+
+    <!-- Dokumente -->
+    <div class="section-block">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div class="section-label" style="margin:0">Dokumente (Betriebsanweisungen, Richtlinien)</div>
+        <label style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px;background:var(--surface2)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+          PDF hochladen
+          <input type="file" accept=".pdf,.doc,.docx" multiple style="display:none" onchange="addDok(event)">
+        </label>
+      </div>
+      <div id="dok-list">${renderDokList()}</div>
+    </div>
+  `;
+}
+
+function renderLinkRow(l,i){
+  return`<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px" id="link-row-${i}">
+    <input id="link-titel-${i}" value="${esc(l.titel||'')}" placeholder="Bezeichnung (z.B. TRGS 528)" style="flex:1;font-size:12px">
+    <input id="link-url-${i}" value="${esc(l.url||'')}" placeholder="https://…" style="flex:2;font-size:12px">
+    <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>
+  </div>`;
+}
+
+function addLink(){
+  const list=document.getElementById('links-list');
+  const i=list.querySelectorAll('[id^="link-row-"]').length;
+  const div=document.createElement('div');div.id='link-row-'+i;
+  div.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML=`<input id="link-titel-${i}" placeholder="Bezeichnung (z.B. TRGS 528)" style="flex:1;font-size:12px">
+    <input id="link-url-${i}" placeholder="https://…" style="flex:2;font-size:12px">
+    <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>`;
+  list.appendChild(div);div.querySelector('input').focus();
+}
+
+function getLinks(){
+  const links=[];
+  document.querySelectorAll('[id^="link-row-"]').forEach(row=>{
+    const i=row.id.replace('link-row-','');
+    const titel=document.getElementById('link-titel-'+i)?.value?.trim()||'';
+    const url=document.getElementById('link-url-'+i)?.value?.trim()||'';
+    if(url)links.push({titel,url});
+  });
+  return links;
+}
+
+function renderDokList(){
+  if(!_editDoks.length)return'<div class="ts" style="padding:4px 0">Noch keine Dokumente.</div>';
+  return _editDoks.map(d=>`<div class="dok-row">
+    <div style="width:30px;height:30px;border-radius:5px;background:var(--nok-bg);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📄</div>
+    <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)}</div></div>
+    <button class="btn btn-sm" onclick="openDok('${d.id}')">📖</button>
+    <button class="btn btn-sm btn-d" onclick="removeDok('${d.id}')">✕</button>
+  </div>`).join('');
+}
+function addDok(e){
+  const files=[...e.target.files];
+  files.forEach(f=>{
+    if(f.size>20*1024*1024){toast(f.name+' zu groß (max. 20 MB)','err');return;}
+    const r=new FileReader();
+    r.onload=ev=>{_editDoks.push({id:uid('D'),name:f.name,dataUrl:ev.target.result});
+      const dl=document.getElementById('dok-list');if(dl)dl.innerHTML=renderDokList();toast(f.name+' hochgeladen ✓','ok');};
+    r.readAsDataURL(f);
+  });e.target.value='';
+}
+function removeDok(id){_editDoks=_editDoks.filter(d=>d.id!==id);const dl=document.getElementById('dok-list');if(dl)dl.innerHTML=renderDokList();}
+function openDok(id){const d=_editDoks.find(x=>x.id===id);if(!d)return;const w=window.open();w.document.write(`<iframe src="${d.dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();}
+
+function showDoks(id){
+  const item=_items.find(x=>x.id===id);if(!item)return;
+  const doks=item.dokumente||[];
+  if(!doks.length)return;
+  if(doks.length===1){const w=window.open();w.document.write(`<iframe src="${doks[0].dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();return;}
+  const w=window.open();
+  w.document.write(`<html><head><meta charset="UTF-8"><title>Dokumente</title><style>body{font-family:sans-serif;padding:24px}a{display:block;padding:8px;margin-bottom:4px;background:#f5f5f3;border-radius:6px;text-decoration:none;color:#1a1a1a}a:hover{background:#e0e0d8}</style></head><body>
+  <h2>${esc(item.name)}</h2>${doks.map(d=>`<a href="${d.dataUrl}" target="_blank">📄 ${esc(d.name)}</a>`).join('')}</body></html>`);
+  w.document.close();
+}
+
+async function saveTaet(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Bezeichnung ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_items.find(x=>x.id===editId);
+  const obj={
+    id:prev?.id||uid('TAE'),name,
+    nr:document.getElementById('f-nr')?.value?.trim()||'',
+    bereichId:document.getElementById('f-bereichId')?.value||'',
+    beschreibung:document.getElementById('f-beschreibung')?.value?.trim()||'',
+    notizen:document.getElementById('f-notizen')?.value?.trim()||'',
+    links:getLinks(),
+    dokumente:_editDoks,
+    createdAt:prev?.createdAt||new Date().toISOString(),
+  };
+  try{
+    await taetigkeitSave(obj);_items=await taetigkeitGetAll()||[];
+    closeM('m-taet');fillFilter();renderList();toast('Gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteTaet(id){
+  const item=_items.find(x=>x.id===id);
+  if(!confirm(`"${item?.name||'Tätigkeit'}" löschen?`))return;
+  try{await taetigkeitDelete(id);_items=await taetigkeitGetAll()||[];renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const fB=document.getElementById('exp-bereich').value;
+  const data=_items.filter(x=>!fB||x.bereichId===fB);
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const csv='\uFEFF'+'Nummer;Bezeichnung;Bereich;Beschreibung;Links;Dokumente;Notizen\n'+
+    data.map(t=>[ t.nr, t.name, _bereiche.find(b=>b.id===t.bereichId)?.name||'',
+      t.beschreibung, (t.links||[]).map(l=>l.url).join(' | '),
+      (t.dokumente||[]).map(d=>d.name).join(' | '), t.notizen
+    ].map(escape).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='Taetigkeiten_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
+  a.click();URL.revokeObjectURL(url);closeM('m-export');toast('CSV exportiert ✓','ok');
+}
+
+function openUserMenu(){
+  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';openM('m-user');
+}
+</script>
+</body>
+</html>

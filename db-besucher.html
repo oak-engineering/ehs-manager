@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Besucher – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;}
+.m-filter input[type=search]{width:200px;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+.v-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.v-card:hover{border-color:var(--border2);}
+.v-card-body{padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.v-card-left{flex:1;min-width:0;}
+.v-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.v-card-meta{font-size:11px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.v-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.status-aktiv{background:rgba(22,163,74,.1);color:var(--ok);border:0.5px solid rgba(22,163,74,.25);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.status-vergangen{background:var(--surface3);color:var(--text3);border:0.5px solid var(--border);padding:2px 8px;border-radius:20px;font-size:11px;}
+.status-heute{background:rgba(37,99,235,.1);color:var(--info);border:0.5px solid rgba(37,99,235,.25);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;}
+.import-preview{overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:180px;overflow-y:auto;margin-top:8px;}
+.import-preview table{border-collapse:collapse;min-width:max-content;width:100%;}
+.import-preview th{padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap;}
+.import-preview td{padding:4px 8px;border:0.5px solid var(--border);white-space:nowrap;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Besucher</span>
+  </div>
+  <div class="topnav-right">
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">Besucher</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="downloadTemplate()">Template</button>
+      <button class="btn btn-sm write-only" onclick="openImport()" style="display:none">Importieren</button>
+      <button class="btn btn-sm" onclick="openExport()">Exportieren</button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Besucher</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <select id="f-zeitraum" onchange="renderList()">
+      <option value="">Alle Zeiträume</option>
+      <option value="heute">🔵 Heute</option>
+      <option value="aktiv">🟢 Aktuell anwesend</option>
+      <option value="zukunft">Zukünftig</option>
+      <option value="vergangen">Vergangen</option>
+    </select>
+    <input type="search" id="f-suche" placeholder="🔍 Name, Firma…" oninput="renderList()">
+  </div>
+
+  <div id="v-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Anlegen/Bearbeiten -->
+<div class="overlay" id="m-besucher" onclick="if(event.target===this)closeM('m-besucher')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-bes-title">Besucher anlegen</div><div class="modal-sub" id="m-bes-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-besucher')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-besucher')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveBesucher()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Import -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Besucher importieren</div><button class="btn btn-sm" onclick="closeM('m-import')">✕</button></div>
+  <div class="modal-body">
+    <div class="section-block">
+      <div class="section-label">CSV hochladen</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)">
+        Datei auswählen…<input type="file" accept=".csv" onchange="previewImport(event)" style="display:none">
+      </label>
+      <div id="import-preview-wrap" style="display:none;margin-top:10px">
+        <div class="import-preview" id="import-table"></div>
+        <div class="ts" id="import-info" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div id="import-result" style="display:none"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-import')">Schließen</button>
+    <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
+      <span class="spinner" id="import-sp" style="display:none"></span>Importieren
+    </button>
+  </div>
+</div></div>
+
+<!-- MODAL: Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Besucher exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body">
+    <div><label>Bereich</label><select id="exp-bereich"><option value="">Alle Bereiche</option></select></div>
+    <div><label>Zeitraum</label><select id="exp-zeitraum"><option value="">Alle</option><option value="heute">Heute</option><option value="aktiv">Aktuell anwesend</option><option value="vergangen">Vergangen</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body"><button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+let _profile=null,_canWrite=false;
+let _items=[],_bereiche=[],_profiles=[];
+let _importParsed=null;
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+function fmtDT(iso){if(!iso)return'–';try{return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}catch(e){}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    const[items,ber,prof]=await Promise.all([besucherGetAll(),bereichGetAll(),profilesGetAll()]);
+    _items=items||[];_bereiche=ber||[];_profiles=prof||[];
+    fillFilter();renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+function fillFilter(){
+  const bOpts='<option value="">Alle Bereiche</option>'+_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  ['f-bereich','exp-bereich'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=bOpts;});
+}
+
+// Besuchs-Status
+function getStatus(v){
+  const jetzt=new Date();
+  const von=v.von_datum?new Date(v.von_datum+(v.von_zeit?'T'+v.von_zeit:'')):null;
+  const bis=v.bis_datum?new Date(v.bis_datum+(v.bis_zeit?'T'+v.bis_zeit:'T23:59')):null;
+  const heute=jetzt.toISOString().slice(0,10);
+  if(!von)return'vergangen';
+  if(von>jetzt)return'zukunft';
+  if(bis&&bis<jetzt)return'vergangen';
+  if(von.toISOString().slice(0,10)===heute)return'heute';
+  if(von<=jetzt&&(!bis||bis>=jetzt))return'aktiv';
+  return'vergangen';
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'';
+  const fZ=document.getElementById('f-zeitraum')?.value||'';
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _items.filter(v=>{
+    if(fB&&v.bereichId!==fB)return false;
+    if(fS&&!JSON.stringify(v).toLowerCase().includes(fS))return false;
+    if(fZ){const st=getStatus(v);if(st!==fZ)return false;}
+    return true;
+  }).sort((a,b)=>new Date(b.von_datum||0)-new Date(a.von_datum||0));
+}
+
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Besucher';
+  const el=document.getElementById('v-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">👁</div><p style="margin-bottom:12px">${_items.length?'Keine Treffer.':'Noch keine Besucher.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Ersten Besucher anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(v=>{
+    const bereich=_bereiche.find(b=>b.id===v.bereichId);
+    const ansprechp=_profiles.find(p=>p.id===v.ansprechpartnerId);
+    const status=getStatus(v);
+    const statusBadge={
+      aktiv:`<span class="status-aktiv">🟢 Aktuell anwesend</span>`,
+      heute:`<span class="status-heute">🔵 Heute</span>`,
+      zukunft:`<span class="badge b-info">🗓 Geplant</span>`,
+      vergangen:`<span class="status-vergangen">Vergangen</span>`
+    }[status]||'';
+    const unterweisung=v.unterweisung?`<span class="badge b-ok" style="font-size:10px">✓ Sicherheitsunterweisung</span>`:'';
+    return`<div class="v-card">
+      <div class="v-card-body">
+        <div class="v-card-left">
+          <div class="v-card-title">
+            👁 ${esc(v.name||'–')}
+            ${v.firma?`<span class="ts" style="font-weight:400">${esc(v.firma)}</span>`:''}
+            ${statusBadge}
+            ${unterweisung}
+          </div>
+          <div class="v-card-meta">
+            ${v.von_datum?`<span>📅 Von: ${fmt(v.von_datum)}${v.von_zeit?' '+v.von_zeit:''}</span>`:''}
+            ${v.bis_datum?`<span>bis: ${fmt(v.bis_datum)}${v.bis_zeit?' '+v.bis_zeit:''}</span>`:''}
+            ${bereich?`<span>📍 ${esc(bereich.name)}</span>`:''}
+            ${ansprechp?`<span>👤 ${esc(ansprechp.name)}</span>`:''}
+            ${v.anlass?`<span>📋 ${esc(v.anlass)}</span>`:''}
+          </div>
+          ${v.notizen?`<div class="ts" style="margin-top:4px">📝 ${esc(v.notizen)}</div>`:''}
+        </div>
+        <div class="v-card-actions">
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${v.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteBesucher('${v.id}')">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-bes-title').textContent='Besucher anlegen';
+  document.getElementById('m-bes-sub').textContent='';
+  renderForm({});openM('m-besucher');
+}
+function openEdit(id){
+  const v=_items.find(x=>x.id===id);if(!v)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-bes-title').textContent='Besucher bearbeiten';
+  document.getElementById('m-bes-sub').textContent=v.name||'';
+  renderForm(v);openM('m-besucher');
+}
+
+function renderForm(v){
+  const bereichOpts='<option value="">– kein –</option>'+_bereiche.map(b=>`<option value="${b.id}"${b.id===v.bereichId?' selected':''}>${esc(b.name)}</option>`).join('');
+  const profOpts='<option value="">– kein –</option>'+_profiles.map(p=>`<option value="${p.id}"${p.id===v.ansprechpartnerId?' selected':''}>${esc(p.name||'')}</option>`).join('');
+  const heute=new Date().toISOString().slice(0,10);
+  document.getElementById('m-body').innerHTML=`
+    <div class="g2">
+      <div><label>Name *</label><input id="f-name" value="${esc(v.name||'')}" placeholder="Vor- und Nachname" autofocus></div>
+      <div><label>Firma / Organisation</label><input id="f-firma" value="${esc(v.firma||'')}" placeholder="Musterfirma GmbH"></div>
+    </div>
+    <div class="g2">
+      <div><label>E-Mail</label><input id="f-email" type="email" value="${esc(v.email||'')}"></div>
+      <div><label>Telefon</label><input id="f-tel" type="tel" value="${esc(v.telefon||'')}"></div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Besuchszeitraum</div>
+      <div class="g2">
+        <div><label>Von – Datum</label><input id="f-von-datum" type="date" value="${esc(v.von_datum||heute)}"></div>
+        <div><label>Von – Uhrzeit</label><input id="f-von-zeit" type="time" value="${esc(v.von_zeit||'08:00')}"></div>
+      </div>
+      <div class="g2" style="margin-top:8px">
+        <div><label>Bis – Datum</label><input id="f-bis-datum" type="date" value="${esc(v.bis_datum||heute)}"></div>
+        <div><label>Bis – Uhrzeit</label><input id="f-bis-zeit" type="time" value="${esc(v.bis_zeit||'17:00')}"></div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div><label>Anlass / Zweck</label><input id="f-anlass" value="${esc(v.anlass||'')}" placeholder="z.B. Wartung, Audit, Lieferung"></div>
+      <div><label>Bereich</label><select id="f-bereichId">${bereichOpts}</select></div>
+    </div>
+    <div><label>Interner Ansprechpartner</label><select id="f-ansprechpartner">${profOpts}</select></div>
+
+    <div class="section-block">
+      <div class="section-label">Sicherheit</div>
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;padding:8px 0">
+        <input type="checkbox" id="f-unterweisung" ${v.unterweisung?'checked':''} style="width:auto;accent-color:var(--accent)">
+        <div>
+          <div style="font-size:13px;font-weight:500">Sicherheitsunterweisung durchgeführt</div>
+          <div class="ts">Besucher wurde über betriebliche Sicherheitsregeln unterwiesen</div>
+        </div>
+      </label>
+      ${v.unterweisung_datum?`<div class="ts">Datum: ${fmt(v.unterweisung_datum)}</div>`:''}
+      <div style="margin-top:8px" id="uw-datum-wrap" style="${v.unterweisung?'':'display:none'}">
+        <label>Datum der Unterweisung</label>
+        <input id="f-uw-datum" type="date" value="${esc(v.unterweisung_datum||heute)}">
+      </div>
+    </div>
+
+    <div><label>Notizen / Sicherheitshinweise</label><textarea id="f-notizen" rows="3">${esc(v.notizen||'')}</textarea></div>
+  `;
+  // Unterweisung-Datum toggle
+  document.getElementById('f-unterweisung')?.addEventListener('change',e=>{
+    const wrap=document.getElementById('uw-datum-wrap');
+    if(wrap)wrap.style.display=e.target.checked?'block':'none';
+  });
+  if(!v.unterweisung){const w=document.getElementById('uw-datum-wrap');if(w)w.style.display='none';}
+}
+
+async function saveBesucher(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Name ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_items.find(x=>x.id===editId);
+  const uw=document.getElementById('f-unterweisung')?.checked||false;
+  const obj={
+    id:prev?.id||uid('BES'),name,
+    firma:document.getElementById('f-firma')?.value?.trim()||'',
+    email:document.getElementById('f-email')?.value?.trim()||'',
+    telefon:document.getElementById('f-tel')?.value?.trim()||'',
+    von_datum:document.getElementById('f-von-datum')?.value||'',
+    von_zeit:document.getElementById('f-von-zeit')?.value||'',
+    bis_datum:document.getElementById('f-bis-datum')?.value||'',
+    bis_zeit:document.getElementById('f-bis-zeit')?.value||'',
+    anlass:document.getElementById('f-anlass')?.value?.trim()||'',
+    bereichId:document.getElementById('f-bereichId')?.value||'',
+    ansprechpartnerId:document.getElementById('f-ansprechpartner')?.value||'',
+    unterweisung:uw,
+    unterweisung_datum:uw?(document.getElementById('f-uw-datum')?.value||new Date().toISOString().slice(0,10)):'',
+    notizen:document.getElementById('f-notizen')?.value?.trim()||'',
+    createdAt:prev?.createdAt||new Date().toISOString(),
+  };
+  try{
+    await getSB().from('besucher').upsert({id:obj.id,organisation_id:_profile?.organisation_id||'',data:obj},{onConflict:'id'});
+    _items=await besucherGetAll()||[];
+    closeM('m-besucher');fillFilter();renderList();toast('Besucher gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteBesucher(id){
+  const v=_items.find(x=>x.id===id);
+  if(!confirm(`"${v?.name||'Besucher'}" löschen?`))return;
+  try{await besucherDelete(id);_items=await besucherGetAll()||[];renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── Import/Export/Template ─────────────────────────────────
+const IMPORT_COLS=[
+  {key:'name',     label:'Name',           required:true,  example:'Max Mustermann'},
+  {key:'firma',    label:'Firma',          required:false, example:'Musterfirma GmbH'},
+  {key:'email',    label:'E-Mail',         required:false, example:'mm@firma.de'},
+  {key:'telefon',  label:'Telefon',        required:false, example:'+49 821 123456'},
+  {key:'von_datum',label:'Von_Datum',      required:false, example:'2026-04-10'},
+  {key:'von_zeit', label:'Von_Uhrzeit',    required:false, example:'09:00'},
+  {key:'bis_datum',label:'Bis_Datum',      required:false, example:'2026-04-10'},
+  {key:'bis_zeit', label:'Bis_Uhrzeit',    required:false, example:'17:00'},
+  {key:'anlass',   label:'Anlass',         required:false, example:'Wartung Anlage 3'},
+  {key:'bereich',  label:'Bereich (Name)', required:false, example:'Halle 3'},
+  {key:'notizen',  label:'Notizen',        required:false, example:''},
+];
+
+function downloadTemplate(){
+  const csv='\uFEFF'+IMPORT_COLS.map(c=>c.label).join(';')+'\n'+IMPORT_COLS.map(c=>c.required?'* Pflichtfeld':'optional').join(';')+'\n'+IMPORT_COLS.map(c=>c.example||'').join(';')+'\n';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Template_Besucher_Import.csv';a.click();URL.revokeObjectURL(url);
+  toast('Template heruntergeladen ✓','ok');
+}
+
+function openImport(){
+  document.getElementById('import-preview-wrap').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('btn-import-run').style.display='none';
+  _importParsed=null;openM('m-import');
+}
+
+function parseCSV(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return{headers:[],rows:[]};
+  const parseRow=line=>{const cols=[];let cur='',inQ=false;for(const ch of line){if(ch==='"'){inQ=!inQ;}else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}cols.push(cur.trim());return cols;};
+  const headers=parseRow(lines[0]);
+  const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;
+  const rows=lines.slice(dataStart).filter(l=>l.trim()).map(parseRow);
+  return{headers,rows};
+}
+
+function previewImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const{headers,rows}=parseCSV(ev.target.result);_importParsed={headers,rows};
+    document.getElementById('import-table').innerHTML=`<table><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows.slice(0,5).map(row=>`<tr>${headers.map((_,i)=>`<td>${esc(row[i]||'')}</td>`).join('')}</tr>`).join('')}</table>`;
+    document.getElementById('import-info').innerHTML=`<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''} erkannt</span>`;
+    document.getElementById('import-preview-wrap').style.display='block';
+    document.getElementById('btn-import-run').style.display='inline-flex';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function runImport(){
+  if(!_importParsed)return;
+  const sp=document.getElementById('import-sp');sp.style.display='inline-block';
+  document.getElementById('btn-import-run').disabled=true;
+  const{headers,rows}=_importParsed;
+  const hMap={};headers.forEach((h,i)=>{const col=IMPORT_COLS.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)hMap[i]=col.key;});
+  let imported=0,skipped=0;const errors=[];
+  for(const row of rows){
+    if(row.every(c=>!c.trim()))continue;
+    const obj={id:uid('BES'),createdAt:new Date().toISOString()};
+    Object.entries(hMap).forEach(([i,key])=>{obj[key]=row[parseInt(i)]?.trim()||'';});
+    if(obj.bereich){const b=_bereiche.find(x=>x.name?.toLowerCase()===obj.bereich.toLowerCase());if(b)obj.bereichId=b.id;delete obj.bereich;}
+    if(!obj.name){errors.push('Zeile ohne Name');skipped++;continue;}
+    try{
+      await getSB().from('besucher').insert({id:obj.id,organisation_id:_profile?.organisation_id||'',data:obj});
+      imported++;
+    }catch(e){errors.push(obj.name+': '+e.message);skipped++;}
+  }
+  _items=await besucherGetAll()||[];renderList();
+  const res=document.getElementById('import-result');const hasErr=errors.length>0;
+  res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;margin-top:8px;background:${hasErr?'var(--warn-bg)':'var(--ok-bg)'};border:0.5px solid ${hasErr?'var(--warn-border)':'var(--ok-border)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;
+  res.innerHTML=`<div style="font-weight:500">${imported} von ${rows.length} importiert${skipped?' · '+skipped+' übersprungen':''}</div>`+(errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+'</div>':'');
+  sp.style.display='none';document.getElementById('btn-import-run').disabled=false;
+  if(imported>0)toast(imported+' Besucher importiert ✓','ok');
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const fB=document.getElementById('exp-bereich').value;
+  const fZ=document.getElementById('exp-zeitraum').value;
+  let data=_items.filter(v=>{
+    if(fB&&v.bereichId!==fB)return false;
+    if(fZ){const st=getStatus(v);if(st!==fZ)return false;}
+    return true;
+  });
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const cols=[...IMPORT_COLS,{key:'unterweisung',label:'Sicherheitsunterweisung'},{key:'bereich_name',label:'Bereich Name'}];
+  const csv='\uFEFF'+cols.map(c=>escape(c.label)).join(';')+'\n'+
+    data.map(v=>cols.map(c=>{
+      if(c.key==='bereich_name')return escape(_bereiche.find(b=>b.id===v.bereichId)?.name||'');
+      if(c.key==='unterweisung')return escape(v.unterweisung?'Ja':'Nein');
+      return escape(v[c.key]||'');
+    }).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='Besucher_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
+  a.click();URL.revokeObjectURL(url);closeM('m-export');toast('Exportiert ✓','ok');
+}
+
+function openUserMenu(){document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';openM('m-user');}
+</script>
+</body>
+</html>

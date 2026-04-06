@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Bereiche – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;}
+.m-filter input[type=search]{width:200px;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+.b-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s;}
+.b-card:hover{border-color:var(--border2);}
+.b-card-body{padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.b-card-left{flex:1;min-width:0;}
+.b-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.b-card-meta{font-size:11px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.b-card-actions{display:flex;gap:4px;flex-shrink:0;}
+.quota-bar{height:6px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-top:6px;width:100%;max-width:200px;}
+.quota-fill{height:100%;border-radius:3px;transition:width .3s;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Bereiche</span>
+  </div>
+  <div class="topnav-right">
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">Bereiche</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="openExport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportieren
+      </button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Bereich anlegen</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="b-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Anlegen/Bearbeiten -->
+<div class="overlay" id="m-bereich" onclick="if(event.target===this)closeM('m-bereich')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-bereich-title">Bereich anlegen</div><div class="modal-sub" id="m-bereich-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-bereich')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-bereich')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveBereich()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Bereiche exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body"><p class="ts">Alle Bereiche werden als CSV exportiert.</p></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body"><button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+let _profile=null,_canWrite=false;
+let _bereiche=[],_beauftragte=[];
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}catch(e){}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    const[ber,beauf]=await Promise.all([bereichGetAll(),beauftragterGetAll()]);
+    _bereiche=ber||[];_beauftragte=beauf||[];
+    renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+function getFiltered(){
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _bereiche.filter(x=>!fS||JSON.stringify(x).toLowerCase().includes(fS));
+}
+
+// Erstellhelfer-Quoten berechnen (Beispiel: 1 Ersthelfer je 20 MA)
+function getQuoten(bereich){
+  const ma=parseInt(bereich.mitarbeiter)||0;
+  if(!ma)return null;
+  const ersthelfer=_beauftragte.filter(b=>(b.beauftragungen||[]).some(x=>x.funktion==='Ersthelfer'&&x.bereichId===bereich.id)).length;
+  const brandschutz=_beauftragte.filter(b=>(b.beauftragungen||[]).some(x=>x.funktion==='Brandschutzhelfer'&&x.bereichId===bereich.id)).length;
+  const sollErsthelfer=Math.max(1,Math.ceil(ma/20));
+  const sollBrand=Math.max(1,Math.ceil(ma/20));
+  return{ersthelfer,brandschutz,sollErsthelfer,sollBrand,ma};
+}
+
+function renderQuoten(bereichId){
+  const q=getQuoten(_bereiche.find(x=>x.id===bereichId));if(!q)return'';
+  const ehOk=q.ersthelfer>=q.sollErsthelfer;
+  const bsOk=q.brandschutz>=q.sollBrand;
+  const ehPct=Math.min(100,q.ersthelfer/Math.max(1,q.sollErsthelfer)*100);
+  const bsPct=Math.min(100,q.brandschutz/Math.max(1,q.sollBrand)*100);
+  return'<div style="margin-top:8px;display:flex;gap:16px;flex-wrap:wrap">'+
+    '<div><div class="ts" style="margin-bottom:3px">Ersthelfer: <span style="color:'+(ehOk?'var(--ok)':'var(--nok)')+'">'+q.ersthelfer+'/'+q.sollErsthelfer+'</span></div>'+
+    '<div class="quota-bar"><div class="quota-fill" style="width:'+ehPct+'%;background:'+(ehOk?'var(--ok)':'var(--nok)')+'"></div></div></div>'+
+    '<div><div class="ts" style="margin-bottom:3px">Brandschutzhelfer: <span style="color:'+(bsOk?'var(--ok)':'var(--nok)')+'">'+q.brandschutz+'/'+q.sollBrand+'</span></div>'+
+    '<div class="quota-bar"><div class="quota-fill" style="width:'+bsPct+'%;background:'+(bsOk?'var(--ok)':'var(--nok)')+'"></div></div></div>'+
+  '</div>';
+}
+
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Bereich'+(data.length!==1?'e':'');
+  const el=document.getElementById('b-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🏢</div><p style="margin-bottom:12px">${_bereiche.length?'Keine Treffer.':'Noch keine Bereiche.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Ersten Bereich anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(b=>{
+    const verantw=_beauftragte.find(x=>x.id===b.verantwortlichId);
+    const quoten=getQuoten(b);
+    const ehOk=quoten?quoten.ersthelfer>=quoten.sollErsthelfer:null;
+    const bsOk=quoten?quoten.brandschutz>=quoten.sollBrand:null;
+    return`<div class="b-card">
+      <div class="b-card-body">
+        <div class="b-card-left">
+          <div class="b-card-title">
+            🏢 ${esc(b.name||'–')}
+            ${b.funktion?`<span class="badge b-neutral" style="font-size:10px">${esc(b.funktion)}</span>`:''}
+          </div>
+          <div class="b-card-meta">
+            ${b.gebaeude?`<span>🏗 ${esc(b.gebaeude)}</span>`:''}
+            ${b.kostenstelle?`<span>💼 ${esc(b.kostenstelle)}</span>`:''}
+            ${b.mitarbeiter?`<span>👥 ${b.mitarbeiter} Mitarbeiter</span>`:''}
+            ${verantw?`<span>👤 ${esc(verantw.name)}</span>`:''}
+          </div>
+          ${quoten?renderQuoten(b.id):""}
+          ${b.notizen?`<div class="ts" style="margin-top:5px">📝 ${esc(b.notizen)}</div>`:''}
+        </div>
+        <div class="b-card-actions">
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${b.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteBereich('${b.id}')">🗑</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-bereich-title').textContent='Bereich anlegen';
+  document.getElementById('m-bereich-sub').textContent='';
+  renderForm({});openM('m-bereich');
+}
+function openEdit(id){
+  const b=_bereiche.find(x=>x.id===id);if(!b)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-bereich-title').textContent='Bereich bearbeiten';
+  document.getElementById('m-bereich-sub').textContent=b.name||'';
+  renderForm(b);openM('m-bereich');
+}
+
+function renderForm(b){
+  const verantwOpts='<option value="">– keine/r –</option>'+_beauftragte.map(p=>`<option value="${p.id}"${p.id===b.verantwortlichId?' selected':''}>${esc(p.name||'')}</option>`).join('');
+  document.getElementById('m-body').innerHTML=`
+    <div><label>Bereichsname *</label><input id="f-name" value="${esc(b.name||'')}" placeholder="z.B. Halle 3 – Produktion" autofocus></div>
+    <div class="g2">
+      <div><label>Funktion / Art</label><input id="f-funktion" value="${esc(b.funktion||'')}" placeholder="z.B. Produktionsbereich, Lager"></div>
+      <div><label>Gebäude / Stockwerk</label><input id="f-gebaeude" value="${esc(b.gebaeude||'')}" placeholder="Gebäude A, EG"></div>
+    </div>
+    <div class="g2">
+      <div><label>Kostenstelle</label><input id="f-kst" value="${esc(b.kostenstelle||'')}" placeholder="KST-4711"></div>
+      <div><label>Anzahl Mitarbeiter <span class="ts">(für Quotenberechnung)</span></label><input id="f-mitarbeiter" type="number" min="0" value="${b.mitarbeiter||''}"></div>
+    </div>
+    <div><label>Bereichsverantwortliche/r</label><select id="f-verantw">${verantwOpts}</select></div>
+    <div><label>Notizen</label><textarea id="f-notizen" rows="3">${esc(b.notizen||'')}</textarea></div>
+    <div class="info-box" style="margin-top:4px">
+      ℹ Bereiche werden in der GBU als übergeordnetes Organisationselement verwendet. Alle Maschinen, Gefahrstoffe und Tätigkeiten können einem Bereich zugeordnet werden.
+    </div>`;
+}
+
+async function saveBereich(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Bereichsname ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_bereiche.find(x=>x.id===editId);
+  const obj={
+    id:prev?.id||uid('BER'),name,
+    funktion:document.getElementById('f-funktion')?.value?.trim()||'',
+    gebaeude:document.getElementById('f-gebaeude')?.value?.trim()||'',
+    kostenstelle:document.getElementById('f-kst')?.value?.trim()||'',
+    mitarbeiter:parseInt(document.getElementById('f-mitarbeiter')?.value)||0,
+    verantwortlichId:document.getElementById('f-verantw')?.value||'',
+    notizen:document.getElementById('f-notizen')?.value?.trim()||'',
+    createdAt:prev?.createdAt||new Date().toISOString(),
+  };
+  try{
+    await bereichSave(obj);_bereiche=await bereichGetAll()||[];
+    closeM('m-bereich');renderList();toast('Bereich gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteBereich(id){
+  const b=_bereiche.find(x=>x.id===id);
+  if(!confirm(`"${b?.name||'Bereich'}" löschen? Alle Zuordnungen in anderen Modulen bleiben erhalten.`))return;
+  try{await bereichDelete(id);_bereiche=await bereichGetAll()||[];renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const csv='\uFEFF'+'Name;Funktion;Gebaeude;Kostenstelle;Mitarbeiter;Verantwortliche/r;Notizen\n'+
+    _bereiche.map(b=>[b.name,b.funktion,b.gebaeude,b.kostenstelle,b.mitarbeiter||'',
+      _beauftragte.find(x=>x.id===b.verantwortlichId)?.name||'',b.notizen].map(escape).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='Bereiche_Export.csv';a.click();URL.revokeObjectURL(url);closeM('m-export');toast('Exportiert ✓','ok');
+}
+function openUserMenu(){document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';openM('m-user');}
+</script>
+</body>
+</html>

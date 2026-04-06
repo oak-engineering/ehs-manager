@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Maschinen – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── Maschinen-spezifisch ───────────────────────────── */
+.m-header { display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px; }
+.m-tabs { display:flex;gap:2px;background:var(--surface3);border-radius:7px;padding:3px;border:0.5px solid var(--border);margin-bottom:16px;overflow-x:auto; }
+.m-tab { flex-shrink:0;padding:6px 14px;border-radius:5px;font-size:12px;color:var(--text2);cursor:pointer;border:none;background:transparent;font-family:var(--ff);transition:all .12s;white-space:nowrap; }
+.m-tab:hover { color:var(--text); }
+.m-tab.on { background:var(--surface);color:var(--text);font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.06); }
+.m-actions { display:flex;gap:6px;flex-wrap:wrap;align-items:center; }
+.m-filter { display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center; }
+.m-filter select,.m-filter input { height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;max-width:140px; }
+.m-filter input[type=search] { width:160px;max-width:none; }
+.m-filter select:focus,.m-filter input:focus { border-color:var(--accent);color:var(--text); }
+
+/* Maschinen-Karte */
+.m-card { background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s; }
+.m-card:hover { border-color:var(--border2); }
+.m-card-accent { height:3px;flex-shrink:0; }
+.m-card-body { padding:13px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px; }
+.m-card-left { flex:1;min-width:0; }
+.m-card-title { font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.m-card-meta { font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+.m-card-actions { display:flex;gap:4px;flex-shrink:0;align-items:flex-start; }
+.m-foto-strip { display:flex;gap:6px;margin-top:8px;overflow-x:auto;padding-bottom:2px; }
+.m-foto { width:56px;height:56px;border-radius:6px;object-fit:cover;border:0.5px solid var(--border);cursor:pointer;flex-shrink:0; }
+
+/* Ampel */
+.ampel { display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap; }
+.ampel-io { background:rgba(22,163,74,.1);color:var(--ok);border:0.5px solid rgba(22,163,74,.25); }
+.ampel-mangel { background:rgba(220,38,38,.1);color:var(--nok);border:0.5px solid rgba(220,38,38,.25); }
+.ampel-offen { background:rgba(180,83,9,.1);color:var(--warn);border:0.5px solid rgba(180,83,9,.25); }
+
+/* Status-Badge */
+.status-betrieb { background:var(--ok-bg);color:var(--ok);border:0.5px solid var(--ok-border); }
+.status-ausser  { background:var(--nok-bg);color:var(--nok);border:0.5px solid var(--nok-border); }
+.status-wartung { background:var(--warn-bg);color:var(--warn);border:0.5px solid var(--warn-border); }
+
+/* Vor-Ort-Modus */
+.vor-ort-wrap { display:none; }
+.vor-ort-wrap.on { display:block; }
+.vor-ort-search { width:100%;padding:14px 16px;font-size:18px;border:2px solid var(--border);border-radius:var(--r-lg);background:var(--surface);color:var(--text);font-family:var(--ff);outline:none;margin-bottom:16px; }
+.vor-ort-search:focus { border-color:var(--accent); }
+.vor-ort-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px; }
+.vor-ort-card { background:var(--surface);border:2px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;transition:all .15s;text-align:center;-webkit-user-select:none;user-select:none; }
+.vor-ort-card:active { transform:scale(.97); }
+.vor-ort-card:hover { border-color:var(--accent);background:var(--surface2); }
+.vor-ort-card .vc-name { font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px; }
+.vor-ort-card .vc-meta { font-size:12px;color:var(--text3);margin-bottom:10px; }
+.vor-ort-card .vc-ampel { font-size:13px; }
+
+/* Prüfungs-Modal Touch-optimiert */
+.pruef-frage { padding:14px;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:10px;background:var(--surface); }
+.pruef-frage-text { font-size:15px;font-weight:500;margin-bottom:12px;color:var(--text);line-height:1.4; }
+.pruef-ja-nein { display:grid;grid-template-columns:1fr 1fr;gap:10px; }
+.pruef-btn { padding:14px;border:2px solid var(--border);border-radius:var(--r);font-size:15px;font-weight:500;cursor:pointer;text-align:center;transition:all .15s;background:var(--surface2);color:var(--text2);font-family:var(--ff); }
+.pruef-btn.ja-sel { border-color:#16a34a;background:#f0fdf4;color:#16a34a; }
+.pruef-btn.nein-sel { border-color:#dc2626;background:#fef2f2;color:#dc2626; }
+
+/* Foto-Upload */
+.foto-grid { display:flex;flex-wrap:wrap;gap:8px;margin-top:8px; }
+.foto-thumb-wrap { position:relative; }
+.foto-thumb { width:72px;height:72px;border-radius:var(--r);object-fit:cover;border:0.5px solid var(--border);cursor:pointer; }
+.foto-del { position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;background:var(--nok);border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1; }
+.foto-add-btn { width:72px;height:72px;border-radius:var(--r);border:1.5px dashed var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text3);font-size:26px;background:var(--surface2);transition:all .15s; }
+.foto-add-btn:hover { border-color:var(--accent);color:var(--accent); }
+
+/* Protokoll-Karte */
+.prot-card { border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden; }
+.prot-head { padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px; }
+.prot-body { padding:10px 14px;border-top:0.5px solid var(--border); }
+.prot-row { display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid var(--border);font-size:12px;gap:12px; }
+.prot-row:last-child { border-bottom:none; }
+
+/* QR-Druck */
+.qr-print { text-align:center;padding:24px;background:#fff;border:1px solid #ddd;border-radius:8px;max-width:300px;margin:0 auto; }
+
+/* Dokument-Liste */
+.dok-row { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px; }
+.dok-row:last-child { border-bottom:none; }
+.dok-icon { width:32px;height:32px;border-radius:6px;background:var(--nok-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px; }
+
+/* Import-Modal */
+.import-preview { overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:180px;overflow-y:auto;margin-top:8px; }
+.import-preview table { border-collapse:collapse;min-width:max-content;width:100%; }
+.import-preview th { padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap; }
+.import-preview td { padding:4px 8px;border:0.5px solid var(--border);white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis; }
+
+/* GBU-Transfer Banner */
+.gbu-banner { background:var(--warn-bg);border:0.5px solid var(--warn-border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--warn);margin-top:12px; }
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon">
+      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
+    </div>
+    <div class="sb-logo-text">
+      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
+      <div class="sb-logo-sub">Oak Engineering</div>
+    </div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+    <div class="sb-section">Verwaltung</div>
+    <div class="sb-item admin-only" onclick="openSettingsModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2"/></svg></span><span class="sb-label">Einstellungen</span></div>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          <span class="sb-label">Dark Mode</span>
+        </span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
+          <div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+        </div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="display:flex;align-items:center;gap:4px;text-decoration:none">
+      <span class="nav-crumb">Datenbank</span>
+    </a>
+    <span class="nav-sep">›</span>
+    <span class="nav-page">Maschinen</span>
+  </div>
+  <div class="topnav-right">
+    <button class="nav-btn-top" id="btn-vor-ort" onclick="toggleVorOrt()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      Vor-Ort-Modus
+    </button>
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<!-- NORMAL-ANSICHT -->
+<div class="content" id="normal-view">
+
+  <!-- Aktionsleiste -->
+  <div class="m-header">
+    <div>
+      <div class="page-title">Maschinen</div>
+      <div class="ts" id="list-sub">Wird geladen…</div>
+    </div>
+    <div class="m-actions">
+      <button class="btn btn-sm" onclick="openSettings()" title="Einstellungen">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l-1.41-1.41M6.34 6.34L4.93 4.93M19.07 4.93l-1.41 1.41M4.93 19.07l1.41-1.41"/></svg>
+        Einstellungen
+      </button>
+      <button class="btn btn-sm write-only" onclick="openChecklistenEditor()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        + Checkliste
+      </button>
+      <button class="btn btn-sm" onclick="downloadTemplate()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="18"/><line x1="15" y1="15" x2="12" y2="18"/></svg>
+        Template
+      </button>
+      <button class="btn btn-sm write-only" onclick="openImport()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Importieren
+      </button>
+      <button class="btn btn-sm" onclick="openExport()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportieren
+      </button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Anlegen</button>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="m-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <select id="f-kst" onchange="renderList()"><option value="">Alle KST</option></select>
+    <select id="f-kat" onchange="renderList()"><option value="">Alle Kategorien</option></select>
+    <select id="f-status" onchange="renderList()">
+      <option value="">Alle Status</option>
+      <option value="In Betrieb">In Betrieb</option>
+      <option value="Außer Betrieb">Außer Betrieb</option>
+      <option value="In Wartung">In Wartung</option>
+    </select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="m-list"></div>
+</div>
+
+<!-- VOR-ORT-ANSICHT -->
+<div class="content vor-ort-wrap" id="vor-ort-view">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <div class="page-title">Vor-Ort-Prüfung</div>
+      <div class="ts">Maschine auswählen und Prüfung starten</div>
+    </div>
+    <button class="btn btn-sm" onclick="toggleVorOrt()">← Zurück</button>
+  </div>
+  <input type="search" class="vor-ort-search" id="vo-suche" placeholder="Maschine suchen…" oninput="renderVorOrt()" autocomplete="off">
+  <div class="vor-ort-grid" id="vo-grid"></div>
+</div>
+
+</div><!-- /main-area -->
+</div><!-- /app-root -->
+
+<!-- ═══ MODAL: Maschine anlegen/bearbeiten ═══ -->
+<div class="overlay" id="m-maschine" onclick="if(event.target===this)closeM('m-maschine')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="m-maschine-title">Maschine anlegen</div>
+      <div class="modal-sub" id="m-maschine-sub"></div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-maschine')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-maschine')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveM()">
+      <span class="spinner" id="save-sp" style="display:none"></span>Speichern
+    </button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: Checkliste prüfen ═══ -->
+<div class="overlay" id="m-pruefen" onclick="if(event.target===this)closeM('m-pruefen')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="m-pruef-title">Prüfung durchführen</div>
+      <div class="modal-sub" id="m-pruef-sub"></div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-pruefen')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="g2">
+      <div><label>Prüfer</label><input id="pf-pruefer" readonly style="background:var(--surface3)"></div>
+      <div><label>Datum</label><input id="pf-datum" type="date"></div>
+    </div>
+    <div id="pf-fragen"></div>
+    <div><label>Anmerkungen</label><textarea id="pf-notiz" rows="2" placeholder="Weitere Hinweise…"></textarea></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-pruefen')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveProtokoll()">
+      <span class="spinner" id="pruef-sp" style="display:none"></span>Prüfung speichern
+    </button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: Checklisten-Editor ═══ -->
+<div class="overlay" id="m-cl-editor" onclick="if(event.target===this)closeM('m-cl-editor')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="m-cl-title">Checkliste anlegen</div>
+      <div class="modal-sub">Für alle Maschinen verfügbar</div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-cl-editor')">✕</button>
+  </div>
+  <div class="modal-body">
+    <input type="hidden" id="cl-edit-id">
+    <div><label>Titel *</label><input id="cl-titel" placeholder="z.B. UVV-Prüfung"></div>
+    <div><label>Beschreibung</label><input id="cl-beschr" placeholder="Kurze Beschreibung"></div>
+    <div class="g2">
+      <div><label>Intervall (Monate)</label><input id="cl-intervall" type="number" min="1" value="12" style="width:100%"></div>
+      <div></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <label style="margin:0;font-weight:500">Prüffragen</label>
+      <button type="button" class="btn btn-sm" onclick="addClFrage()">+ Frage</button>
+    </div>
+    <div id="cl-fragen-list"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-cl-editor')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveCL()">
+      <span class="spinner" id="cl-sp" style="display:none"></span>Speichern
+    </button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: Protokoll-Historie ═══ -->
+<div class="overlay" id="m-historie" onclick="if(event.target===this)closeM('m-historie')">
+<div class="modal modal-wide" style="max-height:88vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="m-hist-title">Prüfhistorie</div>
+      <div class="modal-sub" id="m-hist-sub"></div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-historie')">✕</button>
+  </div>
+  <div class="modal-body" id="m-hist-body"></div>
+</div></div>
+
+<!-- ═══ MODAL: Import ═══ -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div class="modal-title">Maschinen importieren</div>
+    <button class="btn btn-sm" onclick="closeM('m-import')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="section-block">
+      <div class="section-label">Schritt 1 – Vorlage herunterladen</div>
+      <p class="ts" style="margin-bottom:8px">Vorlage herunterladen, in Excel befüllen, als CSV speichern und hochladen. Zeile 1 = Spalten, Zeile 2 = Hinweise, ab Zeile 3 = Daten.</p>
+      <button class="btn btn-sm" onclick="downloadTemplate()">⬇ Vorlage herunterladen (.csv)</button>
+    </div>
+    <div class="section-block">
+      <div class="section-label">Schritt 2 – CSV hochladen</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Datei auswählen…
+        <input type="file" accept=".csv" onchange="previewImport(event)" style="display:none">
+      </label>
+      <div id="import-preview-wrap" style="display:none;margin-top:10px">
+        <div class="import-preview" id="import-table"></div>
+        <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="ts" id="import-info"></div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer">
+            <input type="checkbox" id="import-overwrite" style="width:auto;accent-color:var(--accent)">
+            Duplikate überschreiben
+          </label>
+        </div>
+      </div>
+    </div>
+    <div id="import-result" style="display:none"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-import')">Schließen</button>
+    <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
+      <span class="spinner" id="import-sp" style="display:none"></span>Importieren
+    </button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: Export ═══ -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div class="modal-title">Maschinen exportieren</div>
+    <button class="btn btn-sm" onclick="closeM('m-export')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div><label>Bereich</label><select id="exp-bereich"><option value="">Alle Bereiche</option></select></div>
+    <div><label>Kostenstelle</label><select id="exp-kst"><option value="">Alle Kostenstellen</option></select></div>
+    <div><label>Kategorie</label><select id="exp-kat"><option value="">Alle Kategorien</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-export')">Abbrechen</button>
+    <button class="btn btn-p" onclick="runExport()">⬇ CSV herunterladen</button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: Einstellungen ═══ -->
+<div class="overlay" id="m-settings" onclick="if(event.target===this)closeM('m-settings')">
+<div class="modal" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div class="modal-title">Maschinen – Einstellungen</div>
+    <button class="btn btn-sm" onclick="closeM('m-settings')">✕</button>
+  </div>
+  <div class="modal-body" id="settings-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-settings')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveSettings()">Speichern</button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: QR-Code drucken ═══ -->
+<div class="overlay" id="m-qr" onclick="if(event.target===this)closeM('m-qr')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div class="modal-title">QR-Code drucken</div>
+    <button class="btn btn-sm" onclick="closeM('m-qr')">✕</button>
+  </div>
+  <div class="modal-body" style="align-items:center">
+    <div class="qr-print" id="qr-print-area"></div>
+    <div class="ts" style="text-align:center;margin-top:8px">QR-Code auf Maschine aufkleben → Tablet scannt → Prüfung startet</div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-qr')">Schließen</button>
+    <button class="btn btn-p" onclick="printQR()">🖨 Drucken</button>
+  </div>
+</div></div>
+
+<!-- ═══ MODAL: GBU-Transfer ═══ -->
+<div class="overlay" id="m-gbu-transfer" onclick="if(event.target===this)closeM('m-gbu-transfer')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title">Mangel in GBU übertragen</div>
+      <div class="modal-sub">Gefährdung automatisch in verknüpfte GBU eintragen</div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-gbu-transfer')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="warn-box" style="margin-bottom:12px">
+      <strong>Mangel festgestellt</strong> – Soll dieser Mangel als neue Gefährdung in die GBU übertragen werden?
+    </div>
+    <div id="gbu-transfer-body"></div>
+    <div><label>Verknüpfte GBU</label><select id="gbu-select"><option value="">– Keine –</option></select></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-gbu-transfer')">Überspringen</button>
+    <button class="btn btn-p" onclick="doGBUTransfer()">In GBU übertragen</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-user')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div><label>API-Key (Claude KI)</label>
+      <div style="display:flex;gap:8px">
+        <input id="um-key" type="password" placeholder="sk-ant-…" style="font-family:var(--fm);font-size:12px">
+        <button class="btn btn-p btn-sm" onclick="saveKey()">OK</button>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let _profile = null;
+let _canWrite = false;
+let _maschinen = [];
+let _bereiche = [];
+let _checklisten = [];
+let _protokolle = [];
+let _gbuList = [];
+let _settings = {};
+let _pendingProtokoll = null; // für GBU-Transfer nach Prüfung
+let _importParsed = null;
+let _editFotos = [];     // Fotos im Bearbeiten-Modal
+let _editDoks = [];      // Dokumente im Bearbeiten-Modal
+
+// Default-Felder (ein/ausschaltbar)
+const DEFAULT_FELDER = [
+  {id:'inventar_nr',   label:'Inventar-Nr.',       default:true},
+  {id:'typ_modell',    label:'Typ / Modell',        default:true},
+  {id:'hersteller',    label:'Hersteller',          default:true},
+  {id:'baujahr',       label:'Baujahr',             default:true},
+  {id:'seriennummer',  label:'Seriennummer',        default:true},
+  {id:'standort',      label:'Standort',            default:true},
+  {id:'kostenstelle',  label:'Kostenstelle',        default:true},
+  {id:'kategorie',     label:'Kategorie',           default:true},
+  {id:'leistung',      label:'Leistung / Kapazität',default:false},
+  {id:'status',        label:'Status',              default:true},
+  {id:'pruefgrundlage',label:'Prüfgrundlage',       default:true},
+  {id:'pruefintervall',label:'Prüfintervall (Mon.)',default:true},
+  {id:'naechste_pruef',label:'Nächste Prüfung',     default:true},
+  {id:'notizen',       label:'Notizen',             default:true},
+];
+
+// ── Utilities ─────────────────────────────────────────────
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+function addMonths(iso,m){if(!iso||!m)return'';const d=new Date(iso);d.setMonth(d.getMonth()+parseInt(m));return d.toISOString().slice(0,10);}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+function apiKey(){return localStorage.getItem('ehs_api_key')||'';}
+
+function isFeldAktiv(id){
+  const felder=_settings.felder||{};
+  const def=DEFAULT_FELDER.find(f=>f.id===id);
+  if(felder[id]!==undefined)return felder[id];
+  return def?.default!==false;
+}
+
+// ── Sidebar & Dark Mode ───────────────────────────────────
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');
+  localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();
+  const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');
+  localStorage.setItem('ehs_theme',d?'dark':'light');
+  updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle');
+  const k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';
+  if(k)k.style.left=d?'18px':'2px';
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    // Sidebar
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    const admin=profile?.rolle==='admin';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display=admin?'':'none');
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    // Sidebar collapse
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    // Dark Mode
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    // Org-Settings
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}catch(e){}
+    // Einstellungen laden
+    try{const s=await getOrgSettings();_settings=(s?.db_maschinen)||{};}catch(e){_settings={};}
+    // Daten laden
+    await loadAll();
+    // URL-Parameter: direkt Prüfung starten?
+    const params=new URLSearchParams(location.search);
+    const pruefId=params.get('pruefe');
+    if(pruefId){const m=_maschinen.find(x=>x.id===pruefId);if(m)openPruefen(m.id);}
+  });
+});
+
+async function loadAll(){
+  try{
+    const[masch,ber,cl,prot,gbu]=await Promise.all([
+      maschinGetAll(),
+      bereichGetAll(),
+      checklisteGetAll(),
+      checklisteProtokolleGetAll(),
+      gbuGetAll(),
+    ]);
+    _maschinen=masch||[];
+    _bereiche=ber||[];
+    _checklisten=(cl||[]).filter(c=>c.tab==='maschine'||!c.tab);
+    _protokolle=prot||[];
+    _gbuList=gbu||[];
+    fillFilter();
+    renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTER & LISTE
+// ═══════════════════════════════════════════════════════════
+function fillFilter(){
+  const bereiche=_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  document.getElementById('f-bereich').innerHTML='<option value="">Alle Bereiche</option>'+bereiche;
+  document.getElementById('exp-bereich').innerHTML='<option value="">Alle Bereiche</option>'+bereiche;
+  const ksts=[...new Set(_maschinen.map(m=>m.kostenstelle).filter(Boolean))];
+  const kstOpts=ksts.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  document.getElementById('f-kst').innerHTML='<option value="">Alle KST</option>'+kstOpts;
+  document.getElementById('exp-kst').innerHTML='<option value="">Alle KST</option>'+kstOpts;
+  const kats=[...new Set(_maschinen.map(m=>m.kategorie).filter(Boolean))];
+  const katOpts=kats.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  document.getElementById('f-kat').innerHTML='<option value="">Alle Kategorien</option>'+katOpts;
+  document.getElementById('exp-kat').innerHTML='<option value="">Alle Kategorien</option>'+katOpts;
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'';
+  const fK=document.getElementById('f-kst')?.value||'';
+  const fKat=document.getElementById('f-kat')?.value||'';
+  const fS=document.getElementById('f-status')?.value||'';
+  const fSuche=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _maschinen.filter(m=>{
+    if(fB&&m.bereichId!==fB)return false;
+    if(fK&&(m.kostenstelle||'')!==fK)return false;
+    if(fKat&&(m.kategorie||'')!==fKat)return false;
+    if(fS&&(m.status||'')!==fS)return false;
+    if(fSuche&&!JSON.stringify(m).toLowerCase().includes(fSuche))return false;
+    return true;
+  });
+}
+
+function getAmpel(maschine){
+  const clIds=maschine.zugewieseneChecklisten||[];
+  if(!clIds.length)return null;
+  const prots=_protokolle.filter(p=>p.objektId===maschine.id).sort((a,b)=>new Date(b.datum)-new Date(a.datum));
+  if(!prots.length)return{status:'offen',label:'🟡 Ausstehend',cls:'ampel-offen',datum:null};
+  const letztes=prots[0];
+  const mangel=letztes.ergebnis==='mangel';
+  // Fälligkeit prüfen
+  const cl=_checklisten.find(c=>c.id===letztes.clId);
+  let faellig=false;
+  if(cl?.intervall&&letztes.datum){
+    const naechste=new Date(letztes.datum);naechste.setMonth(naechste.getMonth()+parseInt(cl.intervall));
+    if(naechste<new Date())faellig=true;
+  }
+  if(faellig)return{status:'offen',label:'🟡 Überfällig',cls:'ampel-offen',datum:letztes.datum};
+  if(mangel)return{status:'mangel',label:'🔴 Mangel',cls:'ampel-mangel',datum:letztes.datum};
+  return{status:'io',label:'🟢 i.O.',cls:'ampel-io',datum:letztes.datum};
+}
+
+function renderList(){
+  const el=document.getElementById('m-list');
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Maschine'+(data.length!==1?'n':'');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">🏭</div>
+      <p style="margin-bottom:12px">${_maschinen.length?'Keine Maschinen gefunden.':'Noch keine Maschinen angelegt.'}</p>
+      ${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAdd()">+ Erste Maschine anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(m=>renderCard(m)).join('');
+}
+
+function renderCard(m){
+  const bereich=_bereiche.find(b=>b.id===m.bereichId);
+  const ampel=getAmpel(m);
+  const statusCls={'In Betrieb':'status-betrieb','Außer Betrieb':'status-ausser','In Wartung':'status-wartung'}[m.status]||'b-neutral';
+  const borderCol=ampel?.status==='mangel'?'rgba(220,38,38,.4)':ampel?.status==='io'?'rgba(22,163,74,.3)':'';
+  const accentCol=ampel?.status==='mangel'?'#dc2626':ampel?.status==='io'?'#16a34a':ampel?.status==='offen'?'#b45309':'var(--border2)';
+  const fotos=m.fotos||[];
+  const clCount=(m.zugewieseneChecklisten||[]).length;
+  return `<div class="m-card" style="${borderCol?'border-color:'+borderCol:''}">
+    <div class="m-card-accent" style="background:${accentCol}"></div>
+    <div class="m-card-body">
+      <div class="m-card-left">
+        <div class="m-card-title">
+          ${esc(m.name||'–')}
+          ${m.inventar_nr?`<span class="ts" style="font-weight:400">${esc(m.inventar_nr)}</span>`:''}
+          ${m.status?`<span class="badge ${statusCls}">${esc(m.status)}</span>`:''}
+          ${ampel?`<span class="ampel ${ampel.cls}">${ampel.label}${ampel.datum?' · '+fmt(ampel.datum):''}</span>`:''}
+        </div>
+        <div class="m-card-meta">
+          ${m.hersteller?`<span>🏭 ${esc(m.hersteller)}</span>`:''}
+          ${m.baujahr?`<span>📅 ${esc(m.baujahr)}</span>`:''}
+          ${bereich?`<span>📍 ${esc(bereich.name)}</span>`:''}
+          ${m.kostenstelle?`<span>💼 ${esc(m.kostenstelle)}</span>`:''}
+          ${m.kategorie?`<span class="badge b-neutral" style="font-size:10px">${esc(m.kategorie)}</span>`:''}
+          ${m.naechste_pruef?`<span>🔧 Prüfung: ${fmt(m.naechste_pruef)}</span>`:''}
+          ${clCount?`<span class="badge b-neutral" style="font-size:10px">📋 ${clCount} Checkliste${clCount>1?'n':''}</span>`:''}
+        </div>
+        ${fotos.length?`<div class="m-foto-strip">${fotos.slice(0,5).map(f=>`<img src="${f.dataUrl}" class="m-foto" onclick="viewFoto('${f.id}','${m.id}')" title="${esc(f.name||'')}">`).join('')}${fotos.length>5?`<div style="width:56px;height:56px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3)">+${fotos.length-5}</div>`:''}</div>`:''}
+      </div>
+      <div class="m-card-actions">
+        ${clCount&&_canWrite?`<button class="btn btn-sm" onclick="openPruefen('${m.id}')" title="Prüfung durchführen" style="font-size:11px">✓ Prüfen</button>`:''}
+        ${ampel?`<button class="btn btn-sm" onclick="openHistorie('${m.id}')" title="Protokollhistorie" style="font-size:11px">📋</button>`:''}
+        <button class="btn btn-sm" onclick="openQR('${m.id}')" title="QR-Code drucken" style="font-size:11px">⬜</button>
+        ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${m.id}')">✏</button>`:''}
+        ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteM('${m.id}')">🗑</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// VOR-ORT-MODUS
+// ═══════════════════════════════════════════════════════════
+function toggleVorOrt(){
+  const nv=document.getElementById('normal-view');
+  const vv=document.getElementById('vor-ort-view');
+  const btn=document.getElementById('btn-vor-ort');
+  const isVorOrt=vv.classList.toggle('on');
+  nv.style.display=isVorOrt?'none':'block';
+  btn.style.background=isVorOrt?'rgba(255,255,255,.2)':'rgba(255,255,255,.08)';
+  if(isVorOrt){document.getElementById('vo-suche').focus();renderVorOrt();}
+}
+
+function renderVorOrt(){
+  const suche=document.getElementById('vo-suche')?.value?.toLowerCase()||'';
+  const data=_maschinen.filter(m=>!suche||JSON.stringify(m).toLowerCase().includes(suche));
+  const grid=document.getElementById('vo-grid');
+  if(!data.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3)">Keine Maschinen gefunden</div>`;return;}
+  grid.innerHTML=data.map(m=>{
+    const ampel=getAmpel(m);
+    const clCount=(m.zugewieseneChecklisten||[]).length;
+    return `<div class="vor-ort-card" onclick="openPruefenVorOrt('${m.id}')">
+      <div class="vc-name">${esc(m.name||'–')}</div>
+      <div class="vc-meta">${[m.inventar_nr,m.standort,_bereiche.find(b=>b.id===m.bereichId)?.name].filter(Boolean).map(esc).join(' · ')||'–'}</div>
+      <div class="vc-ampel">${ampel?ampel.label:'⚪ Keine Checkliste'}</div>
+      ${clCount?`<div style="margin-top:8px"><span class="btn btn-p btn-sm" style="font-size:12px;cursor:pointer">✓ Prüfung starten</span></div>`:'<div class="ts" style="margin-top:8px">Keine Checkliste zugewiesen</div>'}
+    </div>`;
+  }).join('');
+}
+
+function openPruefenVorOrt(id){openPruefen(id);}
+
+// ═══════════════════════════════════════════════════════════
+// ANLEGEN / BEARBEITEN
+// ═══════════════════════════════════════════════════════════
+function openAdd(){
+  document.getElementById('edit-id').value='';
+  document.getElementById('m-maschine-title').textContent='Maschine anlegen';
+  document.getElementById('m-maschine-sub').textContent='';
+  _editFotos=[];_editDoks=[];
+  renderForm({});
+  openM('m-maschine');
+}
+
+function openEdit(id){
+  const m=_maschinen.find(x=>x.id===id);if(!m)return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('m-maschine-title').textContent='Maschine bearbeiten';
+  document.getElementById('m-maschine-sub').textContent=m.name||'';
+  _editFotos=JSON.parse(JSON.stringify(m.fotos||[]));
+  _editDoks=JSON.parse(JSON.stringify(m.dokumente||[]));
+  renderForm(m);
+  openM('m-maschine');
+}
+
+function renderForm(m){
+  const b=_bereiche;
+  const bereichOpts='<option value="">– kein –</option>'+b.map(x=>`<option value="${x.id}"${x.id===m.bereichId?' selected':''}>${esc(x.name)}</option>`).join('');
+  const clVerfuegbar=_checklisten;
+  const clZugewiesen=m.zugewieseneChecklisten||[];
+  const customFelder=_settings.customFelder||[];
+  const S=(id,lbl,val='',ph='',type='text',extra='')=>isFeldAktiv(id)?`<div><label>${esc(lbl)}</label><input id="f-${id}" type="${type}" value="${esc(val)}" placeholder="${esc(ph)}" ${extra}></div>`:'';
+
+  document.getElementById('m-body').innerHTML=`
+    <div><label>Bezeichnung *</label><input id="f-name" value="${esc(m.name||'')}" placeholder="DEMAG Ergotech D100/4" autofocus></div>
+    <div class="g2">
+      ${S('inventar_nr','Inventar-Nr.',m.inventar_nr||'','M-001')}
+      ${S('typ_modell','Typ / Modell',m.typ_modell||'')}
+    </div>
+    <div class="g2">
+      ${S('hersteller','Hersteller',m.hersteller||'')}
+      ${S('baujahr','Baujahr',m.baujahr||'','2010')}
+    </div>
+    <div class="g2">
+      ${S('seriennummer','Seriennummer',m.seriennummer||'')}
+      ${S('leistung','Leistung / Kapazität',m.leistung||'','100 kW / 50 t')}
+    </div>
+    <div class="g2">
+      ${S('standort','Standort',m.standort||'','Halle 3')}
+      ${isFeldAktiv('kostenstelle')?`<div><label>Kostenstelle</label><input id="f-kostenstelle" value="${esc(m.kostenstelle||'')}" placeholder="KST-4711"></div>`:''}
+    </div>
+    <div class="g2">
+      ${isFeldAktiv('kategorie')?`<div><label>Kategorie</label><input id="f-kategorie" value="${esc(m.kategorie||'')}" placeholder="z.B. Spritzgussmaschine" list="kat-list"></div>`:''}
+      <div><label>Bereich</label><select id="f-bereichId">${bereichOpts}</select></div>
+    </div>
+    <datalist id="kat-list">${[...new Set(_maschinen.map(x=>x.kategorie).filter(Boolean))].map(k=>`<option value="${esc(k)}">`).join('')}</datalist>
+    ${isFeldAktiv('status')?`<div><label>Status</label><select id="f-status">
+      <option value="In Betrieb"${m.status==='In Betrieb'?' selected':''}>In Betrieb</option>
+      <option value="Außer Betrieb"${m.status==='Außer Betrieb'?' selected':''}>Außer Betrieb</option>
+      <option value="In Wartung"${m.status==='In Wartung'?' selected':''}>In Wartung</option>
+    </select></div>`:''}
+    ${isFeldAktiv('pruefgrundlage')?`<div><label>Prüfgrundlage</label><input id="f-pruefgrundlage" value="${esc(m.pruefgrundlage||(_settings.pruefgrundlage||''))}" placeholder="BetrSichV §14, DGUV V3"></div>`:''}
+    <div class="g2">
+      ${isFeldAktiv('pruefintervall')?`<div><label>Prüfintervall (Monate)</label><input id="f-pruefintervall" type="number" min="1" value="${esc(m.pruefintervall||_settings.pruefintervall||'12')}" oninput="calcNaechste()"></div>`:''}
+      ${isFeldAktiv('naechste_pruef')?`<div><label>Nächste Prüfung</label><input id="f-naechste_pruef" type="date" value="${esc(m.naechste_pruef||'')}"></div>`:''}
+    </div>
+    ${isFeldAktiv('notizen')?`<div><label>Notizen</label><textarea id="f-notizen">${esc(m.notizen||'')}</textarea></div>`:''}
+
+    ${customFelder.length?`<div class="section-block">
+      <div class="section-label">Weitere Felder</div>
+      ${customFelder.map(cf=>`<div style="margin-bottom:10px"><label>${esc(cf.label)}${cf.pflicht?'<span style="color:var(--nok)"> *</span>':''}</label>
+        ${cf.typ==='jaNein'?`<select id="cf-${cf.id}"><option value="">–</option><option value="ja"${m['cf_'+cf.id]==='ja'?' selected':''}>Ja</option><option value="nein"${m['cf_'+cf.id]==='nein'?' selected':''}>Nein</option></select>`
+        :cf.typ==='datum'?`<input id="cf-${cf.id}" type="date" value="${esc(m['cf_'+cf.id]||'')}">`
+        :cf.typ==='zahl'?`<input id="cf-${cf.id}" type="number" value="${esc(m['cf_'+cf.id]||'')}">`
+        :`<input id="cf-${cf.id}" value="${esc(m['cf_'+cf.id]||'')}" placeholder="${esc(cf.label)}">`}
+      </div>`).join('')}
+    </div>`:''}
+
+    <!-- Checklisten -->
+    <div class="section-block">
+      <div class="section-label">Checklisten zuweisen</div>
+      ${!clVerfuegbar.length?`<div class="ts">Noch keine Checklisten angelegt. <button type="button" class="btn btn-sm" onclick="closeM('m-maschine');openChecklistenEditor()">+ Jetzt anlegen</button></div>`
+      :`<div style="display:flex;flex-direction:column;gap:6px">
+        ${clVerfuegbar.map(cl=>`
+          <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:0.5px solid var(--border);border-radius:6px;cursor:pointer;background:var(--surface)">
+            <input type="checkbox" value="${cl.id}" ${clZugewiesen.includes(cl.id)?'checked':''} style="width:auto;accent-color:var(--accent)" id="cl-cb-${cl.id}">
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:500">${esc(cl.titel)}</div>
+              <div class="ts">${(cl.fragen||[]).length} Fragen · Intervall: ${cl.intervall||12} Monate</div>
+            </div>
+          </label>`).join('')}
+      </div>`}
+    </div>
+
+    <!-- Fotos -->
+    <div class="section-block">
+      <div class="section-label">Fotos</div>
+      <div class="foto-grid" id="foto-grid">${renderFotoGrid()}</div>
+      <input type="file" id="foto-input" accept="image/*" multiple capture="environment" style="display:none" onchange="addFotos(event)">
+      <div class="ts" style="margin-top:6px">Kamera oder Galerie · max. 8 MB pro Bild</div>
+    </div>
+
+    <!-- Dokumente -->
+    <div class="section-block">
+      <div class="section-label">Dokumente (Betriebsanleitung, CE, Prüfberichte)</div>
+      <div id="dok-list">${renderDokList()}</div>
+      <input type="file" id="dok-input" accept=".pdf,.doc,.docx" style="display:none" onchange="addDok(event)">
+      <button type="button" class="btn btn-sm" style="margin-top:8px" onclick="document.getElementById('dok-input').click()">⬆ Dokument hochladen (PDF)</button>
+    </div>
+  `;
+}
+
+function calcNaechste(){
+  const heute=new Date().toISOString().slice(0,10);
+  const intervall=document.getElementById('f-pruefintervall')?.value;
+  const el=document.getElementById('f-naechste_pruef');
+  if(el&&intervall&&!el.value){el.value=addMonths(heute,intervall);}
+}
+
+// ── Fotos ──────────────────────────────────────────────────
+function renderFotoGrid(){
+  return _editFotos.map(f=>`
+    <div class="foto-thumb-wrap">
+      <img src="${f.dataUrl}" class="foto-thumb" onclick="viewFotoEdit('${f.id}')" title="${esc(f.name||'')}">
+      <button class="foto-del" onclick="removeFoto('${f.id}')">✕</button>
+    </div>`).join('')+
+  `<div class="foto-add-btn" onclick="document.getElementById('foto-input').click()">+</div>`;
+}
+
+function addFotos(e){
+  const files=[...e.target.files];
+  files.forEach(f=>{
+    if(f.size>8*1024*1024){toast(f.name+' zu groß (max. 8 MB)','err');return;}
+    const r=new FileReader();
+    r.onload=ev=>{_editFotos.push({id:uid('F'),name:f.name,dataUrl:ev.target.result});
+      const g=document.getElementById('foto-grid');if(g)g.innerHTML=renderFotoGrid();};
+    r.readAsDataURL(f);
+  });
+  e.target.value='';
+}
+
+function removeFoto(id){_editFotos=_editFotos.filter(f=>f.id!==id);const g=document.getElementById('foto-grid');if(g)g.innerHTML=renderFotoGrid();}
+function viewFotoEdit(id){const f=_editFotos.find(x=>x.id===id);if(!f)return;const w=window.open();w.document.write(`<img src="${f.dataUrl}" style="max-width:100%;max-height:100vh">`);w.document.close();}
+function viewFoto(fotoId,maschinenId){const m=_maschinen.find(x=>x.id===maschinenId);const f=(m?.fotos||[]).find(x=>x.id===fotoId);if(!f)return;const w=window.open();w.document.write(`<img src="${f.dataUrl}" style="max-width:100%;max-height:100vh">`);w.document.close();}
+
+// ── Dokumente ──────────────────────────────────────────────
+function renderDokList(){
+  if(!_editDoks.length)return'<div class="ts" style="padding:4px 0">Noch keine Dokumente.</div>';
+  return _editDoks.map(d=>`
+    <div class="dok-row">
+      <div class="dok-icon">📄</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.name)}</div><div class="ts">${d.typ||'Dokument'}</div></div>
+      <button class="btn btn-sm" onclick="openDok('${d.id}')">📖</button>
+      <button class="btn btn-sm btn-d" onclick="removeDok('${d.id}')">✕</button>
+    </div>`).join('');
+}
+
+function addDok(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const typ=prompt('Dokumenttyp (z.B. Betriebsanleitung, CE-Erklärung, Prüfbericht):','Betriebsanleitung')||'Dokument';
+    _editDoks.push({id:uid('D'),name:f.name,typ,dataUrl:ev.target.result});
+    const dl=document.getElementById('dok-list');if(dl)dl.innerHTML=renderDokList();
+    toast(f.name+' hochgeladen ✓','ok');
+  };
+  r.readAsDataURL(f);e.target.value='';
+}
+
+function removeDok(id){_editDoks=_editDoks.filter(d=>d.id!==id);const dl=document.getElementById('dok-list');if(dl)dl.innerHTML=renderDokList();}
+function openDok(id){const d=_editDoks.find(x=>x.id===id);if(!d)return;const w=window.open();w.document.write(`<iframe src="${d.dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();}
+
+// ── Speichern ──────────────────────────────────────────────
+async function saveM(){
+  const name=document.getElementById('f-name')?.value?.trim();
+  if(!name){toast('Bezeichnung ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_maschinen.find(x=>x.id===editId);
+  const g=(id)=>document.getElementById('f-'+id)?.value??'';
+  // Custom-Felder
+  const customVals={};
+  (_settings.customFelder||[]).forEach(cf=>{
+    const el=document.getElementById('cf-'+cf.id);
+    if(el)customVals['cf_'+cf.id]=el.value;
+  });
+  // Zugewiesene Checklisten
+  const clZugewiesen=[...document.querySelectorAll('[id^="cl-cb-"]:checked')].map(el=>el.value);
+  // Nächste Prüfung
+  let naechste=g('naechste_pruef');
+  if(!naechste&&g('pruefintervall')){naechste=addMonths(new Date().toISOString().slice(0,10),g('pruefintervall'));}
+  const obj={
+    id:prev?.id||uid('M'),
+    name,
+    inventar_nr:g('inventar_nr'),typ_modell:g('typ_modell'),hersteller:g('hersteller'),
+    baujahr:g('baujahr'),seriennummer:g('seriennummer'),leistung:g('leistung'),
+    standort:g('standort'),kostenstelle:g('kostenstelle'),kategorie:g('kategorie'),
+    bereichId:g('bereichId'),status:g('status'),
+    pruefgrundlage:g('pruefgrundlage'),pruefintervall:g('pruefintervall'),
+    naechste_pruef:naechste,
+    notizen:g('notizen'),
+    fotos:_editFotos,dokumente:_editDoks,
+    zugewieseneChecklisten:clZugewiesen,
+    ...customVals,
+    createdAt:prev?.createdAt||new Date().toISOString(),
+  };
+  try{
+    await maschinSave(obj);
+    _maschinen=await maschinGetAll();
+    closeM('m-maschine');fillFilter();renderList();renderVorOrt();
+    toast('Gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteM(id){
+  const m=_maschinen.find(x=>x.id===id);
+  if(!confirm(`"${m?.name||'Maschine'}" löschen?`))return;
+  try{await maschinDelete(id);_maschinen=await maschinGetAll();renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ═══════════════════════════════════════════════════════════
+// CHECKLISTEN-SYSTEM
+// ═══════════════════════════════════════════════════════════
+function openChecklistenEditor(clId){
+  const cl=clId?_checklisten.find(x=>x.id===clId):null;
+  document.getElementById('cl-edit-id').value=clId||'';
+  document.getElementById('m-cl-title').textContent=cl?'Checkliste bearbeiten':'Checkliste anlegen';
+  document.getElementById('cl-titel').value=cl?.titel||'';
+  document.getElementById('cl-beschr').value=cl?.beschreibung||'';
+  document.getElementById('cl-intervall').value=cl?.intervall||12;
+  renderClFragen(cl?.fragen||[]);
+  openM('m-cl-editor');
+}
+
+function renderClFragen(fragen){
+  const el=document.getElementById('cl-fragen-list');
+  el.innerHTML=fragen.length?fragen.map((f,i)=>`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:8px;border:0.5px solid var(--border);border-radius:var(--r);background:var(--surface2)">
+      <input value="${esc(f.frage||'')}" id="clf-text-${i}" placeholder="Prüffrage…" style="flex:1;font-size:13px">
+      <select id="clf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+        <option value="jaNein"${f.typ==='jaNein'?' selected':''}>Ja/Nein</option>
+        <option value="text"${f.typ==='text'?' selected':''}>Text</option>
+        <option value="foto"${f.typ==='foto'?' selected':''}>Foto</option>
+        <option value="zahl"${f.typ==='zahl'?' selected':''}>Zahl</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+        <input type="checkbox" id="clf-pflicht-${i}" ${f.pflicht?'checked':''} style="width:auto;accent-color:var(--accent)"> Pflicht
+      </label>
+      <button class="btn btn-sm btn-d" style="padding:3px 7px" onclick="this.closest('div').remove()">✕</button>
+    </div>`).join(''):`<div class="ts" style="text-align:center;padding:12px">Noch keine Fragen – "+ Frage" klicken.</div>`;
+}
+
+function addClFrage(){
+  const list=document.getElementById('cl-fragen-list');
+  const i=list.querySelectorAll('input[id^="clf-text-"]').length;
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:8px;border:0.5px solid var(--border);border-radius:var(--r);background:var(--surface2)';
+  div.innerHTML=`<input id="clf-text-${i}" placeholder="Prüffrage…" style="flex:1;font-size:13px">
+    <select id="clf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+      <option value="jaNein">Ja/Nein</option><option value="text">Text</option><option value="foto">Foto</option><option value="zahl">Zahl</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+      <input type="checkbox" id="clf-pflicht-${i}" style="width:auto;accent-color:var(--accent)"> Pflicht
+    </label>
+    <button class="btn btn-sm btn-d" style="padding:3px 7px" onclick="this.closest('div').remove()">✕</button>`;
+  list.appendChild(div);div.querySelector('input').focus();
+}
+
+async function saveCL(){
+  const titel=document.getElementById('cl-titel').value.trim();
+  if(!titel){toast('Titel erforderlich','err');return;}
+  const sp=document.getElementById('cl-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('cl-edit-id').value;
+  const fragen=[];
+  document.querySelectorAll('[id^="clf-text-"]').forEach(inp=>{
+    const i=inp.id.replace('clf-text-','');
+    const frage=inp.value.trim();if(!frage)return;
+    fragen.push({frage,typ:document.getElementById('clf-typ-'+i)?.value||'jaNein',pflicht:document.getElementById('clf-pflicht-'+i)?.checked||false});
+  });
+  const cl={
+    id:editId||uid('CL'),tab:'maschine',titel,
+    beschreibung:document.getElementById('cl-beschr').value.trim(),
+    intervall:parseInt(document.getElementById('cl-intervall').value)||12,
+    fragen,
+    linkId:editId?(_checklisten.find(x=>x.id===editId)?.linkId||uid('LK')):uid('LK'),
+  };
+  try{
+    await checklisteSave(cl);
+    _checklisten=await checklisteGetAll().then(r=>(r||[]).filter(c=>c.tab==='maschine'||!c.tab));
+    closeM('m-cl-editor');renderList();toast('Checkliste gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+// ── Prüfung durchführen ────────────────────────────────────
+function openPruefen(objId){
+  const m=_maschinen.find(x=>x.id===objId);if(!m)return;
+  const clIds=m.zugewieseneChecklisten||[];
+  if(!clIds.length){toast('Bitte zuerst Checkliste zuweisen (✏ Bearbeiten)','err');return;}
+  const cl=_checklisten.find(x=>clIds.includes(x.id));
+  if(!cl){toast('Checkliste nicht gefunden – bitte neu zuweisen','err');return;}
+  document.getElementById('m-pruef-title').textContent=cl.titel;
+  document.getElementById('m-pruef-sub').textContent=m.name+(m.inventar_nr?' · '+m.inventar_nr:'');
+  document.getElementById('pf-pruefer').value=_profile?.name||'';
+  document.getElementById('pf-datum').value=new Date().toISOString().slice(0,10);
+  document.getElementById('pf-notiz').value='';
+  // Fragen rendern
+  document.getElementById('pf-fragen').innerHTML=(cl.fragen||[]).map((f,i)=>`
+    <div class="pruef-frage" id="pf-card-${i}">
+      <div class="pruef-frage-text">${esc(f.frage)}${f.pflicht?'<span style="color:var(--nok);margin-left:3px">*</span>':''}</div>
+      ${f.typ==='jaNein'?`<div class="pruef-ja-nein">
+          <div class="pruef-btn" id="pf-ja-${i}" onclick="setJN(${i},'ja')">✅ Ja / i.O.</div>
+          <div class="pruef-btn" id="pf-nein-${i}" onclick="setJN(${i},'nein')">❌ Nein / Mangel</div>
+        </div>`
+      :f.typ==='foto'?`<label style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1.5px dashed var(--border2);border-radius:var(--r);cursor:pointer;font-size:13px;color:var(--text2)">
+          📷 Foto aufnehmen / hochladen
+          <input type="file" accept="image/*" capture="environment" id="pf-val-${i}" style="display:none" onchange="previewPruefFoto(${i},this)">
+        </label>
+        <div id="pf-foto-prev-${i}" style="margin-top:6px"></div>`
+      :f.typ==='zahl'?`<input id="pf-val-${i}" type="number" placeholder="Wert eingeben…" style="width:200px">`
+      :`<textarea id="pf-val-${i}" rows="2" placeholder="Antwort eingeben…"></textarea>`}
+    </div>`).join('');
+  // Maschinen-ID und CL-ID merken
+  document.getElementById('m-pruefen').dataset.objId=objId;
+  document.getElementById('m-pruefen').dataset.clId=cl.id;
+  openM('m-pruefen');
+}
+
+function setJN(i,val){
+  const ja=document.getElementById('pf-ja-'+i);
+  const nein=document.getElementById('pf-nein-'+i);
+  const card=document.getElementById('pf-card-'+i);
+  ja?.classList.toggle('ja-sel',val==='ja');
+  nein?.classList.toggle('nein-sel',val==='nein');
+  if(card)card.style.borderColor=val==='ja'?'rgba(22,163,74,.4)':val==='nein'?'rgba(220,38,38,.4)':'';
+}
+
+function previewPruefFoto(i,inp){
+  const f=inp.files[0];if(!f)return;
+  const url=URL.createObjectURL(f);
+  const prev=document.getElementById('pf-foto-prev-'+i);
+  if(prev)prev.innerHTML=`<img src="${url}" style="max-width:200px;max-height:150px;border-radius:6px;border:0.5px solid var(--border)">`;
+}
+
+async function saveProtokoll(){
+  const modal=document.getElementById('m-pruefen');
+  const objId=modal.dataset.objId;
+  const clId=modal.dataset.clId;
+  const cl=_checklisten.find(x=>x.id===clId);
+  const sp=document.getElementById('pruef-sp');sp.style.display='inline-block';
+
+  // Antworten sammeln
+  const antworten=(cl?.fragen||[]).map((f,i)=>{
+    let wert;
+    if(f.typ==='jaNein'){
+      const ja=document.getElementById('pf-ja-'+i)?.classList.contains('ja-sel');
+      const nein=document.getElementById('pf-nein-'+i)?.classList.contains('nein-sel');
+      wert=ja?true:nein?false:null;
+    }else if(f.typ==='foto'){
+      const file=document.getElementById('pf-val-'+i)?.files[0];wert=file?file.name:'';
+    }else{wert=document.getElementById('pf-val-'+i)?.value?.trim()||'';}
+    return{frage:f.frage,typ:f.typ,wert,pflicht:f.pflicht};
+  });
+
+  // Pflichtfelder
+  const fehlend=antworten.filter(a=>a.pflicht&&(a.wert===null||a.wert===''));
+  if(fehlend.length){toast(fehlend.length+' Pflichtfeld(er) nicht ausgefüllt','err');sp.style.display='none';return;}
+
+  const hatMangel=antworten.some(a=>a.typ==='jaNein'&&a.wert===false);
+  const m=_maschinen.find(x=>x.id===objId);
+  const proto={
+    id:uid('PRO'),objektId:objId,clId,tab:'maschine',
+    datum:document.getElementById('pf-datum').value,
+    pruefer:_profile?.name||'',
+    prueferId:_profile?.id||'',
+    antworten,
+    notizen:document.getElementById('pf-notiz').value.trim(),
+    ergebnis:hatMangel?'mangel':'io',
+    maschineNr:m?.inventar_nr||'',
+    maschineName:m?.name||'',
+  };
+
+  try{
+    await checklisteProtokollSave(proto);
+    _protokolle=await checklisteProtokolleGetAll();
+    closeM('m-pruefen');renderList();renderVorOrt();
+    toast(hatMangel?'⚠ Mangel festgestellt – Protokoll gespeichert':'✅ i.O. – Protokoll gespeichert',hatMangel?'err':'ok');
+    // GBU-Transfer bei Mangel anbieten
+    if(hatMangel){
+      _pendingProtokoll={proto,maschine:m};
+      setTimeout(()=>openGBUTransfer(),500);
+    }
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+// ── GBU-Transfer ───────────────────────────────────────────
+function openGBUTransfer(){
+  if(!_pendingProtokoll)return;
+  const{proto,maschine}=_pendingProtokoll;
+  const mangel=proto.antworten.filter(a=>a.typ==='jaNein'&&a.wert===false);
+  document.getElementById('gbu-transfer-body').innerHTML=`
+    <div style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">Festgestellte Mängel:</div>
+      ${mangel.map(a=>`<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--nok-bg);border-radius:5px;margin-bottom:4px;font-size:13px">
+        <span style="color:var(--nok)">❌</span> ${esc(a.frage)}</div>`).join('')}
+    </div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px">Maschine: <strong>${esc(maschine?.name||'–')}</strong> · Prüfung vom ${fmt(proto.datum)}</div>`;
+  // GBU-Dropdown
+  const sel=document.getElementById('gbu-select');
+  sel.innerHTML='<option value="">– Keine GBU auswählen –</option>'+_gbuList.map(g=>`<option value="${g.id}">${esc(g.titel||g.id)}</option>`).join('');
+  openM('m-gbu-transfer');
+}
+
+async function doGBUTransfer(){
+  const gbuId=document.getElementById('gbu-select').value;
+  if(!gbuId){closeM('m-gbu-transfer');return;}
+  const{proto,maschine}=_pendingProtokoll;
+  const mangel=proto.antworten.filter(a=>a.typ==='jaNein'&&a.wert===false);
+  const gbu=_gbuList.find(x=>x.id===gbuId);if(!gbu)return;
+  const gefaehrdungen=gbu.gefaehrdungen||[];
+  mangel.forEach(m=>{
+    gefaehrdungen.push({
+      id:uid('GF'),
+      kat:'Mechanisch / Technisch',
+      text:`Mangel Maschine "${maschine?.name||'–'}" (${maschine?.inventar_nr||'–'}): ${m.frage} – Prüfung ${fmt(proto.datum)} durch ${proto.pruefer}`,
+      massnahme:'',verantwortlich:'',termin:'',wirksamkeit:'',
+      risiko_vorher:'mittel',risiko_nachher:'',
+      quelleTyp:'maschinenprüfung',quelleId:proto.id,
+    });
+  });
+  try{
+    await gbuSave({...gbu,gefaehrdungen});
+    _gbuList=await gbuGetAll();
+    closeM('m-gbu-transfer');
+    toast('Mängel in GBU eingetragen ✓','ok');
+    _pendingProtokoll=null;
+  }catch(e){toast('GBU-Fehler: '+e.message,'err');}
+}
+
+// ── Protokoll-Historie ─────────────────────────────────────
+function openHistorie(objId){
+  const m=_maschinen.find(x=>x.id===objId);
+  const prots=_protokolle.filter(p=>p.objektId===objId).sort((a,b)=>new Date(b.datum)-new Date(a.datum));
+  document.getElementById('m-hist-title').textContent='Prüfhistorie: '+(m?.name||'–');
+  document.getElementById('m-hist-sub').textContent=prots.length+' Prüfung'+(prots.length!==1?'en':'');
+  const body=document.getElementById('m-hist-body');
+  if(!prots.length){body.innerHTML='<div class="empty"><div class="empty-icon">📋</div><p>Noch keine Prüfungen.</p></div>';openM('m-historie');return;}
+  body.innerHTML=prots.map(p=>{
+    const cl=_checklisten.find(x=>x.id===p.clId);
+    const hatMangel=p.ergebnis==='mangel';
+    return`<div class="prot-card" style="border-color:${hatMangel?'rgba(220,38,38,.3)':'rgba(22,163,74,.3)'}">
+      <div class="prot-head" style="background:${hatMangel?'rgba(220,38,38,.05)':'rgba(22,163,74,.05)'}">
+        <div>
+          <div style="font-weight:500;font-size:13px">${hatMangel?'🔴 Mangel':'🟢 i.O.'} · ${fmt(p.datum)}</div>
+          <div class="ts">Prüfer: ${esc(p.pruefer||'–')} · ${esc(cl?.titel||'–')}</div>
+        </div>
+        <button class="btn btn-sm" onclick="druckeProtokoll('${p.id}')">🖨 Drucken</button>
+      </div>
+      <div class="prot-body">
+        ${(p.antworten||[]).map(a=>`<div class="prot-row">
+          <span style="color:var(--text2)">${esc(a.frage)}</span>
+          <span style="font-weight:500;color:${a.typ==='jaNein'?(a.wert===true?'var(--ok)':'var(--nok)'):'var(--text)'};white-space:nowrap">
+            ${a.typ==='jaNein'?(a.wert===true?'✅ Ja':'❌ Nein / Mangel'):(a.wert||'–')}</span>
+        </div>`).join('')}
+        ${p.notizen?`<div class="ts" style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border)">Anm.: ${esc(p.notizen)}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  openM('m-historie');
+}
+
+function druckeProtokoll(proId){
+  const p=_protokolle.find(x=>x.id===proId);if(!p)return;
+  const cl=_checklisten.find(x=>x.id===p.clId);
+  const hatMangel=p.ergebnis==='mangel';
+  const w=window.open();
+  w.document.write(`<html><head><meta charset="UTF-8"><title>Prüfprotokoll</title>
+  <style>body{font-family:sans-serif;max-width:700px;margin:0 auto;padding:32px;font-size:13px;line-height:1.6}
+  h1{font-size:18px;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:16px}
+  th{background:#1a1a1a;color:#fff;padding:8px 10px;text-align:left;font-size:12px}
+  td{padding:8px 10px;border-bottom:1px solid #e0e0e0}
+  .erg{display:inline-block;padding:5px 14px;border-radius:20px;font-weight:700;font-size:14px;margin:12px 0;
+    background:${hatMangel?'#fef2f2':'#f0fdf4'};color:${hatMangel?'#dc2626':'#16a34a'};border:1px solid ${hatMangel?'#fca5a5':'#86efac'}}
+  @media print{button{display:none}}</style></head><body>
+  <h1>Prüfprotokoll – ${esc(cl?.titel||'–')}</h1>
+  <p>Maschine: <strong>${esc(p.maschineName||'–')}</strong> ${p.maschineNr?'('+esc(p.maschineNr)+')':''}</p>
+  <p>Prüfer: ${esc(p.pruefer||'–')} · Datum: ${fmt(p.datum)}</p>
+  <div class="erg">${hatMangel?'🔴 MANGEL FESTGESTELLT':'🟢 i.O. – KEINE MÄNGEL'}</div>
+  <button onclick="window.print()" style="margin-left:12px;padding:6px 14px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨 Drucken</button>
+  <table><thead><tr><th>Prüffrage</th><th>Ergebnis</th></tr></thead><tbody>
+  ${(p.antworten||[]).map(a=>`<tr><td>${esc(a.frage)}</td>
+    <td style="color:${a.typ==='jaNein'?(a.wert?'#16a34a':'#dc2626'):'inherit'};font-weight:500">
+    ${a.typ==='jaNein'?(a.wert?'✅ i.O.':'❌ Mangel'):esc(String(a.wert||'–'))}</td></tr>`).join('')}
+  </tbody></table>
+  ${p.notizen?`<p style="margin-top:16px"><strong>Anmerkungen:</strong> ${esc(p.notizen)}</p>`:''}
+  <p style="margin-top:24px;font-size:11px;color:#999">EHS Manager · ${new Date().toLocaleString('de-DE')}</p>
+  </body></html>`);
+  w.document.close();setTimeout(()=>w.print(),400);
+}
+
+// ═══════════════════════════════════════════════════════════
+// QR-CODE
+// ═══════════════════════════════════════════════════════════
+function openQR(id){
+  const m=_maschinen.find(x=>x.id===id);if(!m)return;
+  const url=location.origin+location.pathname+'?pruefe='+encodeURIComponent(id);
+  // QR via Google Charts API (keine externe Bibliothek nötig)
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+  document.getElementById('qr-print-area').innerHTML=`
+    <div style="font-size:16px;font-weight:600;margin-bottom:8px">${esc(m.name)}</div>
+    ${m.inventar_nr?`<div style="font-size:12px;color:#666;margin-bottom:12px">Inventar-Nr.: ${esc(m.inventar_nr)}</div>`:''}
+    <img src="${qrUrl}" width="200" height="200" alt="QR-Code" style="border:1px solid #ddd;border-radius:4px">
+    <div style="font-size:11px;color:#888;margin-top:8px">Scannen für Prüfung</div>`;
+  document.getElementById('m-qr').dataset.maschineId=id;
+  openM('m-qr');
+}
+
+function printQR(){
+  const area=document.getElementById('qr-print-area');
+  const m=_maschinen.find(x=>x.id===document.getElementById('m-qr').dataset.maschineId);
+  const w=window.open();
+  w.document.write(`<html><head><meta charset="UTF-8"><title>QR-Code ${m?.name||''}</title>
+  <style>body{font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}
+  .box{border:2px solid #1a1a1a;border-radius:12px;padding:24px;text-align:center;max-width:300px}
+  @media print{button{display:none}}</style></head><body>
+  <div class="box">${area.innerHTML}</div>
+  <script>setTimeout(()=>window.print(),300)<\/script>
+  </body></html>`);
+  w.document.close();
+}
+
+// ═══════════════════════════════════════════════════════════
+// IMPORT / EXPORT / TEMPLATE
+// ═══════════════════════════════════════════════════════════
+const IMPORT_COLS=[
+  {key:'name',         label:'Bezeichnung',       required:true,  example:'DEMAG Ergotech D100/4'},
+  {key:'inventar_nr',  label:'Inventar-Nr',        required:false, example:'M-001'},
+  {key:'typ_modell',   label:'Typ_Modell',         required:false, example:'D100/4'},
+  {key:'hersteller',   label:'Hersteller',         required:false, example:'DEMAG'},
+  {key:'baujahr',      label:'Baujahr',            required:false, example:'1995'},
+  {key:'seriennummer', label:'Seriennummer',       required:false, example:'SN-123456'},
+  {key:'standort',     label:'Standort',           required:false, example:'Halle 3'},
+  {key:'kostenstelle', label:'Kostenstelle',       required:false, example:'KST-4711'},
+  {key:'kategorie',    label:'Kategorie',          required:false, example:'Spritzgussmaschine'},
+  {key:'status',       label:'Status',             required:false, example:'In Betrieb'},
+  {key:'pruefgrundlage',label:'Pruefgrundlage',   required:false, example:'BetrSichV §14'},
+  {key:'pruefintervall',label:'Pruefintervall_Mon',required:false, example:'12'},
+  {key:'naechste_pruef',label:'Naechste_Pruefung', required:false, example:'2026-12-31'},
+  {key:'bereich',      label:'Bereich (Name)',     required:false, example:'Produktion'},
+  {key:'notizen',      label:'Notizen',            required:false, example:''},
+];
+
+function downloadTemplate(){
+  closeM('m-import');
+  const activeAct=[...IMPORT_COLS];
+  (_settings.customFelder||[]).forEach(cf=>activeAct.push({key:'cf_'+cf.id,label:cf.label,required:cf.pflicht,example:''}));
+  const header=activeAct.map(c=>c.label);
+  const hinweis=activeAct.map(c=>c.required?'* Pflichtfeld':'optional');
+  const example=activeAct.map(c=>c.example||'');
+  const csv='\uFEFF'+header.join(';')+'\n'+hinweis.join(';')+'\n'+example.join(';')+'\n';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Template_Maschinen_Import.csv';a.click();URL.revokeObjectURL(url);
+  toast('Template heruntergeladen ✓','ok');
+}
+
+function openImport(){openM('m-import');document.getElementById('import-preview-wrap').style.display='none';document.getElementById('import-result').style.display='none';document.getElementById('btn-import-run').style.display='none';_importParsed=null;}
+
+function parseCSV(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return{headers:[],rows:[]};
+  const parseRow=line=>{const cols=[];let cur='',inQ=false;for(const ch of line){if(ch==='"'){inQ=!inQ;}else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}cols.push(cur.trim());return cols;};
+  const headers=parseRow(lines[0]);
+  const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;
+  const rows=lines.slice(dataStart).filter(l=>l.trim()).map(parseRow);
+  return{headers,rows};
+}
+
+function previewImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const{headers,rows}=parseCSV(ev.target.result);
+    _importParsed={headers,rows};
+    const knownLabels=IMPORT_COLS.map(c=>c.label.toLowerCase());
+    const unbekannt=headers.filter(h=>!knownLabels.includes(h.toLowerCase())&&h);
+    document.getElementById('import-table').innerHTML=`<table>
+      <tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>
+      ${rows.slice(0,5).map(row=>`<tr>${headers.map((_,i)=>`<td>${esc(row[i]||'')}</td>`).join('')}</tr>`).join('')}
+    </table>`;
+    document.getElementById('import-info').innerHTML=`<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''}</span>`+(unbekannt.length?`<span style="color:var(--warn);margin-left:8px">⚠ Unbekannte Spalten ignoriert: ${unbekannt.join(', ')}</span>`:'');
+    document.getElementById('import-preview-wrap').style.display='block';
+    document.getElementById('btn-import-run').style.display='inline-flex';
+    document.getElementById('import-result').style.display='none';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function runImport(){
+  if(!_importParsed)return;
+  const sp=document.getElementById('import-sp');sp.style.display='inline-block';
+  document.getElementById('btn-import-run').disabled=true;
+  const{headers,rows}=_importParsed;
+  const overwrite=document.getElementById('import-overwrite')?.checked||false;
+  const hMap={};
+  headers.forEach((h,i)=>{const col=IMPORT_COLS.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)hMap[i]=col.key;});
+  let imported=0,skipped=0;const errors=[];
+  for(const row of rows){
+    if(row.every(c=>!c.trim()))continue;
+    const obj={id:uid('M'),createdAt:new Date().toISOString(),status:'In Betrieb'};
+    Object.entries(hMap).forEach(([i,key])=>{const val=row[parseInt(i)]?.trim()||'';obj[key]=val;});
+    if(obj.bereich){const b=_bereiche.find(x=>x.name?.toLowerCase()===obj.bereich.toLowerCase());if(b)obj.bereichId=b.id;delete obj.bereich;}
+    if(!obj.name){errors.push('Zeile ohne Bezeichnung übersprungen');skipped++;continue;}
+    const dupe=_maschinen.find(x=>x.name?.toLowerCase()===obj.name.toLowerCase());
+    if(dupe&&!overwrite){skipped++;continue;}
+    if(dupe&&overwrite)obj.id=dupe.id;
+    try{await maschinSave(obj);imported++;}
+    catch(e){errors.push(obj.name+': '+e.message);skipped++;}
+  }
+  _maschinen=await maschinGetAll();fillFilter();renderList();
+  const res=document.getElementById('import-result');
+  const hasErr=errors.length>0;
+  res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;margin-top:8px;background:${hasErr?'var(--warn-bg)':'var(--ok-bg)'};border:0.5px solid ${hasErr?'var(--warn-border)':'var(--ok-border)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;
+  res.innerHTML=`<div style="font-weight:500">${imported} von ${rows.length} importiert${skipped?' · '+skipped+' übersprungen':''}</div>`+(errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+'</div>':'');
+  sp.style.display='none';document.getElementById('btn-import-run').disabled=false;
+  if(imported>0)toast(imported+' Maschinen importiert ✓','ok');
+}
+
+function openExport(){openM('m-export');}
+function runExport(){
+  const fB=document.getElementById('exp-bereich').value;
+  const fK=document.getElementById('exp-kst').value;
+  const fKat=document.getElementById('exp-kat').value;
+  const data=_maschinen.filter(m=>{
+    if(fB&&m.bereichId!==fB)return false;
+    if(fK&&(m.kostenstelle||'')!==fK)return false;
+    if(fKat&&(m.kategorie||'')!==fKat)return false;
+    return true;
+  });
+  const cols=[...IMPORT_COLS,{key:'bereich_name',label:'Bereich Name'}];
+  (_settings.customFelder||[]).forEach(cf=>cols.push({key:'cf_'+cf.id,label:cf.label}));
+  const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;
+  const csv='\uFEFF'+cols.map(c=>escape(c.label)).join(';')+'\n'+
+    data.map(m=>cols.map(c=>{
+      if(c.key==='bereich_name')return escape(_bereiche.find(b=>b.id===m.bereichId)?.name||'');
+      return escape(m[c.key]||'');
+    }).join(';')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download='Maschinen_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';
+  a.click();URL.revokeObjectURL(url);closeM('m-export');toast('CSV exportiert ✓','ok');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EINSTELLUNGEN
+// ═══════════════════════════════════════════════════════════
+function openSettings(){
+  const s=_settings;
+  const feldConfig=s.felder||{};
+  const customFelder=s.customFelder||[];
+  const katSettings=s.kategorien||{};
+  const kats=[...new Set(_maschinen.map(m=>m.kategorie).filter(Boolean))];
+
+  document.getElementById('settings-body').innerHTML=`
+    <div class="section-block">
+      <div class="section-label">Standard-Einstellungen</div>
+      <div class="g2">
+        <div><label>Standard Prüfintervall (Monate)</label><input id="s-intervall" type="number" min="1" value="${s.pruefintervall||12}"></div>
+        <div><label>Standard Prüfgrundlage</label><input id="s-pruefgrund" value="${esc(s.pruefgrundlage||'')}" placeholder="BetrSichV §14"></div>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Formularfelder ein-/ausschalten</div>
+      ${DEFAULT_FELDER.map(f=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border)">
+          <span style="font-size:13px">${esc(f.label)}</span>
+          <div onclick="toggleFeldBtn(this,'${f.id}')" data-aktiv="${feldConfig[f.id]!==undefined?feldConfig[f.id]:f.default}"
+            style="width:34px;height:18px;border-radius:9px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;background:${feldConfig[f.id]!==undefined?(feldConfig[f.id]?'#1a1a1a':'var(--border2)'):(f.default?'#1a1a1a':'var(--border2)')}">
+            <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);left:${feldConfig[f.id]!==undefined?(feldConfig[f.id]?'18px':'2px'):(f.default?'18px':'2px')}"></div>
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <div class="section-block">
+      <div class="section-label">Prüfintervalle je Kategorie</div>
+      ${kats.length?kats.map(k=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);gap:12px">
+        <span style="font-size:13px">${esc(k)}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="kat-int-${k.replace(/[^a-z0-9]/gi,'_')}" value="${katSettings[k]?.intervall||12}" min="1" style="width:70px;text-align:center">
+          <span class="ts">Monate</span>
+        </div>
+      </div>`).join(''):'<div class="ts">Noch keine Kategorien angelegt.</div>'}
+    </div>
+
+    <div class="section-block">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="section-label" style="margin:0">Eigene Felder</div>
+        <button type="button" class="btn btn-sm" onclick="addSettingsFeld()">+ Feld</button>
+      </div>
+      <div id="custom-felder-list">
+        ${customFelder.map((cf,i)=>`
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px" id="cf-row-${i}">
+            <input id="cf-label-${i}" value="${esc(cf.label)}" placeholder="Feldname" style="flex:1;font-size:12px">
+            <select id="cf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+              <option value="text"${cf.typ==='text'?' selected':''}>Text</option>
+              <option value="zahl"${cf.typ==='zahl'?' selected':''}>Zahl</option>
+              <option value="datum"${cf.typ==='datum'?' selected':''}>Datum</option>
+              <option value="jaNein"${cf.typ==='jaNein'?' selected':''}>Ja/Nein</option>
+            </select>
+            <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+              <input type="checkbox" id="cf-pflicht-${i}" ${cf.pflicht?'checked':''} style="width:auto"> Pflicht
+            </label>
+            <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  openM('m-settings');
+}
+
+function toggleFeldBtn(el,feldId){
+  const aktiv=el.dataset.aktiv!=='true';
+  el.dataset.aktiv=String(aktiv);
+  el.style.background=aktiv?'#1a1a1a':'var(--border2)';
+  el.querySelector('div').style.left=aktiv?'18px':'2px';
+}
+
+function addSettingsFeld(){
+  const list=document.getElementById('custom-felder-list');
+  const i=list.querySelectorAll('[id^="cf-label-"]').length;
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:8px';
+  div.innerHTML=`<input id="cf-label-${i}" placeholder="Feldname" style="flex:1;font-size:12px">
+    <select id="cf-typ-${i}" style="width:90px;font-size:12px;padding:5px 8px">
+      <option value="text">Text</option><option value="zahl">Zahl</option><option value="datum">Datum</option><option value="jaNein">Ja/Nein</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;white-space:nowrap">
+      <input type="checkbox" id="cf-pflicht-${i}" style="width:auto"> Pflicht
+    </label>
+    <button class="btn btn-sm btn-d" style="padding:3px 8px" onclick="this.closest('div').remove()">✕</button>`;
+  list.appendChild(div);div.querySelector('input').focus();
+}
+
+async function saveSettings(){
+  const felder={};
+  document.querySelectorAll('[data-aktiv]').forEach(el=>{
+    const match=el.onclick?.toString().match(/'([^']+)'/);
+    // Toggle via data-aktiv
+    const feldId=el.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+    if(feldId)felder[feldId]=el.dataset.aktiv==='true';
+  });
+  // Felder aus Toggle-Buttons
+  document.querySelectorAll('[data-aktiv]').forEach(el=>{
+    const onclick=el.getAttribute('onclick')||'';
+    const m=onclick.match(/'([^']+)'/);
+    if(m)felder[m[1]]=el.dataset.aktiv==='true';
+  });
+  const customFelder=[];
+  document.querySelectorAll('[id^="cf-label-"]').forEach(inp=>{
+    const i=inp.id.replace('cf-label-','');
+    const label=inp.value.trim();if(!label)return;
+    customFelder.push({id:'cf_'+label.toLowerCase().replace(/[^a-z0-9]/g,'_')+'_'+i,label,typ:document.getElementById('cf-typ-'+i)?.value||'text',pflicht:document.getElementById('cf-pflicht-'+i)?.checked||false});
+  });
+  const kategorien={};
+  document.querySelectorAll('[id^="kat-int-"]').forEach(inp=>{
+    const k=inp.id.replace('kat-int-','').replace(/_/g,' ');
+    kategorien[k]={intervall:parseInt(inp.value)||12};
+  });
+  _settings={..._settings,
+    pruefintervall:parseInt(document.getElementById('s-intervall')?.value)||12,
+    pruefgrundlage:document.getElementById('s-pruefgrund')?.value?.trim()||'',
+    felder,customFelder,kategorien,
+  };
+  try{
+    await saveOrgSettings({db_maschinen:_settings});
+    closeM('m-settings');toast('Einstellungen gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── User-Menü ──────────────────────────────────────────────
+function openUserMenu(){
+  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';
+  document.getElementById('um-role').textContent=_profile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';
+  document.getElementById('um-key').value=apiKey();
+  openM('m-user');
+}
+function saveKey(){const k=document.getElementById('um-key').value.trim();localStorage.setItem('ehs_api_key',k);toast('API-Key gespeichert ✓','ok');}
+</script>
+</body>
+</html>

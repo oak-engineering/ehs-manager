@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Gefahrstoffe – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.gf-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;padding-bottom:2px}
+.gf-filter select,.gf-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;max-width:140px}
+.gf-filter input[type=search]{width:160px;max-width:none}
+.gf-filter select:focus,.gf-filter input:focus{border-color:var(--accent);color:var(--text)}
+.gf-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+.gf-card:hover{border-color:var(--border2)}
+.gf-card-accent{height:3px}
+.gf-card-body{padding:12px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.gf-card-left{flex:1;min-width:0}
+.gf-card-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gf-card-meta{font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.gf-card-actions{display:flex;gap:4px;flex-shrink:0;align-items:flex-start}
+.ghs-strip{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ghs-pic{width:40px;height:40px;object-fit:contain;border-radius:4px;border:0.5px solid var(--border);padding:2px;background:#fff}
+.emkg-strip{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.emkg-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;border:0.5px solid transparent}
+.emkg-A{background:#f0fdf4;color:#15803d;border-color:#86efac}
+.emkg-B{background:#fefce8;color:#a16207;border-color:#fde047}
+.emkg-C{background:#fff7ed;color:#c2410c;border-color:#fdba74}
+.emkg-D{background:#fef2f2;color:#dc2626;border-color:#fca5a5}
+.emkg-E{background:#450a0a;color:#fca5a5;border-color:#dc2626}
+.emkg-HA,.emkg-HB{background:#f0fdf4;color:#15803d;border-color:#86efac}
+.emkg-HC{background:#fff7ed;color:#c2410c;border-color:#fdba74}
+.emkg-HD{background:#fef2f2;color:#dc2626;border-color:#fca5a5}
+.emkg-HE{background:#450a0a;color:#fca5a5;border-color:#dc2626}
+.cmr-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:#450a0a;color:#fca5a5;border:0.5px solid #dc2626}
+.sdb-ok{color:var(--ok);font-size:13px}
+.btn-ki{background:linear-gradient(135deg,#1a1a1a,#333);color:#fff;border:none}
+.btn-ki:hover{background:linear-gradient(135deg,#333,#555);color:#fff}
+.ki-progress{background:var(--surface3);border-radius:4px;height:4px;overflow:hidden;margin-top:8px}
+.ki-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--info));width:0%;transition:width .3s;border-radius:4px}
+.subst-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.subst-col{background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r);padding:14px}
+.subst-col h3{font-size:13px;font-weight:500;margin-bottom:10px;padding-bottom:6px;border-bottom:0.5px solid var(--border)}
+.expo-table{width:100%;border-collapse:collapse;font-size:12px}
+.expo-table th{background:var(--nok-bg);color:var(--nok);padding:7px 10px;text-align:left;font-weight:500;border-bottom:0.5px solid var(--nok-border)}
+.expo-table td{padding:7px 10px;border-bottom:0.5px solid var(--border)}
+.expo-table tr:last-child td{border-bottom:none}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></span><span class="sb-label">Unfälle</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()"><div class="sb-avatar" id="u-av">?</div><div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div></div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Gefahrstoffe</span>
+  </div>
+  <div class="topnav-right">
+    <span class="nav-badge-admin admin-only" style="display:none">Admin</span>
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+    <div><div class="page-title">Gefahrstoffe</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="downloadTemplate()">⬇ Template</button>
+      <button class="btn btn-sm write-only" onclick="openImport()" style="display:none">⬆ Importieren</button>
+      <button class="btn btn-sm" onclick="openExport()">⬇ Exportieren</button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAdd()" style="display:none">+ Anlegen</button>
+    </div>
+  </div>
+  <div class="gf-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <select id="f-kat" onchange="renderList()"><option value="">Alle Kategorien</option></select>
+    <select id="f-signal" onchange="renderList()"><option value="">Alle Signalwörter</option><option value="Gefahr">Gefahr</option><option value="Achtung">Achtung</option></select>
+    <select id="f-aktiv" onchange="renderList()"><option value="aktiv">Aktive Stoffe</option><option value="alle">Alle</option><option value="inaktiv">Nur inaktive</option></select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+  <div id="gf-list"></div>
+  <div id="expo-section" style="margin-top:24px;display:none">
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--nok);font-weight:600;margin-bottom:10px">⚠ Expositionsverzeichnis CMR (TRGS 410)</div>
+    <div style="overflow-x:auto"><table class="expo-table"><thead><tr><th>Stoff</th><th>CAS</th><th>H-Sätze CMR</th><th>EMKG Einatmen</th><th>EMKG Haut</th><th>Bereich</th></tr></thead><tbody id="expo-body"></tbody></table></div>
+    <div class="ts" style="margin-top:6px">Meldepflicht an ZED der DGUV prüfen · Stand: <span id="expo-datum"></span></div>
+  </div>
+</div>
+</div>
+</div>
+
+<!-- MODAL Anlegen/Bearbeiten -->
+<div class="overlay" id="m-gf">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="m-gf-title">Gefahrstoff anlegen</div><div class="modal-sub" id="m-gf-sub"></div></div><button class="btn btn-sm" onclick="closeM('m-gf')">✕ Schließen</button></div>
+  <input type="hidden" id="edit-id">
+  <div class="modal-body" id="m-gf-body"></div>
+  <div class="modal-ft"><button class="btn" onclick="closeM('m-gf')">Abbrechen</button><button class="btn btn-p" onclick="saveGF()"><span class="spinner" id="save-sp" style="display:none"></span>Speichern</button></div>
+</div></div>
+
+<!-- MODAL Import -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Gefahrstoffe importieren</div><button class="btn btn-sm" onclick="closeM('m-import')">✕</button></div>
+  <div class="modal-body">
+    <div class="section-block"><div class="section-label">Schritt 1 – Vorlage</div>
+      <p class="ts" style="margin-bottom:8px">CSV-Vorlage herunterladen, ausfüllen, hochladen. EMKG wird automatisch berechnet.</p>
+      <button class="btn btn-sm" onclick="downloadTemplate()">⬇ Vorlage (.csv)</button></div>
+    <div class="section-block"><div class="section-label">Schritt 2 – CSV hochladen</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:13px;background:var(--surface2)">📄 Datei auswählen…<input type="file" accept=".csv" onchange="previewImport(event)" style="display:none"></label>
+      <div id="import-preview-wrap" style="display:none;margin-top:10px">
+        <div style="overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:160px;overflow-y:auto" id="import-table"></div>
+        <div style="margin-top:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><div class="ts" id="import-info"></div><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" id="import-overwrite" style="width:auto;accent-color:var(--accent)">Duplikate überschreiben</label></div>
+      </div></div>
+    <div id="import-result" style="display:none"></div>
+  </div>
+  <div class="modal-ft"><button class="btn" onclick="closeM('m-import')">Schließen</button><button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none"><span class="spinner" id="import-sp" style="display:none"></span>Importieren</button></div>
+</div></div>
+
+<!-- MODAL Export -->
+<div class="overlay" id="m-export" onclick="if(event.target===this)closeM('m-export')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Gefahrstoffe exportieren</div><button class="btn btn-sm" onclick="closeM('m-export')">✕</button></div>
+  <div class="modal-body">
+    <div><label>Bereich</label><select id="exp-bereich"><option value="">Alle</option></select></div>
+    <div><label>Kategorie</label><select id="exp-kat"><option value="">Alle</option></select></div>
+    <div><label>Status</label><select id="exp-aktiv"><option value="">Alle</option><option value="aktiv">Nur aktive</option><option value="inaktiv">Nur inaktive</option></select></div>
+  </div>
+  <div class="modal-ft"><button class="btn" onclick="closeM('m-export')">Abbrechen</button><button class="btn btn-p" onclick="runExport()">⬇ CSV</button></div>
+</div></div>
+
+<!-- MODAL Substitution -->
+<div class="overlay" id="m-subst" onclick="if(event.target===this)closeM('m-subst')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title">Substitutionsprüfung (TRGS 600)</div><div class="modal-sub">SDB beider Stoffe für optimalen Vergleich hochladen</div></div><button class="btn btn-sm" onclick="closeM('m-subst')">✕</button></div>
+  <div class="modal-body">
+    <div class="subst-compare">
+      <div class="subst-col"><h3>Stoff A – Aktuell</h3><div id="subst-a-info" class="ts" style="margin-bottom:8px"></div><div id="subst-a-status" style="font-size:12px;margin-bottom:8px"></div><label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--r);background:var(--surface2)">📄 Anderes SDB<input type="file" accept=".pdf" id="subst-sdb-a" onchange="loadSubstSDB('a',event)" style="display:none"></label></div>
+      <div class="subst-col"><h3>Stoff B – Ersatz</h3><div><label>Bezeichnung</label><input id="subst-b-name" placeholder="Name des Ersatzstoffs"></div><div style="margin-top:10px"><label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;padding:6px 10px;border:0.5px solid var(--border);border-radius:var(--r);background:var(--surface2)">📄 SDB hochladen<input type="file" accept=".pdf" id="subst-sdb-b" onchange="loadSubstSDB('b',event)" style="display:none"></label><div id="subst-b-status" class="ts" style="margin-top:6px"></div></div></div>
+    </div>
+    <div id="subst-result" style="display:none;margin-top:16px;padding:14px;border-radius:var(--r);background:var(--surface2);border:0.5px solid var(--border)"></div>
+  </div>
+  <div class="modal-ft"><button class="btn" onclick="closeM('m-subst')">Schließen</button><button class="btn btn-ki" onclick="runSubstitution()"><span class="spinner" id="subst-sp" style="display:none"></span>✦ KI-Substitutionsprüfung starten</button></div>
+</div></div>
+
+<!-- MODAL User -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div><div class="modal-sub" id="um-role"></div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body"><div><label>API-Key (Claude)</label><div style="display:flex;gap:8px"><input id="um-key" type="password" placeholder="sk-ant-…" style="font-family:var(--fm);font-size:12px"><button class="btn btn-p btn-sm" onclick="saveKey()">OK</button></div></div><div class="divider"></div><button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+// EMKG-LOOKUP-TABELLEN (BAuA Stand Mai 2025)
+// ═══════════════════════════════════════════════════════════
+
+const EMKG_EINATMEN_MAP = {
+  E:['H330','H331','H334','H340','H350','H351','H360','H361','H362','H370','H372','EUH029','EUH031','EUH032'],
+  D:['H332','H335','H336','H341','H371','H373'],
+  C:['H333'],
+  B:[],A:[]
+};
+const EMKG_HAUT_MAP = {
+  HE:['H310','H311','H314','H340','H350','H360','H361','H362','H370','H372'],
+  HD:['H312','H315','H317','H341','H351','H371','H373','EUH066'],
+  HC:['H313'],HB:['H304'],HA:[]
+};
+const EMKG_AUGEN_MAP = {
+  C:['H318','H314'],
+  B:['H319','H315','H310','H311','H312'],A:[]
+};
+const EMKG_BRAND_MAP = {
+  E:['H200','H201','H202','H203','H204','H205','H206','H207','H208','H240','H241'],
+  D:['H220','H221','H222','H223','H224','H225','H228','H242','H270','H271'],
+  C:['H226','H227','H230','H231','H232','H272'],
+  B:['H252','H260','H261'],A:[]
+};
+const GHS_MAP = {
+  ghs_001:['H200','H201','H202','H203','H204','H205','H206','H207','H208','H240','H241'],
+  ghs_002:['H220','H221','H222','H223','H224','H225','H226','H227','H228','H229','H241','H242','H250','H251','H252','H260','H261'],
+  ghs_003:['H270','H271','H272'],
+  ghs_004:['H280','H281'],
+  ghs_005:['H290','H314','H318'],
+  ghs_006:['H300','H301','H310','H311','H330','H331'],
+  ghs_007:['H302','H312','H315','H317','H319','H332','H335','H336','H371','EUH066','EUH070','EUH071'],
+  ghs_008:['H304','H334','H340','H341','H350','H351','H360','H361','H362','H370','H372','H373','EUH029','EUH031','EUH032'],
+  ghs_009:['H400','H401','H402','H410','H411','H412','H413','H420']
+};
+function ghsFile(n){return n==='ghs_002'?'ghs/'+n+'.png':'ghs/'+n+'.jpg';}
+
+function parseH(text){return text?(text.match(/(?:H|EUH)\d{3}[A-Z]?/gi)||[]).map(h=>h.toUpperCase()):[]}
+
+function calcEMKG(hsText,agwNum){
+  const hs=parseH(hsText);
+  const pE={A:0,B:1,C:2,D:3,E:4};
+  const pH={HA:0,HB:1,HC:2,HD:3,HE:4};
+  let ein='A',haut='HA',auge='A',brand='A';
+  // Einatmen: AGW-basiert wenn vorhanden
+  if(agwNum&&!isNaN(agwNum)){
+    if(agwNum<=1)ein='E';else if(agwNum<=10)ein='D';else if(agwNum<=50)ein='C';else if(agwNum<=100)ein='B';else ein='A';
+  }
+  hs.forEach(h=>{
+    for(const[g,arr]of Object.entries(EMKG_EINATMEN_MAP)){if(arr.includes(h)&&pE[g]>pE[ein])ein=g;}
+    for(const[g,arr]of Object.entries(EMKG_HAUT_MAP)){if(arr.includes(h)&&pH[g]>pH[haut])haut=g;}
+    for(const[g,arr]of Object.entries(EMKG_AUGEN_MAP)){if(arr.includes(h)&&pE[g]>pE[auge])auge=g;}
+    for(const[g,arr]of Object.entries(EMKG_BRAND_MAP)){if(arr.includes(h)&&pE[g]>pE[brand])brand=g;}
+  });
+  const isCMR=hs.some(h=>['H340','H341','H350','H351','H360','H361','H362'].includes(h));
+  return{einatmen:ein,haut,augen:auge,brand,isCMR};
+}
+function getGHSPics(hsText){
+  const hs=parseH(hsText);const pics=new Set();
+  for(const[n,arr]of Object.entries(GHS_MAP)){if(hs.some(h=>arr.includes(h)))pics.add(n);}
+  return[...pics].sort();
+}
+function extractAGWNum(txt){if(!txt)return null;const m=txt.match(/[\d,.]+/);return m?parseFloat(m[0].replace(',','.')):null;}
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let _profile=null,_canWrite=false,_stoffe=[],_bereiche=[],_gbuList=[];
+let _editSDB=null,_importParsed=null,_substSDB={a:null,b:null};
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+let _tt;
+function toast(m,t=''){const el=document.getElementById('toast');el.textContent=m;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+function apiKey(){return localStorage.getItem('ehs_api_key')||'';}
+
+function toggleSidebar(){const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';}
+function toggleDark(e){e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display=profile?.rolle==='admin'?'':'none');
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    const d=document.documentElement.getAttribute('data-theme')==='dark';const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}}catch(e){}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{const[stoffe,ber,gbu]=await Promise.all([gefahrstoffGetAll(),bereichGetAll(),gbuGetAll()]);_stoffe=stoffe||[];_bereiche=ber||[];_gbuList=gbu||[];fillFilter();renderList();renderExpo();}
+  catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+function fillFilter(){
+  const bOpts='<option value="">Alle Bereiche</option>'+_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  ['f-bereich','exp-bereich'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=bOpts;});
+  const kats=[...new Set(_stoffe.map(s=>s.kategorie).filter(Boolean))].sort();
+  const kOpts='<option value="">Alle Kategorien</option>'+kats.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+  ['f-kat','exp-kat'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=kOpts;});
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'',fK=document.getElementById('f-kat')?.value||'',
+    fS=document.getElementById('f-signal')?.value||'',fA=document.getElementById('f-aktiv')?.value||'aktiv',
+    fQ=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _stoffe.filter(s=>{
+    if(fA==='aktiv'&&s.aktiv===false)return false;if(fA==='inaktiv'&&s.aktiv!==false)return false;
+    if(fB&&s.bereichId!==fB)return false;if(fK&&(s.kategorie||'')!==fK)return false;
+    if(fS&&(s.signalwort||'')!==fS)return false;if(fQ&&!JSON.stringify(s).toLowerCase().includes(fQ))return false;
+    return true;
+  });
+}
+
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Stoff'+(data.length!==1?'e':'')+' · '+_stoffe.filter(s=>s.aktiv!==false).length+' aktiv';
+  const el=document.getElementById('gf-list');
+  if(!data.length){el.innerHTML=`<div class="empty"><div class="empty-icon">⚗</div><p style="margin-bottom:12px">${_stoffe.length?'Keine Treffer.':'Noch keine Gefahrstoffe.'}</p>${_canWrite?'<button class="btn btn-p btn-sm" onclick="openAdd()">+ Ersten Stoff anlegen</button>':''}</div>`;return;}
+  el.innerHTML=data.map(s=>renderCard(s)).join('');
+}
+
+function renderCard(s){
+  const bereich=_bereiche.find(b=>b.id===s.bereichId);
+  const emkg=s.emkg||calcEMKG(s.hsaetze,extractAGWNum(s.agw));
+  const ghsPics=getGHSPics(s.hsaetze||'');
+  const isInaktiv=s.aktiv===false;
+  const sigCol=s.signalwort==='Gefahr'?'var(--nok)':s.signalwort==='Achtung'?'var(--warn)':'var(--border2)';
+  return`<div class="gf-card" style="${isInaktiv?'opacity:.6;':''}${emkg.isCMR?'border-color:rgba(220,38,38,.4);':''}">
+    <div class="gf-card-accent" style="background:${sigCol}"></div>
+    <div class="gf-card-body">
+      <div class="gf-card-left">
+        <div class="gf-card-title">
+          ${esc(s.name||'–')}
+          ${s.cas?`<span class="ts" style="font-weight:400">${esc(s.cas)}</span>`:''}
+          ${s.signalwort?`<span class="badge" style="font-size:10px;background:${s.signalwort==='Gefahr'?'var(--nok-bg)':'var(--warn-bg)'};color:${s.signalwort==='Gefahr'?'var(--nok)':'var(--warn)'};border-color:${s.signalwort==='Gefahr'?'var(--nok-border)':'var(--warn-border)'}">⚠ ${esc(s.signalwort)}</span>`:''}
+          ${emkg.isCMR?'<span class="cmr-badge">CMR</span>':''}
+          ${isInaktiv?'<span class="badge b-neutral" style="font-size:10px">Inaktiv</span>':''}
+        </div>
+        <div class="gf-card-meta">
+          ${s.lieferant?`<span>🏭 ${esc(s.lieferant)}</span>`:''}
+          ${bereich?`<span>📍 ${esc(bereich.name)}</span>`:''}
+          ${s.kategorie?`<span class="badge b-neutral" style="font-size:10px">${esc(s.kategorie)}</span>`:''}
+          ${s.im_betrieb_seit?`<span>📅 seit ${fmt(s.im_betrieb_seit)}</span>`:''}
+          ${s.agw?`<span>AGW: ${esc(s.agw)}</span>`:''}
+          ${s.sdb_name?`<span style="color:var(--ok)">✓ SDB</span>`:'<span style="color:var(--warn)">⚠ kein SDB</span>'}
+        </div>
+        <div class="emkg-strip">
+          <span class="emkg-badge emkg-${emkg.einatmen}" title="EMKG Einatmen – wird für GBU gespeichert">👃 ${emkg.einatmen}</span>
+          <span class="emkg-badge emkg-${emkg.haut}" title="EMKG Haut – wird für GBU gespeichert">🖐 ${emkg.haut}</span>
+          <span class="emkg-badge emkg-${emkg.augen}" title="EMKG Augen">👁 ${emkg.augen}</span>
+          <span class="emkg-badge emkg-${emkg.brand}" title="EMKG Brand/Explosion">🔥 ${emkg.brand}</span>
+        </div>
+        ${ghsPics.length?`<div class="ghs-strip">${ghsPics.map(p=>`<img src="${ghsFile(p)}" class="ghs-pic" alt="${p}" onerror="this.style.display='none'">`).join('')}</div>`:''}
+        ${s.hsaetze?`<div class="ts" style="margin-top:4px;font-size:10px">${esc(s.hsaetze.slice(0,100))}${s.hsaetze.length>100?'…':''}</div>`:''}
+      </div>
+      <div class="gf-card-actions">
+        ${s.sdb_name?`<button class="btn btn-sm" onclick="openSDB('${s.id}')" title="SDB ansehen">📖</button>`:''}
+        ${!isInaktiv?`<button class="btn btn-sm" onclick="openSubstitution('${s.id}')" title="Substitutionsprüfung">⇄</button>`:''}
+        ${isInaktiv?`<button class="btn btn-sm" onclick="reaktivieren('${s.id}')">↩</button>`:''}
+        ${_canWrite?`<button class="btn btn-sm" onclick="openEdit('${s.id}')">✏</button>`:''}
+        ${_canWrite&&!isInaktiv?`<button class="btn btn-sm btn-d" onclick="deaktivieren('${s.id}')">🗑</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function openAdd(){document.getElementById('edit-id').value='';document.getElementById('m-gf-title').textContent='Gefahrstoff anlegen';document.getElementById('m-gf-sub').textContent='';_editSDB=null;renderForm({});openM('m-gf');}
+function openEdit(id){const s=_stoffe.find(x=>x.id===id);if(!s)return;document.getElementById('edit-id').value=id;document.getElementById('m-gf-title').textContent='Gefahrstoff bearbeiten';document.getElementById('m-gf-sub').textContent=s.name||'';_editSDB=s.sdb_datei?{dataUrl:s.sdb_datei,name:s.sdb_name}:null;renderForm(s);openM('m-gf');}
+
+function renderForm(s){
+  const bOpts='<option value="">– kein –</option>'+_bereiche.map(b=>`<option value="${b.id}"${b.id===s.bereichId?' selected':''}>${esc(b.name)}</option>`).join('');
+  const emkg=s.emkg||calcEMKG(s.hsaetze,extractAGWNum(s.agw));
+  const ghsPics=getGHSPics(s.hsaetze||'');
+  document.getElementById('m-gf-body').innerHTML=`
+    <div class="section-block" style="background:${_editSDB?'var(--ok-bg)':'var(--surface2)'};border-color:${_editSDB?'var(--ok-border)':'var(--border)'}">
+      <div class="section-label">Sicherheitsdatenblatt (SDB)</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        ${_editSDB?`<span class="sdb-ok">✓ ${esc(_editSDB.name)}</span><button type="button" class="btn btn-sm" onclick="openSDBPreview()">📖 Ansehen</button>`:'<span class="ts">Noch kein SDB</span>'}
+        <label class="btn btn-sm" style="cursor:pointer;margin:0">⬆ SDB hochladen<input type="file" accept=".pdf" onchange="handleSDBUpload(event)" style="display:none"></label>
+        <button type="button" class="btn btn-ki btn-sm" id="btn-ki" onclick="extractSDB()" ${!_editSDB?'disabled':''}>✦ KI auslesen</button>
+      </div>
+      <div id="ki-progress" style="display:none"><div class="ts" id="ki-status">KI liest aus…</div><div class="ki-progress"><div class="ki-bar" id="ki-bar"></div></div></div>
+    </div>
+    <div class="g2"><div><label>Bezeichnung *</label><input id="f-name" value="${esc(s.name||'')}" placeholder="Aceton"></div><div><label>CAS-Nummer</label><input id="f-cas" value="${esc(s.cas||'')}" placeholder="67-64-1"></div></div>
+    <div class="g2"><div><label>Lieferant / Hersteller</label><input id="f-lieferant" value="${esc(s.lieferant||'')}"></div><div><label>Im Betrieb seit</label><input id="f-im-betrieb-seit" type="date" value="${esc(s.im_betrieb_seit||'')}"></div></div>
+    <div class="g2"><div><label>Verwendungszweck</label><input id="f-verwendung" value="${esc(s.verwendung||'')}" placeholder="Reinigungsmittel"></div><div><label>Kategorie</label><input id="f-kategorie" value="${esc(s.kategorie||'')}" placeholder="Lösemittel, Lacke…" list="kat-dl"><datalist id="kat-dl">${[...new Set(_stoffe.map(x=>x.kategorie).filter(Boolean))].map(k=>`<option value="${esc(k)}">`).join('')}</datalist></div></div>
+    <div><label>Bereich</label><select id="f-bereichId">${bOpts}</select></div>
+
+    <div class="section-block">
+      <div class="section-label">Gefahreneinstufung (Abschn. 2) – GHS &amp; H-Sätze</div>
+      <div class="g2"><div><label>Signalwort</label><select id="f-signalwort"><option value="">–</option><option value="Achtung"${s.signalwort==='Achtung'?' selected':''}>Achtung</option><option value="Gefahr"${s.signalwort==='Gefahr'?' selected':''}>Gefahr</option></select></div><div><label>SDB Überarbeitungsdatum</label><input id="f-sdb-datum" type="date" value="${esc(s.sdb_ueberarbeitung||'')}"></div></div>
+      <div><label>H-Sätze (kommagetrennt)</label><textarea id="f-hsaetze" rows="2" oninput="updateLivePreview()">${esc(s.hsaetze||'')}</textarea></div>
+      <div><label>P-Sätze (kommagetrennt)</label><textarea id="f-psaetze" rows="2">${esc(s.psaetze||'')}</textarea></div>
+      <div style="margin-top:8px"><div class="ts" style="margin-bottom:4px">GHS-Piktogramme (aus H-Sätzen erkannt):</div>
+        <div class="ghs-strip" id="ghs-preview">${ghsPics.map(p=>`<img src="${ghsFile(p)}" class="ghs-pic" alt="${p}" onerror="this.style.display='none'">`).join('')}</div>
+      </div>
+      <div style="margin-top:10px;padding:10px;background:var(--surface3);border-radius:var(--r)">
+        <div class="ts" style="margin-bottom:6px;font-weight:500">EMKG-Gefährlichkeitsgruppen (für GBU gespeichert – tätigkeitsunabhängig)</div>
+        <div class="emkg-strip" id="emkg-preview">${renderEMKGPreview(emkg)}</div>
+        <div class="ts" style="margin-top:4px">In der GBU werden diese Gruppen mit tätigkeitsspezifischen Parametern (Menge, Freisetzung etc.) kombiniert.</div>
+      </div>
+    </div>
+
+    <div class="section-block"><div class="section-label">Arbeitsplatzgrenzwerte &amp; Schutz (Abschn. 8)</div>
+      <div class="g2"><div><label>AGW nach TRGS 900</label><input id="f-agw" value="${esc(s.agw||'')}" placeholder="500 mg/m³" oninput="updateLivePreview()"></div><div><label>DNEL</label><input id="f-dnel" value="${esc(s.dnel||'')}"></div></div>
+      <div><label>PSA-Empfehlungen (Abschn. 8)</label><textarea id="f-psa" rows="2">${esc(s.psa||'')}</textarea></div>
+    </div>
+
+    <div class="section-block"><div class="section-label">Stoffeigenschaften (Abschn. 9)</div>
+      <div class="g3"><div><label>Flammpunkt</label><input id="f-flammpunkt" value="${esc(s.flammpunkt||'')}" placeholder="-18°C"></div><div><label>Siedepunkt</label><input id="f-siedepunkt" value="${esc(s.siedepunkt||'')}" placeholder="56°C"></div><div><label>Dampfdruck</label><input id="f-dampfdruck" value="${esc(s.dampfdruck||'')}" placeholder="233 hPa"></div></div>
+      <div><label>Aggregatzustand</label><select id="f-aggregat"><option value="">–</option><option value="Flüssig"${s.aggregat==='Flüssig'?' selected':''}>Flüssig</option><option value="Fest"${s.aggregat==='Fest'?' selected':''}>Fest</option><option value="Gasförmig"${s.aggregat==='Gasförmig'?' selected':''}>Gasförmig</option><option value="Aerosol"${s.aggregat==='Aerosol'?' selected':''}>Aerosol</option></select></div>
+    </div>
+
+    <div class="section-block"><div class="section-label">Lagerung &amp; Entsorgung (Abschn. 7, 13)</div>
+      <div class="g3"><div><label>WGK</label><select id="f-wgk"><option value="">–</option><option value="nwg"${s.wgk==='nwg'?' selected':''}>nwg</option><option value="1"${s.wgk==='1'?' selected':''}>WGK 1</option><option value="2"${s.wgk==='2'?' selected':''}>WGK 2</option><option value="3"${s.wgk==='3'?' selected':''}>WGK 3</option></select></div><div><label>Lagerklasse TRGS 510</label><input id="f-lagerklasse" value="${esc(s.lagerklasse||'')}" placeholder="LK 3"></div><div><label>AVV-Schlüssel</label><input id="f-avv" value="${esc(s.avv||'')}" placeholder="14 06 03"></div></div>
+      <div><label>Unverträglichkeiten (Abschn. 10)</label><input id="f-unvertraeg" value="${esc(s.unvertraeglichkeiten||'')}" placeholder="Oxidationsmittel, Säuren"></div>
+    </div>
+
+    <div class="section-block"><div class="section-label">Rechtliches (Abschn. 15)</div>
+      <div><label>REACH / SVHC</label><input id="f-reach" value="${esc(s.reach||'')}" placeholder="Kandidatenliste, SVHC"></div>
+    </div>
+    <div><label>Notizen</label><textarea id="f-notizen" rows="2">${esc(s.notizen||'')}</textarea></div>`;
+}
+
+function renderEMKGPreview(emkg){
+  return`<span class="emkg-badge emkg-${emkg.einatmen}" title="Modul Einatmen">👃 Einatmen: ${emkg.einatmen}</span>
+    <span class="emkg-badge emkg-${emkg.haut}" title="Modul Haut">🖐 Haut: ${emkg.haut}</span>
+    <span class="emkg-badge emkg-${emkg.augen}" title="Modul Augen">👁 Augen: ${emkg.augen}</span>
+    <span class="emkg-badge emkg-${emkg.brand}" title="Modul Brand">🔥 Brand: ${emkg.brand}</span>
+    ${emkg.isCMR?'<span class="cmr-badge">⚠ CMR</span>':''}`;
+}
+
+function updateLivePreview(){
+  const hs=document.getElementById('f-hsaetze')?.value||'';
+  const agwNum=extractAGWNum(document.getElementById('f-agw')?.value||'');
+  const ghsPics=getGHSPics(hs);
+  const prev=document.getElementById('ghs-preview');
+  if(prev)prev.innerHTML=ghsPics.map(p=>`<img src="${ghsFile(p)}" class="ghs-pic" alt="${p}" onerror="this.style.display='none'">`).join('');
+  const emkg=calcEMKG(hs,agwNum);
+  const eprev=document.getElementById('emkg-preview');
+  if(eprev)eprev.innerHTML=renderEMKGPreview(emkg);
+}
+
+function handleSDBUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>20*1024*1024){toast('Max. 20 MB','err');return;}
+  const r=new FileReader();
+  r.onload=ev=>{_editSDB={dataUrl:ev.target.result,name:f.name};
+    const btn=document.getElementById('btn-ki');if(btn)btn.disabled=false;
+    renderForm(getCurVals());toast(f.name+' geladen ✓','ok');};
+  r.readAsDataURL(f);e.target.value='';
+}
+
+function getCurVals(){
+  const g=id=>document.getElementById(id)?.value||'';
+  return{name:g('f-name'),cas:g('f-cas'),lieferant:g('f-lieferant'),im_betrieb_seit:g('f-im-betrieb-seit'),verwendung:g('f-verwendung'),kategorie:g('f-kategorie'),bereichId:g('f-bereichId'),signalwort:g('f-signalwort'),sdb_ueberarbeitung:g('f-sdb-datum'),hsaetze:g('f-hsaetze'),psaetze:g('f-psaetze'),agw:g('f-agw'),dnel:g('f-dnel'),psa:g('f-psa'),flammpunkt:g('f-flammpunkt'),siedepunkt:g('f-siedepunkt'),dampfdruck:g('f-dampfdruck'),aggregat:g('f-aggregat'),wgk:g('f-wgk'),lagerklasse:g('f-lagerklasse'),avv:g('f-avv'),unvertraeglichkeiten:g('f-unvertraeg'),reach:g('f-reach'),notizen:g('f-notizen'),sdb_datei:_editSDB?.dataUrl,sdb_name:_editSDB?.name};
+}
+
+function openSDBPreview(){if(!_editSDB?.dataUrl)return;const w=window.open();w.document.write(`<iframe src="${_editSDB.dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();}
+function openSDB(id){const s=_stoffe.find(x=>x.id===id);if(!s?.sdb_datei)return;const w=window.open();w.document.write(`<iframe src="${s.sdb_datei}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();}
+
+async function extractSDB(){
+  const key=apiKey();if(!key){toast('API-Key hinterlegen','err');openUserMenu();return;}
+  if(!_editSDB?.dataUrl){toast('Bitte zuerst SDB hochladen','err');return;}
+  const prog=document.getElementById('ki-progress'),status=document.getElementById('ki-status'),bar=document.getElementById('ki-bar');
+  if(prog)prog.style.display='block';if(status)status.textContent='KI liest SDB aus… (30–60 Sek.)';if(status)status.style.color='var(--text2)';
+  let pct=0;const timer=setInterval(()=>{pct=Math.min(pct+2,88);if(bar)bar.style.width=pct+'%';},700);
+  const prompt=`Du bist EHS-Experte. Lese dieses Sicherheitsdatenblatt vollständig aus. Antworte NUR mit JSON, kein Markdown:\n{"name":"Produktname","cas":"CAS","lieferant":"Hersteller","signalwort":"Gefahr oder Achtung","hsaetze":"H225, H302","psaetze":"P210, P233","agw":"500 mg/m³","dnel":"1200 mg/m³","psa":"Schutzbrille, Handschuhe","flammpunkt":"-18°C","siedepunkt":"56°C","dampfdruck":"233 hPa","aggregat":"Flüssig","wgk":"1","lagerklasse":"LK 3","avv":"14 06 03","unvertraeglichkeiten":"Oxidationsmittel","reach":"SVHC","sdb_ueberarbeitung":"YYYY-MM-DD"}\nFehlende Werte = leerer String.`;
+  try{
+    const b64=_editSDB.dataUrl.split(',')[1];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+    clearInterval(timer);if(bar)bar.style.width='100%';
+    const data=await res.json();if(!res.ok){if(status)status.textContent='Fehler: '+data.error?.message;return;}
+    const text=(data.content||[]).map(b=>b.text||'').join('');
+    let parsed;try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}catch{const m=text.match(/\{[\s\S]*\}/);if(m)try{parsed=JSON.parse(m[0]);}catch{}}
+    if(!parsed){if(status)status.textContent='JSON konnte nicht geparst werden.';return;}
+    const set=(id,v)=>{if(v){const el=document.getElementById(id);if(el)el.value=v;}};
+    set('f-name',parsed.name);set('f-cas',parsed.cas);set('f-lieferant',parsed.lieferant);
+    set('f-signalwort',parsed.signalwort);set('f-hsaetze',parsed.hsaetze);set('f-psaetze',parsed.psaetze);
+    set('f-agw',parsed.agw);set('f-dnel',parsed.dnel);set('f-psa',parsed.psa);
+    set('f-flammpunkt',parsed.flammpunkt);set('f-siedepunkt',parsed.siedepunkt);set('f-dampfdruck',parsed.dampfdruck);
+    set('f-aggregat',parsed.aggregat);set('f-wgk',parsed.wgk);set('f-lagerklasse',parsed.lagerklasse);
+    set('f-avv',parsed.avv);set('f-unvertraeg',parsed.unvertraeglichkeiten);set('f-reach',parsed.reach);set('f-sdb-datum',parsed.sdb_ueberarbeitung);
+    updateLivePreview();
+    if(status){status.textContent='✓ Alle Felder ausgefüllt – bitte prüfen und speichern.';status.style.color='var(--ok)';}
+    toast('SDB ausgelesen ✓','ok');
+  }catch(e){clearInterval(timer);if(status)status.textContent='Fehler: '+e.message;toast('Fehler: '+e.message,'err');}
+}
+
+async function saveGF(){
+  const name=document.getElementById('f-name')?.value?.trim();if(!name){toast('Bezeichnung Pflichtfeld','err');return;}
+  const sp=document.getElementById('save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('edit-id').value;
+  const prev=_stoffe.find(x=>x.id===editId);
+  const g=id=>document.getElementById(id)?.value||'';
+  const hs=g('f-hsaetze'),agwNum=extractAGWNum(g('f-agw'));
+  const emkg=calcEMKG(hs,agwNum);
+  const obj={id:prev?.id||uid('GF'),name,cas:g('f-cas'),lieferant:g('f-lieferant'),im_betrieb_seit:g('f-im-betrieb-seit'),verwendung:g('f-verwendung'),kategorie:g('f-kategorie'),bereichId:g('f-bereichId'),signalwort:g('f-signalwort'),sdb_ueberarbeitung:g('f-sdb-datum'),hsaetze:hs,psaetze:g('f-psaetze'),agw:g('f-agw'),dnel:g('f-dnel'),psa:g('f-psa'),flammpunkt:g('f-flammpunkt'),siedepunkt:g('f-siedepunkt'),dampfdruck:g('f-dampfdruck'),aggregat:g('f-aggregat'),wgk:g('f-wgk'),lagerklasse:g('f-lagerklasse'),avv:g('f-avv'),unvertraeglichkeiten:g('f-unvertraeg'),reach:g('f-reach'),notizen:g('f-notizen'),
+    emkg,  // EMKG-Gruppen strukturiert gespeichert für GBU
+    sdb_datei:_editSDB?.dataUrl||prev?.sdb_datei||null,sdb_name:_editSDB?.name||prev?.sdb_name||null,aktiv:true,createdAt:prev?.createdAt||new Date().toISOString()};
+  try{await gefahrstoffSave(obj);_stoffe=await gefahrstoffGetAll();closeM('m-gf');fillFilter();renderList();renderExpo();toast('Gespeichert ✓','ok');}
+  catch(e){toast('Fehler: '+e.message,'err');}finally{sp.style.display='none';}
+}
+
+async function deaktivieren(id){const s=_stoffe.find(x=>x.id===id);if(!confirm(`"${s?.name}" deaktivieren?`))return;try{await gefahrstoffSave({...s,aktiv:false});_stoffe=await gefahrstoffGetAll();renderList();renderExpo();toast('Deaktiviert ✓');}catch(e){toast('Fehler: '+e.message,'err');}}
+async function reaktivieren(id){const s=_stoffe.find(x=>x.id===id);try{await gefahrstoffSave({...s,aktiv:true});_stoffe=await gefahrstoffGetAll();renderList();renderExpo();toast('Reaktiviert ✓','ok');}catch(e){toast('Fehler: '+e.message,'err');}}
+
+function renderExpo(){
+  const cmr=_stoffe.filter(s=>s.aktiv!==false&&(s.emkg?.isCMR||calcEMKG(s.hsaetze,null).isCMR));
+  const sec=document.getElementById('expo-section');if(!cmr.length){if(sec)sec.style.display='none';return;}
+  if(sec)sec.style.display='block';
+  document.getElementById('expo-datum').textContent=new Date().toLocaleDateString('de-DE');
+  const body=document.getElementById('expo-body');
+  body.innerHTML=cmr.map(s=>{
+    const b=_bereiche.find(x=>x.id===s.bereichId);
+    const emkg=s.emkg||calcEMKG(s.hsaetze,null);
+    const cmrH=(s.hsaetze?.match(/H34\d|H36\d/g)||[]).join(', ');
+    return`<tr><td><strong>${esc(s.name)}</strong></td><td>${esc(s.cas||'–')}</td><td style="color:var(--nok)">${esc(cmrH||'–')}</td><td><span class="emkg-badge emkg-${emkg.einatmen}">${emkg.einatmen}</span></td><td><span class="emkg-badge emkg-${emkg.haut}">${emkg.haut}</span></td><td>${esc(b?.name||'–')}</td></tr>`;
+  }).join('');
+}
+
+// ── Substitutionsprüfung ───────────────────────────────────
+function openSubstitution(id){
+  const s=_stoffe.find(x=>x.id===id);if(!s)return;
+  _substSDB={a:s.sdb_datei?{dataUrl:s.sdb_datei,name:s.sdb_name}:null,b:null};
+  document.getElementById('subst-a-info').textContent=s.name+(s.cas?' · CAS: '+s.cas:'');
+  const aStatus=document.getElementById('subst-a-status');
+  aStatus.textContent=s.sdb_datei?('✓ SDB: '+s.sdb_name):'⚠ Kein SDB – bitte hochladen';
+  aStatus.style.color=s.sdb_datei?'var(--ok)':'var(--warn)';
+  document.getElementById('subst-b-name').value='';document.getElementById('subst-b-status').textContent='';
+  document.getElementById('subst-result').style.display='none';
+  document.getElementById('m-subst').dataset.stoffId=id;openM('m-subst');
+}
+
+function loadSubstSDB(ab,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{_substSDB[ab]={dataUrl:ev.target.result,name:f.name};const st=document.getElementById('subst-'+ab+'-status');if(st){st.textContent='✓ '+f.name;st.style.color='var(--ok)';}toast(f.name+' geladen ✓','ok');};r.readAsDataURL(f);e.target.value='';}
+
+async function runSubstitution(){
+  const key=apiKey();if(!key){toast('API-Key erforderlich','err');openUserMenu();return;}
+  if(!_substSDB.a){toast('Bitte SDB von Stoff A hochladen','err');return;}
+  const bName=document.getElementById('subst-b-name').value.trim();
+  if(!bName&&!_substSDB.b){toast('Ersatzstoff benennen oder SDB hochladen','err');return;}
+  const sp=document.getElementById('subst-sp');sp.style.display='inline-block';
+  const res=document.getElementById('subst-result');
+  res.style.display='block';res.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span class="spinner"></span><span>KI prüft Substitution nach TRGS 600… (60–90 Sekunden)</span></div>';
+  const stoffId=document.getElementById('m-subst').dataset.stoffId;
+  const stoffA=_stoffe.find(x=>x.id===stoffId);
+  const content=[{type:'document',source:{type:'base64',media_type:'application/pdf',data:_substSDB.a.dataUrl.split(',')[1]}}];
+  if(_substSDB.b)content.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:_substSDB.b.dataUrl.split(',')[1]}});
+  content.push({type:'text',text:`Substitutionsprüfung nach TRGS 600 und GHS-Spaltenmodell.\nStoff A (aktuell): ${stoffA?.name||'unbekannt'}\nStoff B (Ersatz): ${bName||'Stoff B (aus zweitem SDB)'}\n${_substSDB.b?'Dokument 1 = SDB Stoff A, Dokument 2 = SDB Stoff B.':'Nur Stoff A als SDB vorhanden.'}\nBewerte die 5 Spalten des GHS-Spaltenmodells:\n1. Akute Gesundheitsgefahren\n2. Chronische/Langzeit-Gesundheitsgefahren (CMR, Sensibilisierung, STOT)\n3. Physikalisch-chemische Gefahren (Brand, Explosion)\n4. Umweltgefahren\n5. Freisetzungsverhalten/Exposition (AGW, Dampfdruck, Aggregatzustand)\n\nEmpfehlung: SUBSTITUTION EMPFOHLEN / NICHT EMPFOHLEN / ABWÄGUNG ERFORDERLICH\n\nErstelle Dokumentationstext für GefStoffV §6 Abs. 8 (für GBU-Übernahme).`});
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content}]})});
+    const data=await resp.json();const text=(data.content||[]).map(b=>b.text||'').join('');
+    const empf=text.toLowerCase().includes('substitution empfohlen')&&!text.toLowerCase().includes('nicht empfohlen');
+    const abw=text.toLowerCase().includes('abwägung');
+    const col=empf?'var(--ok)':abw?'var(--warn)':'var(--nok)';
+    res.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-weight:500;font-size:14px;color:${col}">${empf?'✅':abw?'⚠️':'❌'} Substitutionsprüfung abgeschlossen</div><button class="btn btn-sm" onclick="druckeSubst(this.dataset.txt)" data-txt="${esc(text)}">🖨 Drucken</button></div><pre style="white-space:pre-wrap;font-size:12px;font-family:var(--ff);line-height:1.6;max-height:300px;overflow-y:auto">${esc(text)}</pre>`;
+    toast('Substitutionsprüfung fertig ✓','ok');
+  }catch(e){res.innerHTML=`<div style="color:var(--nok)">Fehler: ${esc(e.message)}</div>`;toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+function druckeSubst(txt){const stoffId=document.getElementById('m-subst').dataset.stoffId;const s=_stoffe.find(x=>x.id===stoffId);const w=window.open();w.document.write(`<html><head><meta charset="UTF-8"><title>Substitutionsprüfung</title><style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:32px;font-size:13px;line-height:1.7}h1{font-size:18px}pre{white-space:pre-wrap;font-family:inherit}@media print{button{display:none}}</style></head><body><h1>Substitutionsprüfung TRGS 600 / GefStoffV §6 Abs. 8</h1><p>Aktueller Stoff: <strong>${esc(s?.name||'–')}</strong></p><p>Erstellt: ${new Date().toLocaleString('de-DE')} · EHS Manager Oak Engineering</p><button onclick="window.print()" style="padding:6px 14px;background:#1a1a1a;color:#fff;border:none;border-radius:6px;cursor:pointer;margin:10px 0">🖨 Drucken</button><hr><pre>${esc(txt)}</pre></body></html>`);w.document.close();}
+
+// ── Import/Export/Template ─────────────────────────────────
+const IMPORT_COLS=[{key:'name',label:'Bezeichnung',required:true,example:'Aceton'},{key:'cas',label:'CAS-Nummer',required:false,example:'67-64-1'},{key:'lieferant',label:'Lieferant',required:false,example:'Sigma-Aldrich'},{key:'im_betrieb_seit',label:'Im_Betrieb_seit',required:false,example:'2024-01-01'},{key:'verwendung',label:'Verwendungszweck',required:false,example:'Reinigungsmittel'},{key:'kategorie',label:'Kategorie',required:false,example:'Lösemittel'},{key:'bereich',label:'Bereich_Name',required:false,example:'Labor'},{key:'signalwort',label:'Signalwort',required:false,example:'Gefahr'},{key:'hsaetze',label:'H-Saetze',required:false,example:'H225, H302, H336'},{key:'agw',label:'AGW_TRGS900',required:false,example:'500 mg/m³'},{key:'flammpunkt',label:'Flammpunkt',required:false,example:'-18°C'},{key:'wgk',label:'WGK',required:false,example:'1'},{key:'lagerklasse',label:'Lagerklasse_TRGS510',required:false,example:'LK 3'},{key:'avv',label:'AVV-Schluessel',required:false,example:'14 06 03'},{key:'notizen',label:'Notizen',required:false,example:''}];
+
+function downloadTemplate(){const header=IMPORT_COLS.map(c=>c.label),hinweis=IMPORT_COLS.map(c=>c.required?'* Pflichtfeld':'optional'),example=IMPORT_COLS.map(c=>c.example||'');const csv='\uFEFF'+header.join(';')+'\n'+hinweis.join(';')+'\n'+example.join(';')+'\n';const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Template_Gefahrstoffe_Import.csv';a.click();URL.revokeObjectURL(url);toast('Template heruntergeladen ✓','ok');}
+function openImport(){document.getElementById('import-preview-wrap').style.display='none';document.getElementById('import-result').style.display='none';document.getElementById('btn-import-run').style.display='none';_importParsed=null;openM('m-import');}
+function parseCSV(text){const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());if(lines.length<2)return{headers:[],rows:[]};const parseRow=line=>{const cols=[];let cur='',inQ=false;for(const ch of line){if(ch==='"'){inQ=!inQ;}else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}else cur+=ch;}cols.push(cur.trim());return cols;};const headers=parseRow(lines[0]);const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;const rows=lines.slice(dataStart).filter(l=>l.trim()).map(parseRow);return{headers,rows};}
+
+function previewImport(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const{headers,rows}=parseCSV(ev.target.result);_importParsed={headers,rows};document.getElementById('import-table').innerHTML=`<table style="border-collapse:collapse;min-width:max-content"><tr>${headers.map(h=>`<th style="padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap">${esc(h)}</th>`).join('')}</tr>${rows.slice(0,5).map(row=>`<tr>${headers.map((_,i)=>`<td style="padding:4px 8px;border:0.5px solid var(--border);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis">${esc(row[i]||'')}</td>`).join('')}</tr>`).join('')}</table>`;document.getElementById('import-info').innerHTML=`<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''}</span>`;document.getElementById('import-preview-wrap').style.display='block';document.getElementById('btn-import-run').style.display='inline-flex';};r.readAsText(f,'UTF-8');}
+
+async function runImport(){if(!_importParsed)return;const sp=document.getElementById('import-sp');sp.style.display='inline-block';document.getElementById('btn-import-run').disabled=true;const{headers,rows}=_importParsed;const overwrite=document.getElementById('import-overwrite')?.checked||false;const hMap={};headers.forEach((h,i)=>{const col=IMPORT_COLS.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)hMap[i]=col.key;});let imported=0,skipped=0;const errors=[];for(const row of rows){if(row.every(c=>!c.trim()))continue;const obj={id:uid('GF'),aktiv:true,createdAt:new Date().toISOString()};Object.entries(hMap).forEach(([i,key])=>{obj[key]=row[parseInt(i)]?.trim()||'';});if(obj.bereich){const b=_bereiche.find(x=>x.name?.toLowerCase()===obj.bereich.toLowerCase());if(b)obj.bereichId=b.id;delete obj.bereich;}if(!obj.name){errors.push('Zeile ohne Bezeichnung');skipped++;continue;}const dupe=_stoffe.find(x=>x.name?.toLowerCase()===obj.name.toLowerCase());if(dupe&&!overwrite){skipped++;continue;}if(dupe&&overwrite)obj.id=dupe.id;obj.emkg=calcEMKG(obj.hsaetze,extractAGWNum(obj.agw));try{await gefahrstoffSave(obj);imported++;}catch(e){errors.push(obj.name+': '+e.message);skipped++;}}
+_stoffe=await gefahrstoffGetAll();fillFilter();renderList();renderExpo();const res=document.getElementById('import-result');const hasErr=errors.length>0;res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;margin-top:8px;background:${hasErr?'var(--warn-bg)':'var(--ok-bg)'};border:0.5px solid ${hasErr?'var(--warn-border)':'var(--ok-border)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;res.innerHTML=`<div style="font-weight:500">${imported} von ${rows.length} importiert${skipped?' · '+skipped+' übersprungen':''}</div>`+(errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+'</div>':'');sp.style.display='none';document.getElementById('btn-import-run').disabled=false;if(imported>0)toast(imported+' Stoffe importiert ✓','ok');}
+
+function openExport(){openM('m-export');}
+function runExport(){const fB=document.getElementById('exp-bereich').value,fK=document.getElementById('exp-kat').value,fA=document.getElementById('exp-aktiv').value;const data=_stoffe.filter(s=>{if(fA==='aktiv'&&s.aktiv===false)return false;if(fA==='inaktiv'&&s.aktiv!==false)return false;if(fB&&s.bereichId!==fB)return false;if(fK&&(s.kategorie||'')!==fK)return false;return true;});const cols=[...IMPORT_COLS,{key:'emkg_ein',label:'EMKG_Einatmen'},{key:'emkg_haut',label:'EMKG_Haut'},{key:'emkg_auge',label:'EMKG_Augen'},{key:'emkg_brand',label:'EMKG_Brand'},{key:'ist_cmr',label:'CMR'},{key:'bereich_name',label:'Bereich_Name'},{key:'status',label:'Status'}];const escape=v=>`"${(v||'').toString().replace(/"/g,'""')}"`;const csv='\uFEFF'+cols.map(c=>escape(c.label)).join(';')+'\n'+data.map(s=>{const emkg=s.emkg||calcEMKG(s.hsaetze,null);return cols.map(c=>{if(c.key==='bereich_name')return escape(_bereiche.find(b=>b.id===s.bereichId)?.name||'');if(c.key==='emkg_ein')return escape(emkg.einatmen);if(c.key==='emkg_haut')return escape(emkg.haut);if(c.key==='emkg_auge')return escape(emkg.augen);if(c.key==='emkg_brand')return escape(emkg.brand);if(c.key==='ist_cmr')return escape(emkg.isCMR?'Ja':'Nein');if(c.key==='status')return escape(s.aktiv===false?'Inaktiv':'Aktiv');return escape(s[c.key]||'');}).join(';');}).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Gefahrstoffe_Export_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';a.click();URL.revokeObjectURL(url);closeM('m-export');toast('CSV exportiert ✓','ok');}
+
+function openUserMenu(){document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';document.getElementById('um-role').textContent=_profile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';document.getElementById('um-key').value=apiKey();openM('m-user');}
+function saveKey(){const k=document.getElementById('um-key').value.trim();localStorage.setItem('ehs_api_key',k);toast('API-Key gespeichert ✓','ok');}
+</script>
+</body>
+</html>

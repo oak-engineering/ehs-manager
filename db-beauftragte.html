@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Beauftragte – EHS Manager</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+.m-filter{display:flex;gap:6px;flex-wrap:nowrap;margin-bottom:12px;overflow-x:auto;align-items:center;}
+.m-filter select,.m-filter input{height:28px;padding:0 8px;font-size:11px;border:0.5px solid var(--border);border-radius:5px;background:var(--surface2);color:var(--text2);font-family:var(--ff);outline:none;}
+.m-filter input[type=search]{width:180px;}
+.m-filter select:focus,.m-filter input:focus{border-color:var(--accent);color:var(--text);}
+
+/* Person-Karte */
+.p-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;}
+.p-card-head{padding:13px 16px;display:flex;align-items:flex-start;gap:14px;}
+.p-avatar{width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:500;color:var(--text3);}
+.p-avatar img{width:52px;height:52px;border-radius:50%;object-fit:cover;}
+.p-info{flex:1;min-width:0;}
+.p-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.p-kontakt{font-size:11px;color:var(--text3);display:flex;gap:10px;flex-wrap:wrap;}
+.p-actions{display:flex;gap:4px;flex-shrink:0;}
+
+/* Beauftragungen-Liste unter der Person */
+.b-list{border-top:0.5px solid var(--border);padding:0 16px;}
+.b-row{padding:10px 0;border-bottom:0.5px solid var(--border);display:flex;align-items:flex-start;gap:12px;}
+.b-row:last-child{border-bottom:none;}
+.b-row-left{flex:1;min-width:0;}
+.b-funktion{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.b-meta{font-size:11px;color:var(--text3);display:flex;gap:8px;flex-wrap:wrap;}
+.b-actions{display:flex;gap:4px;flex-shrink:0;align-items:center;}
+.ampel-io{background:rgba(22,163,74,.1);color:var(--ok);border:0.5px solid rgba(22,163,74,.25);}
+.ampel-bald{background:rgba(180,83,9,.1);color:var(--warn);border:0.5px solid rgba(180,83,9,.25);}
+.ampel-faellig{background:rgba(220,38,38,.1);color:var(--nok);border:0.5px solid rgba(220,38,38,.25);}
+.ampel{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;}
+
+/* Foto-Upload */
+.foto-wrap{position:relative;width:72px;height:72px;flex-shrink:0;}
+.foto-wrap img{width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border2);}
+.foto-placeholder{width:72px;height:72px;border-radius:50%;background:var(--surface3);border:2px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--text4);cursor:pointer;}
+.foto-edit-btn{position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--surface);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;}
+</style>
+</head>
+<body>
+<div id="app-root" style="display:none">
+
+<aside class="sidebar" id="sidebar">
+  <a href="index.html" class="sb-logo">
+    <div class="sb-logo-icon"><img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'"></div>
+    <div class="sb-logo-text"><div class="sb-logo-name" id="sb-firm">EHS Manager</div><div class="sb-logo-sub">Oak Engineering</div></div>
+  </a>
+  <nav class="sb-nav">
+    <div class="sb-section">Übersicht</div>
+    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
+    <div class="sb-section">Module</div>
+    <a href="datenbank.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
+    <a href="schulungen.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
+    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
+    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
+    <a href="sifa.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span><span class="sb-label">Sicherheitsfachkraft</span></a>
+  </nav>
+  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
+  <div class="sb-footer">
+    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
+      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><span class="sb-label">Dark Mode</span></span>
+        <div id="dark-toggle" onclick="toggleDark(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0"><div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div>
+      </label>
+    </div>
+    <div class="sb-user" onclick="openUserMenu()">
+      <div class="sb-avatar" id="u-av">?</div>
+      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-area">
+<nav class="topnav">
+  <div class="topnav-left">
+    <a href="datenbank.html" style="text-decoration:none"><span class="nav-crumb">Datenbank</span></a>
+    <span class="nav-sep">›</span><span class="nav-page">Beauftragte</span>
+  </div>
+  <div class="topnav-right">
+    <div class="nav-btn-top" onclick="openUserMenu()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
+      <span id="top-uname">–</span>
+    </div>
+  </div>
+</nav>
+
+<div class="content">
+  <div class="page-hd">
+    <div><div class="page-title">Beauftragte</div><div class="ts" id="list-sub">Wird geladen…</div></div>
+    <div class="gap">
+      <button class="btn btn-sm" onclick="openSettings()">⚙ WB-Intervalle</button>
+      <button class="btn btn-p btn-sm write-only" onclick="openAddPerson()" style="display:none">+ Person anlegen</button>
+    </div>
+  </div>
+
+  <div class="m-filter">
+    <select id="f-bereich" onchange="renderList()"><option value="">Alle Bereiche</option></select>
+    <select id="f-funktion" onchange="renderList()"><option value="">Alle Funktionen</option></select>
+    <select id="f-status" onchange="renderList()">
+      <option value="">Alle Status</option>
+      <option value="io">🟢 WB aktuell</option>
+      <option value="bald">🟡 WB bald fällig</option>
+      <option value="faellig">🔴 WB überfällig</option>
+    </select>
+    <input type="search" id="f-suche" placeholder="🔍 Suche…" oninput="renderList()">
+  </div>
+
+  <div id="b-list"></div>
+</div>
+</div>
+</div>
+
+<!-- MODAL: Person anlegen/bearbeiten -->
+<div class="overlay" id="m-person" onclick="if(event.target===this)closeM('m-person')">
+<div class="modal modal-wide" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-person-title">Person anlegen</div><div class="modal-sub" id="m-person-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-person')">✕ Schließen</button>
+  </div>
+  <input type="hidden" id="p-edit-id">
+  <div class="modal-body">
+    <!-- Foto + Stammdaten -->
+    <div style="display:flex;gap:16px;align-items:flex-start">
+      <div>
+        <div class="foto-wrap" id="foto-wrap" onclick="document.getElementById('foto-input').click()" title="Foto hochladen">
+          <div class="foto-placeholder" id="foto-placeholder">👤</div>
+          <div class="foto-edit-btn">📷</div>
+        </div>
+        <input type="file" id="foto-input" accept="image/*" capture="user" style="display:none" onchange="onFotoChange(event)">
+        <div class="ts" style="text-align:center;margin-top:4px;font-size:10px">Kamera / Galerie</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+        <div class="g2">
+          <div><label>Name *</label><input id="p-name" placeholder="Vor- und Nachname" autofocus></div>
+          <div><label>Kürzel</label><input id="p-kuerzel" placeholder="MM" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase().slice(0,3)"></div>
+        </div>
+        <div class="g2">
+          <div><label>Telefon</label><input id="p-tel" placeholder="+49 821…" type="tel"></div>
+          <div><label>E-Mail</label><input id="p-email" type="email" placeholder="max@firma.de"></div>
+        </div>
+        <div><label>Kostenstelle</label><input id="p-kst" placeholder="KST-4711"></div>
+      </div>
+    </div>
+    <div><label>Notizen</label><textarea id="p-notizen" rows="2" placeholder="Besondere Hinweise…"></textarea></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-person')">Abbrechen</button>
+    <button class="btn btn-p" onclick="savePerson()"><span class="spinner" id="p-save-sp" style="display:none"></span>Person speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: Beauftragung anlegen/bearbeiten -->
+<div class="overlay" id="m-beauf" onclick="if(event.target===this)closeM('m-beauf')">
+<div class="modal" style="max-height:92vh;display:flex;flex-direction:column">
+  <div class="modal-hd">
+    <div><div class="modal-title" id="m-beauf-title">Beauftragung anlegen</div><div class="modal-sub" id="m-beauf-sub"></div></div>
+    <button class="btn btn-sm" onclick="closeM('m-beauf')">✕</button>
+  </div>
+  <input type="hidden" id="b-edit-id">
+  <input type="hidden" id="b-person-id">
+  <div class="modal-body">
+    <!-- Funktion wählen oder Freitext -->
+    <div>
+      <label>Funktion *</label>
+      <select id="b-funktion-select" onchange="onFunktionChange(this.value)" style="margin-bottom:6px">
+        <option value="">– Funktion wählen –</option>
+        <option value="Ersthelfer">Ersthelfer</option>
+        <option value="Brandschutzhelfer">Brandschutzhelfer</option>
+        <option value="Sicherheitsbeauftragter">Sicherheitsbeauftragter</option>
+        <option value="Sicherheitsfachkraft (SiFa)">Sicherheitsfachkraft (SiFa)</option>
+        <option value="Laserschutzbeauftragter">Laserschutzbeauftragter</option>
+        <option value="Strahlenschutzbeauftragter">Strahlenschutzbeauftragter</option>
+        <option value="Datenschutzbeauftragter">Datenschutzbeauftragter</option>
+        <option value="Gefahrgutbeauftragter">Gefahrgutbeauftragter</option>
+        <option value="Abfallbeauftragter">Abfallbeauftragter</option>
+        <option value="Immissionsschutzbeauftragter">Immissionsschutzbeauftragter</option>
+        <option value="Betriebsarzt">Betriebsarzt</option>
+        <option value="Bereichsverantwortliche/r">Bereichsverantwortliche/r</option>
+        <option value="__custom__">✏ Eigene Funktion eingeben…</option>
+      </select>
+      <input id="b-funktion-custom" placeholder="Eigene Funktion (z.B. Hygienebeauftragter)" style="display:none">
+    </div>
+    <div><label>Bereich</label>
+      <select id="b-bereichId"><option value="">– kein –</option></select>
+    </div>
+    <div class="g2">
+      <div><label>Bestellungsdatum</label><input id="b-bestellt-am" type="date"></div>
+      <div><label>Bestellt bis</label><input id="b-bestellt-bis" type="date"></div>
+    </div>
+    <div class="g2">
+      <div><label>Letzte Weiterbildung</label><input id="b-wb-letzte" type="date" onchange="calcNaechsteWB()"></div>
+      <div><label>Nächste WB <span class="ts">(auto)</span></label><input id="b-wb-naechste" type="date" style="background:var(--surface3)" readonly></div>
+    </div>
+    <div id="b-wb-intervall-info" class="ts" style="margin-top:-6px;padding:0 2px"></div>
+    <div class="section-block">
+      <div class="section-label">Beauftragungsurkunde (PDF)</div>
+      <div id="b-urkunde-info" class="ts" style="margin-bottom:6px">Noch keine Urkunde hochgeladen.</div>
+      <label style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:12px;background:var(--surface2)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        PDF hochladen
+        <input type="file" accept=".pdf" style="display:none" onchange="onUrkundeChange(event)">
+      </label>
+      <button id="b-urkunde-btn" class="btn btn-sm" style="display:none;margin-left:8px" onclick="openUrkunde()">📖 Ansehen</button>
+    </div>
+    <div id="b-status-info" class="ts" style="margin-top:4px"></div>
+  </div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-beauf')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveBeauftr()"><span class="spinner" id="b-save-sp" style="display:none"></span>Speichern</button>
+  </div>
+</div></div>
+
+<!-- MODAL: WB-Intervalle -->
+<div class="overlay" id="m-settings" onclick="if(event.target===this)closeM('m-settings')">
+<div class="modal" style="max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div class="modal-title">Weiterbildungs-Intervalle</div><button class="btn btn-sm" onclick="closeM('m-settings')">✕</button></div>
+  <div class="modal-body" id="settings-body"></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeM('m-settings')">Abbrechen</button>
+    <button class="btn btn-p" onclick="saveSettings()">Speichern</button>
+  </div>
+</div></div>
+
+<!-- User-Menü -->
+<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
+<div class="modal" style="max-width:360px;max-height:90vh;display:flex;flex-direction:column">
+  <div class="modal-hd"><div><div class="modal-title" id="um-name">Mein Konto</div></div><button class="btn btn-sm" onclick="closeM('m-user')">✕</button></div>
+  <div class="modal-body"><button class="btn btn-d" style="width:100%;justify-content:center" onclick="signOut()">↩ Abmelden</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══ Standard WB-Intervalle (Monate) ════════════════════════
+const STD_WB = {
+  'Ersthelfer':24,'Brandschutzhelfer':60,'Sicherheitsbeauftragter':36,
+  'Sicherheitsfachkraft (SiFa)':36,'Laserschutzbeauftragter':60,
+  'Strahlenschutzbeauftragter':60,'Datenschutzbeauftragter':24,
+  'Gefahrgutbeauftragter':60,'Abfallbeauftragter':60,
+  'Immissionsschutzbeauftragter':60,'Betriebsarzt':60,
+  'Bereichsverantwortliche/r':36,
+};
+
+// ── State ─────────────────────────────────────────────────
+let _profile=null,_canWrite=false;
+let _personen=[],_bereiche=[],_settings={};
+let _pendingFoto=null,_pendingUrkunde=null;
+
+// ── Utils ─────────────────────────────────────────────────
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+function addMonths(iso,m){if(!iso||!m)return'';const d=new Date(iso);d.setMonth(d.getMonth()+parseInt(m));return d.toISOString().slice(0,10);}
+let _tt;
+function toast(msg,t=''){const el=document.getElementById('toast');el.textContent=msg;el.className='toast on'+(t?' '+t:'');clearTimeout(_tt);_tt=setTimeout(()=>el.className='toast',3200);}
+function openM(id){document.getElementById(id)?.classList.add('on');}
+function closeM(id){document.getElementById(id)?.classList.remove('on');}
+
+function getWBIntervall(funktion){
+  const custom=_settings.intervalle||{};
+  return custom[funktion]||STD_WB[funktion]||36;
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');const ic=document.getElementById('sb-toggle-icon');
+  const col=sb.classList.toggle('collapsed');localStorage.setItem('sb_collapsed',col?'1':'0');
+  if(ic)ic.innerHTML=col?'<polyline points="4,2 7,5 4,8"/>':'<polyline points="6,2 3,5 6,8"/>';
+}
+function toggleDark(e){
+  e?.stopPropagation();const d=document.documentElement.getAttribute('data-theme')!=='dark';
+  document.documentElement.setAttribute('data-theme',d?'dark':'light');localStorage.setItem('ehs_theme',d?'dark':'light');updateDarkUI(d);
+}
+function updateDarkUI(d){
+  const t=document.getElementById('dark-toggle'),k=document.getElementById('dark-knob');
+  if(t)t.style.background=d?'#1a1a1a':'var(--border2)';if(k)k.style.left=d?'18px':'2px';
+}
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  requireAuth(async(user,profile)=>{
+    _profile=profile;
+    document.getElementById('app-root').style.display='flex';
+    document.getElementById('u-av').textContent=profile?.kuerzel||profile?.name?.slice(0,2).toUpperCase()||'?';
+    document.getElementById('u-name').textContent=profile?.name||'–';
+    document.getElementById('u-role').textContent=profile?.rolle==='admin'?'Administrator':'Mitarbeiter';
+    document.getElementById('top-uname').textContent=profile?.name||'–';
+    _canWrite=isAdmin(profile)||canWrite('datenbank',profile);
+    document.querySelectorAll('.write-only').forEach(el=>el.style.display=_canWrite?'inline-flex':'none');
+    const col=localStorage.getItem('sb_collapsed')==='1';
+    if(col){document.getElementById('sidebar')?.classList.add('collapsed');const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>';}
+    updateDarkUI(document.documentElement.getAttribute('data-theme')==='dark');
+    try{const s=await getOrgSettings();if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;}_settings=s?.db_beauftragte||{};}catch(e){_settings={};}
+    await loadAll();
+  });
+});
+
+async function loadAll(){
+  try{
+    const[pers,ber]=await Promise.all([beauftragterGetAll(),bereichGetAll()]);
+    _personen=pers||[];_bereiche=ber||[];
+    fillFilter();renderList();
+  }catch(e){toast('Ladefehler: '+e.message,'err');}
+}
+
+// ── WB-Ampel ─────────────────────────────────────────────
+function getWBAmpel(b){
+  const fn=b.funktion;const naechste=b.wb_naechste;
+  if(!naechste)return null;
+  const diff=(new Date(naechste)-new Date())/(1000*60*60*24);
+  if(diff<0)return{status:'faellig',label:'🔴 WB überfällig',cls:'ampel-faellig'};
+  if(diff<=60)return{status:'bald',label:`🟡 WB in ${Math.round(diff)} Tagen`,cls:'ampel-bald'};
+  return{status:'io',label:'🟢 WB bis '+fmt(naechste),cls:'ampel-io'};
+}
+
+// ── Filter ────────────────────────────────────────────────
+function fillFilter(){
+  const bOpts='<option value="">Alle Bereiche</option>'+_bereiche.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+  document.getElementById('f-bereich').innerHTML=bOpts;
+  // Alle vorkommenden Funktionen sammeln
+  const fns=new Set();
+  _personen.forEach(p=>(p.beauftragungen||[]).forEach(b=>fns.add(b.funktion)));
+  document.getElementById('f-funktion').innerHTML='<option value="">Alle Funktionen</option>'+[...fns].sort().map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
+}
+
+function getFiltered(){
+  const fB=document.getElementById('f-bereich')?.value||'';
+  const fFn=document.getElementById('f-funktion')?.value||'';
+  const fSt=document.getElementById('f-status')?.value||'';
+  const fS=document.getElementById('f-suche')?.value?.toLowerCase()||'';
+  return _personen.filter(p=>{
+    if(fS&&!JSON.stringify(p).toLowerCase().includes(fS))return false;
+    const bs=p.beauftragungen||[];
+    if(fB&&!bs.some(b=>b.bereichId===fB))return false;
+    if(fFn&&!bs.some(b=>b.funktion===fFn))return false;
+    if(fSt&&!bs.some(b=>{const a=getWBAmpel(b);return a?.status===fSt;}))return false;
+    return true;
+  });
+}
+
+function renderList(){
+  const data=getFiltered();
+  document.getElementById('list-sub').textContent=data.length+' Person'+(data.length!==1?'en':'');
+  const el=document.getElementById('b-list');
+  if(!data.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">👤</div><p style="margin-bottom:12px">${_personen.length?'Keine Treffer.':'Noch keine Beauftragten.'}</p>${_canWrite?`<button class="btn btn-p btn-sm" onclick="openAddPerson()">+ Person anlegen</button>`:''}</div>`;
+    return;
+  }
+  el.innerHTML=data.map(p=>{
+    const bs=p.beauftragungen||[];
+    const initials=(p.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return`<div class="p-card">
+      <div class="p-card-head">
+        <div class="p-avatar">
+          ${p.foto?`<img src="${p.foto}" alt="${esc(p.name||'')}">`:`<span>${initials}</span>`}
+        </div>
+        <div class="p-info">
+          <div class="p-name">${esc(p.name||'–')} ${p.kuerzel?`<span class="badge b-neutral" style="font-size:10px">${esc(p.kuerzel)}</span>`:''}</div>
+          <div class="p-kontakt">
+            ${p.telefon?`<span>📞 ${esc(p.telefon)}</span>`:''}
+            ${p.email?`<span>✉ ${esc(p.email)}</span>`:''}
+            ${p.kostenstelle?`<span>💼 ${esc(p.kostenstelle)}</span>`:''}
+          </div>
+        </div>
+        <div class="p-actions">
+          ${_canWrite?`<button class="btn btn-sm" onclick="openAddBeauftr('${p.id}')" title="Beauftragung hinzufügen" style="font-size:11px">+ Beauftr.</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm" onclick="openEditPerson('${p.id}')">✏</button>`:''}
+          ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deletePerson('${p.id}')">🗑</button>`:''}
+        </div>
+      </div>
+      ${bs.length?`<div class="b-list">
+        ${bs.map(b=>{
+          const bereich=_bereiche.find(x=>x.id===b.bereichId);
+          const ampel=getWBAmpel(b);
+          return`<div class="b-row">
+            <div class="b-row-left">
+              <div class="b-funktion">
+                <span style="font-size:15px">👷</span>
+                ${esc(b.funktion)}
+                ${bereich?`<span class="badge b-neutral" style="font-size:10px">📍 ${esc(bereich.name)}</span>`:''}
+                ${ampel?`<span class="ampel ${ampel.cls}">${ampel.label}</span>`:''}
+              </div>
+              <div class="b-meta">
+                ${b.bestellt_am?`<span>Bestellt: ${fmt(b.bestellt_am)}</span>`:''}
+                ${b.bestellt_bis?`<span>Bis: ${fmt(b.bestellt_bis)}</span>`:''}
+                ${b.wb_letzte?`<span>Letzte WB: ${fmt(b.wb_letzte)}</span>`:''}
+                ${b.wb_naechste?`<span>Nächste WB: ${fmt(b.wb_naechste)}</span>`:''}
+              </div>
+            </div>
+            <div class="b-actions">
+              ${b.urkunde_datei?`<button class="btn btn-sm" onclick="openUrkundeView('${p.id}','${b.id}')" title="Urkunde" style="font-size:11px">📄</button>`:''}
+              ${_canWrite?`<button class="btn btn-sm" onclick="openEditBeauftr('${p.id}','${b.id}')">✏</button>`:''}
+              ${_canWrite?`<button class="btn btn-sm btn-d" onclick="deleteBeauftr('${p.id}','${b.id}')">🗑</button>`:''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`:'<div style="padding:10px 16px;font-size:12px;color:var(--text3)">Noch keine Beauftragungen. <button class="btn btn-sm" onclick="openAddBeauftr(\''+p.id+'\')">+ Beauftragung hinzufügen</button></div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── Person anlegen/bearbeiten ─────────────────────────────
+function openAddPerson(){
+  document.getElementById('p-edit-id').value='';
+  document.getElementById('m-person-title').textContent='Person anlegen';
+  document.getElementById('m-person-sub').textContent='';
+  _pendingFoto=null;
+  // Felder leeren
+  ['p-name','p-kuerzel','p-tel','p-email','p-kst','p-notizen'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  resetFotoUI(null);
+  openM('m-person');
+}
+function openEditPerson(id){
+  const p=_personen.find(x=>x.id===id);if(!p)return;
+  document.getElementById('p-edit-id').value=id;
+  document.getElementById('m-person-title').textContent='Person bearbeiten';
+  document.getElementById('m-person-sub').textContent=p.name||'';
+  _pendingFoto=null;
+  document.getElementById('p-name').value=p.name||'';
+  document.getElementById('p-kuerzel').value=p.kuerzel||'';
+  document.getElementById('p-tel').value=p.telefon||'';
+  document.getElementById('p-email').value=p.email||'';
+  document.getElementById('p-kst').value=p.kostenstelle||'';
+  document.getElementById('p-notizen').value=p.notizen||'';
+  resetFotoUI(p.foto||null);
+  openM('m-person');
+}
+
+function resetFotoUI(fotoUrl){
+  const wrap=document.getElementById('foto-wrap');
+  const ph=document.getElementById('foto-placeholder');
+  if(fotoUrl){
+    ph.innerHTML=`<img src="${fotoUrl}" alt="Foto" style="width:72px;height:72px;border-radius:50%;object-fit:cover;">`;
+  }else{
+    ph.innerHTML='👤';
+    ph.className='foto-placeholder';
+  }
+}
+
+function onFotoChange(e){
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>5*1024*1024){toast('Max. 5 MB','err');return;}
+  const r=new FileReader();
+  r.onload=ev=>{_pendingFoto=ev.target.result;resetFotoUI(ev.target.result);toast('Foto geladen ✓','ok');};
+  r.readAsDataURL(f);e.target.value='';
+}
+
+async function savePerson(){
+  const name=document.getElementById('p-name')?.value?.trim();
+  if(!name){toast('Name ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('p-save-sp');sp.style.display='inline-block';
+  const editId=document.getElementById('p-edit-id').value;
+  const prev=_personen.find(x=>x.id===editId);
+  const obj={
+    id:prev?.id||uid('BEA'),name,
+    kuerzel:document.getElementById('p-kuerzel')?.value?.toUpperCase()||'',
+    telefon:document.getElementById('p-tel')?.value?.trim()||'',
+    email:document.getElementById('p-email')?.value?.trim()||'',
+    kostenstelle:document.getElementById('p-kst')?.value?.trim()||'',
+    notizen:document.getElementById('p-notizen')?.value?.trim()||'',
+    foto:_pendingFoto||prev?.foto||null,
+    beauftragungen:prev?.beauftragungen||[],
+    createdAt:prev?.createdAt||new Date().toISOString(),
+    // GBU-Kompatibilität: Funktion + Bereich aus erster Beauftragung
+    funktion:(prev?.beauftragungen||[])[0]?.funktion||'',
+    bereichId:(prev?.beauftragungen||[])[0]?.bereichId||'',
+  };
+  try{
+    await beauftragterSave(obj);_personen=await beauftragterGetAll()||[];
+    closeM('m-person');fillFilter();renderList();toast('Person gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deletePerson(id){
+  const p=_personen.find(x=>x.id===id);
+  if(!confirm(`"${p?.name||'Person'}" und alle Beauftragungen löschen?`))return;
+  try{await beauftragterDelete(id);_personen=await beauftragterGetAll()||[];renderList();toast('Gelöscht ✓');}
+  catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── Beauftragung anlegen/bearbeiten ───────────────────────
+function fillBereichOpts(selId=''){
+  const sel=document.getElementById('b-bereichId');
+  sel.innerHTML='<option value="">– kein –</option>'+_bereiche.map(b=>`<option value="${b.id}"${b.id===selId?' selected':''}>${esc(b.name)}</option>`).join('');
+}
+
+function openAddBeauftr(personId){
+  const p=_personen.find(x=>x.id===personId);if(!p)return;
+  document.getElementById('b-edit-id').value='';
+  document.getElementById('b-person-id').value=personId;
+  document.getElementById('m-beauf-title').textContent='Beauftragung hinzufügen';
+  document.getElementById('m-beauf-sub').textContent=p.name||'';
+  _pendingUrkunde=null;
+  document.getElementById('b-funktion-select').value='';
+  document.getElementById('b-funktion-custom').style.display='none';
+  document.getElementById('b-funktion-custom').value='';
+  fillBereichOpts();
+  ['b-bestellt-am','b-bestellt-bis','b-wb-letzte','b-wb-naechste'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('b-urkunde-info').textContent='Noch keine Urkunde hochgeladen.';
+  document.getElementById('b-urkunde-btn').style.display='none';
+  document.getElementById('b-wb-intervall-info').textContent='';
+  openM('m-beauf');
+}
+
+function openEditBeauftr(personId,beaufId){
+  const p=_personen.find(x=>x.id===personId);if(!p)return;
+  const b=(p.beauftragungen||[]).find(x=>x.id===beaufId);if(!b)return;
+  document.getElementById('b-edit-id').value=beaufId;
+  document.getElementById('b-person-id').value=personId;
+  document.getElementById('m-beauf-title').textContent='Beauftragung bearbeiten';
+  document.getElementById('m-beauf-sub').textContent=(p.name||'')+(b.funktion?' – '+b.funktion:'');
+  _pendingUrkunde=null;
+  // Funktion setzen
+  const sel=document.getElementById('b-funktion-select');
+  const custom=document.getElementById('b-funktion-custom');
+  const stdFns=[...sel.options].map(o=>o.value).filter(v=>v&&v!=='__custom__');
+  if(stdFns.includes(b.funktion)){sel.value=b.funktion;custom.style.display='none';custom.value='';}
+  else{sel.value='__custom__';custom.style.display='block';custom.value=b.funktion||'';}
+  fillBereichOpts(b.bereichId||'');
+  document.getElementById('b-bestellt-am').value=b.bestellt_am||'';
+  document.getElementById('b-bestellt-bis').value=b.bestellt_bis||'';
+  document.getElementById('b-wb-letzte').value=b.wb_letzte||'';
+  document.getElementById('b-wb-naechste').value=b.wb_naechste||'';
+  document.getElementById('b-urkunde-info').textContent=b.urkunde_name?'✓ '+b.urkunde_name:'Noch keine Urkunde hochgeladen.';
+  document.getElementById('b-urkunde-btn').style.display=b.urkunde_datei?'inline-flex':'none';
+  document.getElementById('b-wb-intervall-info').textContent='';
+  if(b.funktion)onFunktionChange(stdFns.includes(b.funktion)?b.funktion:'__custom__');
+  openM('m-beauf');
+}
+
+function onFunktionChange(val){
+  const custom=document.getElementById('b-funktion-custom');
+  custom.style.display=val==='__custom__'?'block':'none';
+  const fn=val==='__custom__'?custom.value:val;
+  const intervall=getWBIntervall(fn);
+  const info=document.getElementById('b-wb-intervall-info');
+  if(fn&&intervall)info.textContent=`WB-Intervall für "${fn}": ${intervall} Monate`;
+  else info.textContent='';
+  calcNaechsteWB();
+}
+
+function calcNaechsteWB(){
+  const letzte=document.getElementById('b-wb-letzte')?.value;
+  const selVal=document.getElementById('b-funktion-select')?.value;
+  const fn=selVal==='__custom__'?document.getElementById('b-funktion-custom')?.value:selVal;
+  const intervall=getWBIntervall(fn);
+  const naechsteEl=document.getElementById('b-wb-naechste');
+  if(letzte&&intervall&&naechsteEl)naechsteEl.value=addMonths(letzte,intervall);
+}
+
+function onUrkundeChange(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{_pendingUrkunde={name:f.name,dataUrl:ev.target.result};
+    document.getElementById('b-urkunde-info').innerHTML=`<span style="color:var(--ok)">✓ ${esc(f.name)}</span>`;
+    document.getElementById('b-urkunde-btn').style.display='inline-flex';
+    toast(f.name+' hochgeladen ✓','ok');};
+  r.readAsDataURL(f);e.target.value='';
+}
+
+function openUrkunde(){
+  if(!_pendingUrkunde)return;
+  const w=window.open();w.document.write(`<iframe src="${_pendingUrkunde.dataUrl}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();
+}
+
+function openUrkundeView(personId,beaufId){
+  const p=_personen.find(x=>x.id===personId);const b=(p?.beauftragungen||[]).find(x=>x.id===beaufId);
+  if(!b?.urkunde_datei)return;
+  const w=window.open();w.document.write(`<iframe src="${b.urkunde_datei}" style="width:100%;height:100vh;border:none"></iframe>`);w.document.close();
+}
+
+async function saveBeauftr(){
+  const selVal=document.getElementById('b-funktion-select')?.value;
+  const fn=selVal==='__custom__'?(document.getElementById('b-funktion-custom')?.value?.trim()||''):selVal;
+  if(!fn){toast('Funktion ist Pflichtfeld','err');return;}
+  const sp=document.getElementById('b-save-sp');sp.style.display='inline-block';
+  const personId=document.getElementById('b-person-id').value;
+  const editId=document.getElementById('b-edit-id').value;
+  const p=_personen.find(x=>x.id===personId);if(!p){sp.style.display='none';return;}
+  const bs=[...(p.beauftragungen||[])];
+  const prev=editId?bs.find(x=>x.id===editId):null;
+  const beauf={
+    id:prev?.id||uid('B'),funktion:fn,
+    bereichId:document.getElementById('b-bereichId')?.value||'',
+    bestellt_am:document.getElementById('b-bestellt-am')?.value||'',
+    bestellt_bis:document.getElementById('b-bestellt-bis')?.value||'',
+    wb_letzte:document.getElementById('b-wb-letzte')?.value||'',
+    wb_naechste:document.getElementById('b-wb-naechste')?.value||'',
+    urkunde_name:_pendingUrkunde?.name||prev?.urkunde_name||'',
+    urkunde_datei:_pendingUrkunde?.dataUrl||prev?.urkunde_datei||null,
+  };
+  if(prev){const idx=bs.indexOf(prev);bs[idx]=beauf;}
+  else bs.push(beauf);
+  // GBU-Kompatibilität: erste Beauftragung als "Hauptfunktion"
+  const updated={...p,beauftragungen:bs,funktion:bs[0]?.funktion||'',bereichId:bs[0]?.bereichId||''};
+  try{
+    await beauftragterSave(updated);_personen=await beauftragterGetAll()||[];
+    closeM('m-beauf');fillFilter();renderList();toast('Beauftragung gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+  finally{sp.style.display='none';}
+}
+
+async function deleteBeauftr(personId,beaufId){
+  const p=_personen.find(x=>x.id===personId);if(!p)return;
+  const b=(p.beauftragungen||[]).find(x=>x.id===beaufId);
+  if(!confirm(`Beauftragung "${b?.funktion||''}" löschen?`))return;
+  const bs=(p.beauftragungen||[]).filter(x=>x.id!==beaufId);
+  try{
+    await beauftragterSave({...p,beauftragungen:bs,funktion:bs[0]?.funktion||'',bereichId:bs[0]?.bereichId||''});
+    _personen=await beauftragterGetAll()||[];renderList();toast('Beauftragung gelöscht ✓');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+// ── WB-Intervalle Einstellungen ───────────────────────────
+function openSettings(){
+  const custom=_settings.intervalle||{};
+  const alle={...STD_WB,...custom};
+  // Auch individuelle (nicht in STD_WB) einbeziehen
+  const extra=Object.keys(custom).filter(k=>!STD_WB[k]);
+  document.getElementById('settings-body').innerHTML=`
+    <div class="ts" style="margin-bottom:12px">Standard-Weiterbildungsintervalle in Monaten je Funktion. Gilt auch für individuell angelegte Funktionen.</div>
+    ${Object.keys(alle).map(fn=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)">
+        <span style="font-size:13px">${esc(fn)}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="number" id="wb-int-${fn.replace(/[^a-zA-Z0-9]/g,'_')}" value="${alle[fn]||36}" min="1" max="120" style="width:70px;text-align:center;font-size:13px">
+          <span class="ts">Monate</span>
+        </div>
+      </div>`).join('')}
+    <div style="margin-top:12px">
+      <div class="ts" style="margin-bottom:6px">Neue individuelle Funktion mit WB-Intervall:</div>
+      <div style="display:flex;gap:8px">
+        <input id="new-fn-name" placeholder="Funktionsname" style="flex:1;font-size:12px">
+        <input id="new-fn-int" type="number" value="36" min="1" style="width:70px;text-align:center;font-size:12px">
+        <span class="ts" style="line-height:36px">Monate</span>
+        <button class="btn btn-sm btn-p" onclick="addCustomWBFn()">+</button>
+      </div>
+    </div>`;
+  openM('m-settings');
+}
+
+function addCustomWBFn(){
+  const name=document.getElementById('new-fn-name')?.value?.trim();
+  const int=parseInt(document.getElementById('new-fn-int')?.value)||36;
+  if(!name)return;
+  const body=document.getElementById('settings-body');
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border)';
+  const safe=name.replace(/[^a-zA-Z0-9]/g,'_');
+  div.innerHTML=`<span style="font-size:13px">${esc(name)}</span>
+    <div style="display:flex;align-items:center;gap:6px">
+      <input type="number" id="wb-int-${safe}" value="${int}" min="1" max="120" style="width:70px;text-align:center;font-size:13px">
+      <span class="ts">Monate</span>
+    </div>`;
+  body.insertBefore(div,body.lastElementChild);
+  document.getElementById('new-fn-name').value='';
+}
+
+async function saveSettings(){
+  const intervalle={};
+  document.querySelectorAll('[id^="wb-int-"]').forEach(inp=>{
+    const raw=inp.id.replace('wb-int-','');
+    // Funktion rücksuchen
+    const fn=Object.keys({...STD_WB,...(_settings.intervalle||{})}).find(k=>k.replace(/[^a-zA-Z0-9]/g,'_')===raw)||raw;
+    intervalle[fn]=parseInt(inp.value)||36;
+  });
+  _settings={..._settings,intervalle};
+  try{
+    await saveOrgSettings({db_beauftragte:_settings});
+    closeM('m-settings');toast('Intervalle gespeichert ✓','ok');
+  }catch(e){toast('Fehler: '+e.message,'err');}
+}
+
+function openUserMenu(){
+  document.getElementById('um-name').textContent=_profile?.name||'Mein Konto';openM('m-user');
+}
+</script>
+</body>
+</html>
