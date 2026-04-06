@@ -256,7 +256,7 @@ function switchTab(tab){
 }
 
 // ── Dashboard ──────────────────────────────────────────────
-const MODULES=[
+const DASH_MODULES=[
   {key:'maschinen',     label:'Maschinen',      icon:'🏭',color:'#6366f1',fn:'maschinGetAll'},
   {key:'gefahrstoffe',  label:'Gefahrstoffe',   icon:'⚗️',color:'#ef4444',fn:'gefahrstoffGetAll'},
   {key:'arbeitsmittel', label:'Arbeitsmittel',  icon:'🔧',color:'#f59e0b',fn:'arbeitsmittelGetAll'},
@@ -279,12 +279,12 @@ async function loadDashboard(){
   statusEl.innerHTML='';
 
   try{
-    const results=await Promise.allSettled(MODULES.map(m=>window[m.fn]?window[m.fn]():Promise.resolve([])));
+    const results=await Promise.allSettled(DASH_MODULES.map(m=>window[m.fn]?window[m.fn]():Promise.resolve([])));
     const data={};
-    MODULES.forEach((m,i)=>{data[m.key]=results[i].status==='fulfilled'?(results[i].value||[]):[];});
+    DASH_MODULES.forEach((m,i)=>{data[m.key]=results[i].status==='fulfilled'?(results[i].value||[]):[];});
 
     // Zählkacheln
-    countsEl.innerHTML=MODULES.map(m=>`
+    countsEl.innerHTML=DASH_MODULES.map(m=>`
       <div class="dash-card" onclick="switchTab('${m.key}')">
         <div class="dash-card-bar" style="background:${m.color}"></div>
         <div class="dash-card-icon">${m.icon}</div>

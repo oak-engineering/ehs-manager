@@ -193,7 +193,7 @@
   <div class="modal-body" id="settings-body"></div>
   <div class="modal-ft">
     <button class="btn" onclick="closeM('m-settings')">Abbrechen</button>
-    <button class="btn btn-p" onclick="saveSettings()">Speichern</button>
+    <button class="btn btn-p" onclick="saveAMSettings()">Speichern</button>
   </div>
 </div></div>
 
@@ -259,7 +259,7 @@ const DEFAULT_FELDER = [
 ];
 
 // ── State ──────────────────────────────────────────────────
-let _profile = null, _canWrite = false;
+// _profile kommt aus auth.js
 let _items = [], _bereiche = [], _settings = {};
 let _importParsed = null;
 
@@ -786,7 +786,7 @@ function addSettingsFeld(){
   list.appendChild(div);div.querySelector('input').focus();
 }
 
-async function saveSettings(){
+async function saveAMSettings(){
   const felder={};
   document.querySelectorAll('[data-aktiv]').forEach(el=>{
     const onclick=el.getAttribute('onclick')||'';const m=onclick.match(/'([^']+)'/);
