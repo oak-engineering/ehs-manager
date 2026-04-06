@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Checkliste ausfüllen</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--bg, #f5f5f3); color: var(--text, #1a1a1a); margin: 0; padding: 0; min-height: 100vh; }
+.cl-wrap { max-width: 640px; margin: 0 auto; padding: 24px 16px 60px; }
+.cl-header { background: var(--surface, #fff); border: 0.5px solid var(--border, #e0e0e0); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.cl-objekt { font-size: 12px; color: var(--text3, #888); margin-bottom: 4px; }
+.cl-titel { font-size: 20px; font-weight: 600; color: var(--text, #1a1a1a); margin-bottom: 4px; }
+.cl-meta { font-size: 12px; color: var(--text3, #888); }
+.frage-card { background: var(--surface, #fff); border: 0.5px solid var(--border, #e0e0e0); border-radius: 10px; padding: 16px; margin-bottom: 10px; }
+.frage-text { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--text, #1a1a1a); }
+.frage-text .pflicht { color: #dc2626; margin-left: 3px; }
+.ja-nein { display: flex; gap: 10px; }
+.jn-btn { flex: 1; padding: 12px; border: 1.5px solid var(--border, #e0e0e0); border-radius: 8px; cursor: pointer; text-align: center; font-size: 14px; font-weight: 500; transition: all .15s; background: var(--surface, #fff); color: var(--text2, #555); }
+.jn-btn.ja-sel { border-color: #16a34a; background: #f0fdf4; color: #16a34a; }
+.jn-btn.nein-sel { border-color: #dc2626; background: #fef2f2; color: #dc2626; }
+.cl-form-group { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+.cl-input { width: 100%; padding: 10px 12px; border: 1px solid var(--border, #e0e0e0); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--surface, #fff); color: var(--text, #1a1a1a); box-sizing: border-box; }
+.cl-input:focus { outline: none; border-color: #1a1a1a; }
+.submit-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface, #fff); border-top: 0.5px solid var(--border, #e0e0e0); padding: 14px 16px; display: flex; gap: 10px; justify-content: center; max-width: 640px; margin: 0 auto; }
+.btn-submit { padding: 12px 32px; background: #1a1a1a; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity .15s; }
+.btn-submit:hover { opacity: .85; }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+.result-box { text-align: center; padding: 40px 20px; }
+.result-icon { font-size: 56px; margin-bottom: 12px; }
+.result-title { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+.result-sub { font-size: 14px; color: var(--text3, #888); }
+.error-box { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 16px; color: #dc2626; text-align: center; margin: 20px 0; }
+.foto-preview { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border, #e0e0e0); margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="cl-wrap">
+  <div id="loading" style="text-align:center;padding:60px 20px">
+    <div style="font-size:32px;margin-bottom:12px">📋</div>
+    <div style="font-size:16px;color:#888">Checkliste wird geladen…</div>
+  </div>
+  <div id="error-state" style="display:none" class="error-box"></div>
+  <div id="done-state" style="display:none" class="result-box"></div>
+  <div id="form-state" style="display:none">
+    <div class="cl-header">
+      <div class="cl-objekt" id="ext-objekt"></div>
+      <div class="cl-titel" id="ext-titel">Checkliste</div>
+      <div class="cl-meta" id="ext-meta"></div>
+    </div>
+    <div class="cl-form-group">
+      <div class="frage-card" style="background:var(--surface2,#f5f5f3)">
+        <label style="font-size:13px;font-weight:500;display:block;margin-bottom:6px">Ihr Name *</label>
+        <input class="cl-input" id="ext-pruefer" placeholder="Vor- und Nachname" required>
+        <label style="font-size:13px;font-weight:500;display:block;margin:12px 0 6px">Datum</label>
+        <input class="cl-input" id="ext-datum" type="date">
+      </div>
+    </div>
+    <div id="ext-fragen"></div>
+    <div class="frage-card" style="margin-bottom:80px">
+      <label style="font-size:13px;font-weight:500;display:block;margin-bottom:6px">Anmerkungen (optional)</label>
+      <textarea class="cl-input" id="ext-notizen" rows="3" placeholder="Weitere Hinweise…" style="resize:vertical"></textarea>
+    </div>
+  </div>
+</div>
+
+<div class="submit-bar" id="submit-bar" style="display:none">
+  <button class="btn-submit" id="btn-submit" onclick="submitExtern()">Prüfung abschicken</button>
+</div>
+
+<script>
+// Supabase Init
+const SUPABASE_URL = 'https://evlneudkwqhfowyvnknp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2bG5ldWRrd3FoZm93eXZua25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNzY4NjgsImV4cCI6MjA5MDg1Mjg2OH0.ARqhc_HiERFnqhZsq75vWNdVDJmj16cldYX7pORwcsY';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
+
+let _cl = null, _obj = null, _antworten = [];
+
+async function init(){
+  const params = new URLSearchParams(location.search);
+  const objId = params.get('id');
+  const linkId = params.get('cl') || params.get('linkId');
+  
+  if(!objId || !linkId){
+    showError('Ungültiger Link – Parameter fehlen.');
+    return;
+  }
+  
+  try{
+    // Checkliste per linkId laden
+    const {data: clRows} = await sb.from('checklisten').select('id,data');
+    const clRow = (clRows||[]).find(r => r.data?.linkId === linkId || r.id === linkId);
+    if(!clRow){showError('Checkliste nicht gefunden oder nicht mehr gültig.');return;}
+    _cl = {...clRow.data, id: clRow.id};
+    
+    // Objekt aus dem passenden Tab laden
+    const tabTables = {
+      maschine:'maschinen', arbeitsmittel:'arbeitsmittel', psa:'psa',
+      maschinen:'maschinen', arbeitsmittel2:'arbeitsmittel'
+    };
+    const tbl = tabTables[_cl.tab] || _cl.tab + 'n';
+    const {data: objRows} = await sb.from(tbl).select('id,data').eq('id', objId);
+    if(objRows?.length) _obj = {...objRows[0].data, id: objRows[0].id};
+    
+    renderForm();
+  }catch(e){
+    showError('Fehler beim Laden: ' + e.message);
+  }
+}
+
+function showError(msg){
+  document.getElementById('loading').style.display='none';
+  const el=document.getElementById('error-state');
+  el.style.display='block';
+  el.innerHTML='<div style="font-size:32px;margin-bottom:10px">⚠</div><div>'+esc(msg)+'</div>';
+}
+
+function renderForm(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('form-state').style.display='block';
+  document.getElementById('submit-bar').style.display='flex';
+  
+  document.getElementById('ext-objekt').textContent = _obj?.name ? _obj.name + (_obj.id_nr ? ' · ' + _obj.id_nr : '') : '';
+  document.getElementById('ext-titel').textContent = _cl.titel || 'Checkliste';
+  document.getElementById('ext-meta').textContent = (_cl.fragen?.length||0) + ' Prüffragen · Intervall: ' + (_cl.intervall||12) + ' Monate';
+  document.getElementById('ext-datum').value = new Date().toISOString().slice(0,10);
+  
+  const fragenEl = document.getElementById('ext-fragen');
+  fragenEl.innerHTML = (_cl.fragen||[]).map((f,i) => `
+    <div class="frage-card" id="f-card-${i}">
+      <div class="frage-text">${esc(f.frage)}${f.pflicht?'<span class="pflicht">*</span>':''}</div>
+      ${f.typ==='jaNein' ? `
+        <div class="ja-nein">
+          <div class="jn-btn" id="jn-ja-${i}" onclick="setJaNein(${i},'ja')">✅ Ja / i.O.</div>
+          <div class="jn-btn" id="jn-nein-${i}" onclick="setJaNein(${i},'nein')">❌ Nein / Mangel</div>
+        </div>` 
+      : f.typ==='foto' ? `
+        <input type="file" accept="image/*" id="f-val-${i}" onchange="previewFoto(${i},this)" style="font-size:13px">
+        <div id="f-prev-${i}"></div>`
+      : f.typ==='zahl' ? `
+        <input class="cl-input" type="number" id="f-val-${i}" placeholder="Wert eingeben…">`
+      : `<textarea class="cl-input" id="f-val-${i}" rows="3" placeholder="Antwort eingeben…"></textarea>`}
+    </div>`).join('');
+}
+
+function setJaNein(i, val){
+  const ja = document.getElementById('jn-ja-'+i);
+  const nein = document.getElementById('jn-nein-'+i);
+  if(ja) ja.className = 'jn-btn' + (val==='ja' ? ' ja-sel' : '');
+  if(nein) nein.className = 'jn-btn' + (val==='nein' ? ' nein-sel' : '');
+  // Karte einfärben
+  const card = document.getElementById('f-card-'+i);
+  if(card) card.style.borderColor = val==='ja' ? '#86efac' : val==='nein' ? '#fca5a5' : '';
+}
+
+function previewFoto(i, inp){
+  const file = inp.files[0]; if(!file)return;
+  const url = URL.createObjectURL(file);
+  const prev = document.getElementById('f-prev-'+i);
+  if(prev) prev.innerHTML = `<img src="${url}" class="foto-preview">`;
+}
+
+async function submitExtern(){
+  const pruefer = document.getElementById('ext-pruefer').value.trim();
+  if(!pruefer){alert('Bitte Ihren Namen eingeben.');document.getElementById('ext-pruefer').focus();return;}
+  
+  // Antworten sammeln
+  const antworten = (_cl?.fragen||[]).map((f,i) => {
+    let wert;
+    if(f.typ==='jaNein'){
+      const jaEl = document.getElementById('jn-ja-'+i);
+      const neinEl = document.getElementById('jn-nein-'+i);
+      if(jaEl?.classList.contains('ja-sel')) wert = true;
+      else if(neinEl?.classList.contains('nein-sel')) wert = false;
+      else wert = null;
+    } else if(f.typ==='foto'){
+      const file = document.getElementById('f-val-'+i)?.files[0];
+      wert = file ? file.name : '';
+    } else {
+      wert = document.getElementById('f-val-'+i)?.value?.trim()||'';
+    }
+    return {frage:f.frage, typ:f.typ, wert, pflicht:f.pflicht};
+  });
+  
+  // Pflichtfelder prüfen
+  const fehlend = antworten.filter(a=>a.pflicht&&(a.wert===null||a.wert===''));
+  if(fehlend.length){
+    alert(fehlend.length + ' Pflichtfeld(er) sind nicht ausgefüllt.');
+    return;
+  }
+  
+  const hatMangel = antworten.some(a=>a.typ==='jaNein'&&a.wert===false);
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true; btn.textContent = 'Wird gespeichert…';
+  
+  const proto = {
+    id: uid('EXT'),
+    objId: _obj?.id || '',
+    clId: _cl.id,
+    tab: _cl.tab,
+    datum: document.getElementById('ext-datum').value,
+    pruefer,
+    antworten,
+    notizen: document.getElementById('ext-notizen').value.trim(),
+    ergebnis: hatMangel ? 'mangel' : 'io',
+    quelle: 'extern',
+  };
+  
+  try{
+    // Organisation aus Checkliste ermitteln
+    const {data: clRow} = await sb.from('checklisten').select('organisation_id').eq('id', _cl.id).single();
+    const org = clRow?.organisation_id || '';
+    
+    await sb.from('checklisten_protokolle').insert({
+      id: proto.id, organisation_id: org, data: proto
+    });
+    
+    // Erfolg anzeigen
+    document.getElementById('form-state').style.display = 'none';
+    document.getElementById('submit-bar').style.display = 'none';
+    document.getElementById('done-state').style.display = 'block';
+    document.getElementById('done-state').innerHTML = `
+      <div class="result-icon">${hatMangel ? '🔴' : '🟢'}</div>
+      <div class="result-title" style="color:${hatMangel?'#dc2626':'#16a34a'}">${hatMangel ? 'Mangel festgestellt' : 'Prüfung bestanden – i.O.'}</div>
+      <div class="result-sub" style="margin-bottom:16px">Vielen Dank, ${esc(pruefer)}.<br>Ihre Prüfung wurde am ${fmt(proto.datum)} gespeichert.</div>
+      ${hatMangel ? '<div style="padding:12px 16px;background:#fef2f2;border-radius:8px;font-size:13px;color:#dc2626;margin-top:12px">⚠ Bitte informieren Sie umgehend Ihren Vorgesetzten oder die zuständige Sicherheitsfachkraft über den festgestellten Mangel.</div>' : ''}`;
+  }catch(e){
+    btn.disabled = false; btn.textContent = 'Prüfung abschicken';
+    alert('Fehler beim Speichern: ' + e.message);
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

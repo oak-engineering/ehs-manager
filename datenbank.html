@@ -171,6 +171,14 @@
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
         + Checkliste
       </button>
+      <button class="btn btn-sm" onclick="downloadTemplate()" title="CSV-Vorlage herunterladen">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="18"/><line x1="15" y1="15" x2="12" y2="18"/></svg>
+        Template
+      </button>
+      <button class="btn btn-sm write-only" onclick="openImportDialog()" id="btn-import" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="17 8 12 3 7 8"/></svg>
+        Importieren
+      </button>
       <button class="btn btn-sm" onclick="openExportDialog()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Exportieren
@@ -350,6 +358,60 @@
   </div>
 </div></div>
 
+
+<!-- ═══ MODAL: CSV Import ═══ -->
+<div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
+<div class="modal" style="max-width:560px">
+  <div class="modal-hd-sticky">
+    <div>
+      <div class="modal-title" id="m-import-title">CSV importieren</div>
+      <div class="modal-sub" id="m-import-sub">Laden Sie eine ausgefüllte Vorlage hoch</div>
+    </div>
+    <button class="btn btn-sm" onclick="closeM('m-import')">✕</button>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+    <!-- Schritt 1: Template -->
+    <div class="modal-section">
+      <div class="modal-section-label">Schritt 1 – Vorlage herunterladen</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">
+        Laden Sie die CSV-Vorlage herunter, befüllen Sie sie und laden Sie sie wieder hoch.
+        Die erste Zeile enthält die Spaltennamen, die zweite eine Beispielzeile.
+      </div>
+      <button class="btn btn-sm" onclick="downloadTemplate()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Vorlage herunterladen (.csv)
+      </button>
+    </div>
+    <!-- Schritt 2: Upload -->
+    <div class="modal-section">
+      <div class="modal-section-label">Schritt 2 – Ausgefüllte CSV hochladen</div>
+      <input type="file" id="import-file" accept=".csv" onchange="previewImport(event)" style="font-size:13px">
+      <div id="import-preview" style="margin-top:12px;display:none">
+        <div style="font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px">Vorschau (erste 5 Zeilen):</div>
+        <div id="import-preview-table" style="overflow-x:auto;font-size:11px;font-family:var(--fm);background:var(--surface3);border-radius:var(--r);padding:10px;max-height:200px;overflow-y:auto"></div>
+        <div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div class="ts" id="import-info"></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer">
+              <input type="checkbox" id="import-overwrite" style="width:auto;accent-color:var(--accent)">
+              Bestehende überschreiben
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Ergebnis -->
+    <div id="import-result" style="display:none;padding:10px 13px;border-radius:var(--r);font-size:13px"></div>
+  </div>
+  <div style="padding:13px 20px;border-top:0.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+    <button class="btn" onclick="closeM('m-import')">Schließen</button>
+    <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
+      <span class="spinner" id="import-spinner" style="display:none"></span>
+      Importieren
+    </button>
+  </div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 <script>
 // ═══════════════════════════════════════════════════════════
@@ -490,6 +552,8 @@ function switchTab(tab){
   document.getElementById('list-title').textContent=TAB_LABELS[tab]||tab;
   document.getElementById('topnav-page').textContent='Datenbank · '+(TAB_LABELS[tab]||tab);
   document.getElementById('btn-add').style.display=canWriteDB&&tab!=='rechtskataster'?'inline-flex':'none';
+  const btnImp=document.getElementById('btn-import');
+  if(btnImp)btnImp.style.display=canWriteDB&&['maschine','gefahrstoff','arbeitsmittel','psa','taetigkeiten','beauftragte','bereiche','besucher'].includes(tab)?'inline-flex':'none';
   document.getElementById('btn-new-cl').style.display=canWriteDB&&CL_TABS.includes(tab)?'inline-flex':'none';
   document.getElementById('f-inaktiv-wrap').style.display=tab==='gefahrstoff'?'flex':'none';
   document.getElementById('expo-section').style.display=tab==='gefahrstoff'?'block':'none';
@@ -1410,6 +1474,215 @@ async function sendChat(){const q=document.getElementById('chat-q')?.value.trim(
 function openUserMenu(){document.getElementById('um-name').textContent=currentProfile?.name||'Mein Konto';document.getElementById('um-role').textContent=currentProfile?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter';document.getElementById('um-apikey').value=getApiKey();openM('m-user');}
 function saveApiKeyUM(){const k=document.getElementById('um-apikey').value.trim();localStorage.setItem('ehs_api_key',k);toast('API-Key gespeichert ✓','ok');closeM('m-user');}
 async function doSignOut(){closeM('m-user');await signOut();}
+
+// ═══════════════════════════════════════════════════════════
+// CSV IMPORT & TEMPLATE
+// ═══════════════════════════════════════════════════════════
+const IMPORT_COLS = {
+  maschine:[
+    {key:'name',label:'Bezeichnung',required:true,example:'DEMAG Ergotech D100/4'},
+    {key:'id_nr',label:'Inventar-Nr',required:false,example:'M-001'},
+    {key:'hersteller',label:'Hersteller',required:false,example:'DEMAG'},
+    {key:'baujahr',label:'Baujahr',required:false,example:'1995'},
+    {key:'sn',label:'Seriennummer',required:false,example:'SN-12345'},
+    {key:'standort',label:'Standort',required:false,example:'Halle 3'},
+    {key:'kategorie',label:'Kategorie',required:false,example:'Spritzgussmaschine'},
+    {key:'bereich',label:'Bereich (Name)',required:false,example:'Produktion'},
+    {key:'naechsteP',label:'Naechste_Pruefung',required:false,example:'2025-12-31'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  gefahrstoff:[
+    {key:'name',label:'Bezeichnung',required:true,example:'Aceton'},
+    {key:'cas',label:'CAS-Nummer',required:false,example:'67-64-1'},
+    {key:'lieferant',label:'Lieferant',required:false,example:'Sigma-Aldrich'},
+    {key:'verwendung',label:'Verwendungszweck',required:false,example:'Reinigungsmittel'},
+    {key:'kategorie',label:'Kategorie',required:false,example:'Loesemittel'},
+    {key:'bereich',label:'Bereich (Name)',required:false,example:'Labor'},
+    {key:'signalwort',label:'Signalwort',required:false,example:'Gefahr'},
+    {key:'hsaetze',label:'H-Saetze',required:false,example:'H225, H302'},
+    {key:'agw',label:'AGW_TRGS900',required:false,example:'1200 mg/m3'},
+    {key:'flammpunkt',label:'Flammpunkt',required:false,example:'-18 Grad'},
+    {key:'wgk',label:'WGK',required:false,example:'1'},
+    {key:'lagerklasse',label:'Lagerklasse_TRGS510',required:false,example:'LK 3'},
+    {key:'avv',label:'AVV-Schluessel',required:false,example:'14 06 03'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  arbeitsmittel:[
+    {key:'name',label:'Bezeichnung',required:true,example:'Anlegeleiter 4m'},
+    {key:'id_nr',label:'Inventar-Nr',required:false,example:'AM-001'},
+    {key:'kategorie',label:'Kategorie',required:false,example:'Leiter / Aufstiegshilfe'},
+    {key:'pruefgrund',label:'Pruefgrundlage',required:false,example:'DGUV Regel 108-007'},
+    {key:'naechsteP',label:'Naechste_Pruefung',required:false,example:'2025-12-31'},
+    {key:'bereich',label:'Bereich (Name)',required:false,example:'Halle 3'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  psa:[
+    {key:'name',label:'Bezeichnung',required:true,example:'Schutzbrille EN166'},
+    {key:'typ',label:'Typ',required:false,example:'Augenschutz'},
+    {key:'kategorie',label:'Kategorie',required:false,example:'Chemikalienschutz'},
+    {key:'norm',label:'Norm',required:false,example:'EN 166'},
+    {key:'lieferant',label:'Lieferant',required:false,example:'3M'},
+    {key:'artikelnr',label:'Artikel-Nr',required:false,example:'ART-001'},
+    {key:'naechstePruefung',label:'Naechste_Pruefung',required:false,example:'2025-12-31'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  taetigkeiten:[
+    {key:'name',label:'Bezeichnung',required:true,example:'Schweissarbeiten'},
+    {key:'nr',label:'Nummer',required:false,example:'T-001'},
+    {key:'beschreibung',label:'Beschreibung',required:false,example:'Lichtbogenschweissen'},
+    {key:'koerper',label:'Koerp_Belastung',required:false,example:'Heben bis 20kg'},
+    {key:'quali',label:'Qualifikation',required:false,example:'Schweisserschein'},
+    {key:'rechtsquelle',label:'Rechtsgrundlage',required:false,example:'BetrSichV 10'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  beauftragte:[
+    {key:'name',label:'Name',required:true,example:'Max Mustermann'},
+    {key:'kuerzel',label:'Kuerzel',required:false,example:'MM'},
+    {key:'funktionen',label:'Funktionen (Semikolon)',required:false,example:'Ersthelfer;Brandschutzhelfer'},
+    {key:'telefon',label:'Telefon',required:false,example:'+49 821 123456'},
+    {key:'email',label:'E-Mail',required:false,example:'mm@firma.de'},
+    {key:'bereich',label:'Bereich (Name)',required:false,example:'Halle 3'},
+    {key:'kostenstelle',label:'Kostenstelle',required:false,example:'KST-4711'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  bereiche:[
+    {key:'name',label:'Bereichsname',required:true,example:'Halle 3 Spritzguss'},
+    {key:'funktion',label:'Funktion',required:false,example:'Produktionsbereich'},
+    {key:'kostenstelle',label:'Kostenstelle',required:false,example:'KST-4711'},
+    {key:'gebaeude',label:'Gebaeude',required:false,example:'Gebaeude A EG'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+  besucher:[
+    {key:'name',label:'Name',required:true,example:'Max Mustermann'},
+    {key:'firma',label:'Firma',required:false,example:'Musterfirma GmbH'},
+    {key:'email',label:'E-Mail',required:false,example:'mm@firma.de'},
+    {key:'telefon',label:'Telefon',required:false,example:'+49 821 123456'},
+    {key:'besuchsdatum',label:'Besuchsdatum',required:false,example:'2025-03-15'},
+    {key:'anlass',label:'Anlass',required:false,example:'Wartung Anlage 3'},
+    {key:'notizen',label:'Notizen',required:false,example:''},
+  ],
+};
+
+function getImportCols(){
+  const cols=[...(IMPORT_COLS[currentTab]||[])];
+  const custom=tabSettings[currentTab]?.customFelder||[];
+  custom.forEach(cf=>cols.push({key:'cf_'+cf.label.toLowerCase().replace(/[^a-z0-9]/g,'_'),label:cf.label,required:cf.pflicht,example:''}));
+  return cols;
+}
+
+function downloadTemplate(){
+  const cols=getImportCols();
+  if(!cols.length){toast('Kein Template verfügbar','err');return;}
+  const header=cols.map(c=>c.label);
+  const hinweis=cols.map(c=>c.required?'* Pflichtfeld':'optional');
+  const example=cols.map(c=>c.example||'');
+  const csv='\uFEFF'+header.join(';')+'\n'+hinweis.join(';')+'\n'+example.join(';')+'\n';
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download='Template_'+(TAB_LABELS[currentTab]||currentTab)+'_Import.csv';
+  a.click();URL.revokeObjectURL(url);
+  toast('Template heruntergeladen ✓','ok');
+}
+
+function openImportDialog(){
+  document.getElementById('m-import-title').textContent=(TAB_LABELS[currentTab]||currentTab)+' importieren';
+  document.getElementById('import-file').value='';
+  document.getElementById('import-preview').style.display='none';
+  document.getElementById('import-result').style.display='none';
+  document.getElementById('btn-import-run').style.display='none';
+  _importParsed=null;
+  openM('m-import');
+}
+
+function parseCSV(text){
+  const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+  if(lines.length<2)return{headers:[],rows:[]};
+  const parseRow=(line)=>{
+    const cols=[];let cur='',inQ=false;
+    for(const ch of line){
+      if(ch==='"'){inQ=!inQ;}
+      else if(ch===';'&&!inQ){cols.push(cur.trim());cur='';}
+      else cur+=ch;
+    }
+    cols.push(cur.trim());return cols;
+  };
+  const headers=parseRow(lines[0]);
+  const dataStart=(lines[1]?.includes('Pflichtfeld')||lines[1]?.includes('optional'))?2:1;
+  const rows=lines.slice(dataStart).filter(l=>l.trim()&&!l.startsWith('#')).map(parseRow);
+  return{headers,rows};
+}
+
+let _importParsed=null;
+
+function previewImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const {headers,rows}=parseCSV(ev.target.result);
+    _importParsed={headers,rows};
+    const cols=getImportCols();
+    const knownLabels=cols.map(c=>c.label.toLowerCase());
+    const unbekannt=headers.filter(h=>!knownLabels.includes(h.toLowerCase())&&h!=='');
+    const previewRows=rows.slice(0,5);
+    document.getElementById('import-preview-table').innerHTML=
+      '<table style="border-collapse:collapse;width:100%;min-width:max-content">'+
+      '<tr>'+headers.map(h=>`<th style="padding:4px 8px;background:var(--surface2);border:0.5px solid var(--border);white-space:nowrap;font-size:11px">${esc(h)}</th>`).join('')+'</tr>'+
+      previewRows.map(row=>'<tr>'+headers.map((_,i)=>`<td style="padding:4px 8px;border:0.5px solid var(--border);font-size:11px;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis">${esc(row[i]||'')}</td>`).join('')+'</tr>').join('')+
+      '</table>';
+    document.getElementById('import-info').innerHTML=
+      `<span style="color:var(--ok)">✓ ${rows.length} Zeile${rows.length!==1?'n':''} erkannt</span>`+
+      (unbekannt.length?`<span style="color:var(--warn);margin-left:8px">⚠ Unbekannte Spalten ignoriert: ${unbekannt.join(', ')}</span>`:'');
+    document.getElementById('import-preview').style.display='block';
+    document.getElementById('btn-import-run').style.display='inline-flex';
+    document.getElementById('import-result').style.display='none';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+async function runImport(){
+  if(!_importParsed){toast('Bitte Datei auswählen','err');return;}
+  const sp=document.getElementById('import-spinner');sp.style.display='inline-block';
+  document.getElementById('btn-import-run').disabled=true;
+  const {headers,rows}=_importParsed;
+  const cols=getImportCols();
+  const overwrite=document.getElementById('import-overwrite')?.checked||false;
+  const headerMap={};
+  headers.forEach((h,i)=>{const col=cols.find(c=>c.label.toLowerCase()===h.toLowerCase());if(col)headerMap[i]=col.key;});
+  let imported=0,skipped=0;const errors=[];
+  const existing=getAllItems();
+  for(const row of rows){
+    if(row.every(c=>!c.trim()))continue;
+    const obj={id:uid('IMP'),createdAt:new Date().toISOString(),aktiv:true};
+    Object.entries(headerMap).forEach(([i,key])=>{
+      const val=row[parseInt(i)]?.trim()||'';
+      if(key==='funktionen')obj[key]=val.split(';').map(s=>s.trim()).filter(Boolean);
+      else obj[key]=val;
+    });
+    if(obj.bereich){const b=DB.bereiche.find(x=>x.name?.toLowerCase()===obj.bereich.toLowerCase());if(b){obj.bereichId=b.id;}delete obj.bereich;}
+    const missing=cols.filter(c=>c.required&&!obj[c.key]);
+    if(missing.length){errors.push(`Zeile ${rows.indexOf(row)+3}: "${missing[0].label}" fehlt`);skipped++;continue;}
+    const dupe=existing.find(x=>x.name?.toLowerCase()===obj.name?.toLowerCase());
+    if(dupe&&!overwrite){skipped++;continue;}
+    if(dupe&&overwrite)obj.id=dupe.id;
+    try{
+      const saverMap={maschine:maschinSave,gefahrstoff:gefahrstoffSave,arbeitsmittel:arbeitsmittelSave,
+        psa:psaSave,taetigkeiten:taetigkeitSave,beauftragte:beauftragterSave,bereiche:bereichSave};
+      if(saverMap[currentTab])await saverMap[currentTab](obj);
+      else await getSB().from('besucher').upsert({id:obj.id,organisation_id:currentProfile?.organisation_id||'',data:obj},{onConflict:'id'});
+      imported++;
+    }catch(e){errors.push(`Zeile ${rows.indexOf(row)+3}: ${e.message}`);skipped++;}
+  }
+  await loadAll();renderList();
+  const res=document.getElementById('import-result');
+  const hasErr=errors.length>0;
+  res.style.cssText=`display:block;padding:10px 13px;border-radius:var(--r);font-size:13px;background:${hasErr?'rgba(183,134,10,.08)':'rgba(22,163,74,.08)'};border:0.5px solid ${hasErr?'rgba(183,134,10,.3)':'rgba(22,163,74,.3)'};color:${hasErr?'var(--warn)':'var(--ok)'}`;
+  res.innerHTML=`<div style="font-weight:500;margin-bottom:4px">${imported} von ${rows.length} importiert${skipped?'  ·  '+skipped+' übersprungen':''}</div>`+
+    (errors.length?'<div style="font-size:11px;margin-top:4px">'+errors.slice(0,5).map(esc).join('<br>')+(errors.length>5?'<br>…und '+(errors.length-5)+' weitere':'')+'</div>':'');
+  sp.style.display='none';document.getElementById('btn-import-run').disabled=false;
+  if(imported>0)toast(imported+' Einträge importiert ✓','ok');
+}
+
 </script>
 </body>
 </html>

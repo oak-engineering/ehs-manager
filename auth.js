@@ -798,3 +798,5 @@ async function uploadBase64(base64DataUrl, filename, orgId) {
   const path = `${orgId || DEFAULT_ORG}/${Date.now()}_${filename}`;
   return uploadFile(path, file, contentType);
 }
+
+const schulungGetAll = schulungenGetAll; // Alias
