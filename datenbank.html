@@ -361,7 +361,7 @@
 
 <!-- ═══ MODAL: CSV Import ═══ -->
 <div class="overlay" id="m-import" onclick="if(event.target===this)closeM('m-import')">
-<div class="modal" style="max-width:560px">
+<div class="modal" style="max-width:560px;max-height:90vh;display:flex;flex-direction:column">
   <div class="modal-hd-sticky">
     <div>
       <div class="modal-title" id="m-import-title">CSV importieren</div>
@@ -369,7 +369,7 @@
     </div>
     <button class="btn btn-sm" onclick="closeM('m-import')">✕</button>
   </div>
-  <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+  <div style="padding:20px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
     <!-- Schritt 1: Template -->
     <div class="modal-section">
       <div class="modal-section-label">Schritt 1 – Vorlage herunterladen</div>
@@ -403,7 +403,7 @@
     <!-- Ergebnis -->
     <div id="import-result" style="display:none;padding:10px 13px;border-radius:var(--r);font-size:13px"></div>
   </div>
-  <div style="padding:13px 20px;border-top:0.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end">
+  <div style="padding:13px 20px;border-top:0.5px solid var(--border);display:flex;gap:8px;justify-content:flex-end;background:var(--surface);flex-shrink:0">
     <button class="btn" onclick="closeM('m-import')">Schließen</button>
     <button class="btn btn-p" id="btn-import-run" onclick="runImport()" style="display:none">
       <span class="spinner" id="import-spinner" style="display:none"></span>
