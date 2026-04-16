@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// EHS Manager – auth.js v5
+// EHS Manager – auth.js v6
 // Namespace-sicher: interne Variablen unter _ehs.*
-// Keine Kollisionen mit Seiten-Variablen mehr.
+// v6: Besucher Standard-Struktur, Icons entfernt.
 // ═══════════════════════════════════════════════════════════
 
 // ── Konfiguration ─────────────────────────────────────────
@@ -11,12 +11,12 @@ const EHS_DEFAULT_ORG  = 'oak-engineering';
 const EHS_STORAGE_BUCKET = 'ehs-dokumente';
 
 const EHS_MODULE_LABELS = {
-  datenbank:      { label:'Datenbank',           icon:'◫' },
-  unterweisungen: { label:'Unterweisungen',       icon:'◈' },
-  gbu:            { label:'GBU & BA',             icon:'◉' },
-  unfaelle:       { label:'Unfälle',              icon:'◬' },
-  sifa:           { label:'Sicherheitsfachkraft', icon:'◎' },
-  dashboard:      { label:'Dashboard',            icon:'◻' },
+  datenbank:      { label:'Datenbank' },
+  unterweisungen: { label:'Unterweisungen' },
+  gbu:            { label:'GBU & BA' },
+  unfaelle:       { label:'Unfälle' },
+  sifa:           { label:'Sicherheitsfachkraft' },
+  dashboard:      { label:'Dashboard' },
 };
 const EHS_MODULES = Object.keys(EHS_MODULE_LABELS);
 
@@ -558,18 +558,10 @@ async function psaSave(o){
 }
 const psaDelete=(id)=>objDelete('psa',id);
 
-// Besucher (flache Spalten – eigene Tabellenstruktur)
-async function besucherGetAll(){
-  const{data,error}=await getSB().from('besucher').select('*').order('created_at',{ascending:false});
-  if(error)throw error;return data||[];
-}
-async function besucherSave(b){
-  const{error}=b.created_at
-    ?await getSB().from('besucher').update(b).eq('id',b.id)
-    :await getSB().from('besucher').insert(b);
-  if(error)throw error;
-}
-const besucherDelete=(id)=>objDelete('besucher',id);
+// Besucher – Standard JSON-Store
+const besucherGetAll  = ()=>objGetAll('besucher');
+const besucherSave    = (o)=>objSave('besucher',o);
+const besucherDelete  = (id)=>objDelete('besucher',id);
 
 // Rechtskataster
 async function rechtskatasterGetAll(){
