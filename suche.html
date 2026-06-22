@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Suche – OAK engineering | EHS-Management &amp; Digitalisierung</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="site.css">
+<style>
+.search-result{display:block;background:#fff;border:1px solid var(--border);border-radius:10px;
+  padding:1.1rem 1.3rem;margin-bottom:.8rem;transition:border-color .15s,transform .15s,box-shadow .15s;}
+.search-result:hover{border-color:var(--oak);transform:translateY(-2px);box-shadow:0 6px 18px rgba(27,67,50,.08);}
+.search-result b{font-family:var(--serif);font-size:1.2rem;color:var(--ink);display:block;margin-bottom:.2rem;}
+.search-result p{font-size:.88rem;color:var(--muted);margin:0;line-height:1.55;}
+.search-result .rurl{display:block;margin-top:.4rem;font-size:.72rem;color:var(--oak);}
+.search-empty{padding:1.4rem;background:var(--oak-ghost);border:1px dashed var(--oak-light);border-radius:8px;
+  font-size:.9rem;color:var(--ink-2);line-height:1.6;}
+.search-empty a{color:var(--oak);font-weight:600;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <form class="nav-search" role="search" action="suche.html" method="get">
+      <input id="navq" type="search" name="q" placeholder="Suche …" aria-label="Suche auf der Website">
+      <button type="submit" aria-label="Suchen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    </form>
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="umweltschutz.html">Umweltschutz</a>
+        <a href="ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="about.html">Über uns</a>
+    <a href="kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<header class="sub-hero">
+  <div class="sub-eyebrow">Suche</div>
+  <h1 id="shead">Suche</h1>
+  <p id="ssub">Geben Sie oben einen Suchbegriff ein – z. B. „Gefahrstoffe", „BImSchG", „Schulungen" oder „KI".</p>
+</header>
+
+<main class="prose">
+  <div id="results"></div>
+</main>
+
+<footer>
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script>
+(function(){
+  var INDEX = [
+    {t:"Arbeitssicherheit", u:"arbeitssicherheit.html", d:"Arbeitsschutz-Beratung (externe SiFa ab 2027), Gefahrstoffe, psychische Gefährdungsbeurteilung, Sicherheitskultur und Schulungen.",
+     k:"sifa fachkraft arbeitssicherheit gefährdungsbeurteilung gbu gefahrstoffe gefstoffv trgs psychische belastung sicherheitskultur vision zero schulungen unterweisung arbschg dguv betrsichv asig"},
+    {t:"Umweltschutz", u:"umweltschutz.html", d:"Immissionsschutz, Störfall, Umweltmanagement (ISO 14001), Gefahrgut, Gewässerschutz und CO₂-Bilanzierung.",
+     k:"immissionsschutz bimschg 4. bimschv ta luft ta lärm störfall 12. bimschv seveso betriebsbereich sicherheitsbericht gefahrgut adr gewässerschutz awsv whg co2 co₂ ghg csrd iso 14001 emas umweltmanagement rechtskataster"},
+    {t:"KI & Digitalisierung", u:"ki-digitalisierung.html", d:"KI-gestützte Auswertung, Agentic Coding, EHS-Dashboards und individuelle EHS-Tools.",
+     k:"ki künstliche intelligenz digitalisierung analytics agentic coding automatisierung dashboard reporting ehs 4.0 tools llm fristen rechtskataster"},
+    {t:"Schulungen & Weiterbildungen", u:"schulungen.html", d:"EHS-Schulungen: Arbeitssicherheit & Sicherheitskultur, Umweltrecht, ISO 14001/CSRD und KI – online, vor Ort oder inhouse, mit Anmeldung und Terminkalender.",
+     k:"schulung schulungen weiterbildung seminar kurs fachkunde immissionsschutz gewässerschutz abfall awsv gefahrstoffbeauftragter sicherheitsbeauftragte vision zero adr 1.3 iso 14001 csrd ki anmeldung termine kalender inhouse"},
+    {t:"Über uns", u:"about.html", d:"Das Team hinter OAK engineering – Ingenieur- und EHS-Praxis aus Maschinenbau, Automobil, Defense und Pharma. Forschung zu KI & EHS, Agentic Coding.",
+     k:"über uns team ingenieur branchen maschinenbau automobil automotive defense pharma chemie masterarbeit forschung ki ehs agentic coding weiterbildung qualifikation"},
+    {t:"Kontakt", u:"kontakt.html", d:"Schreiben Sie uns oder rufen Sie an – kostenloses, unverbindliches Erstgespräch.",
+     k:"kontakt anfrage e-mail telefon termin erstgespräch angebot visitenkarte"},
+    {t:"SiFa-Einsatzzeiten-Rechner", u:"tools/OAK_SiFa-Einsatzzeiten-Rechner.html", d:"Jährliche Grundbetreuungszeit der Fachkraft für Arbeitssicherheit nach DGUV Vorschrift 2 ermitteln.",
+     k:"sifa einsatzzeiten rechner grundbetreuung dguv v2 betreuungsstunden fachkraft unternehmermodell tool"},
+    {t:"Sicherheitskultur-Check (Bradley-Kurve)", u:"tools/OAK_Bradley-Kurve.html", d:"In 5 Fragen den Reifegrad Ihrer Sicherheitskultur auf der Bradley-Kurve bestimmen.",
+     k:"sicherheitskultur bradley kurve check reifegrad vision zero verhalten tool"},
+    {t:"AwSV-Anlagen-Check", u:"tools/OAK_AwSV-Check.html", d:"Gefährdungsstufe (A–D) Ihrer Anlage mit wassergefährdenden Stoffen nach § 39 AwSV.",
+     k:"awsv anlagen gefährdungsstufe wassergefährdende stoffe wgk § 39 gewässerschutz tool"},
+    {t:"BImSchV-Anlagen-Check", u:"tools/OAK_BImSchV-Check.html", d:"Ist Ihre Anlage genehmigungsbedürftig nach der 4. BImSchV?",
+     k:"bimschv anlagen genehmigungsbedürftig 4. bimschv immissionsschutz tool beta"},
+    {t:"Digitalisierungs-Check (EHS 4.0)", u:"tools/OAK_Digitalisierungs-Check.html", d:"Digitaler Reifegrad Ihres EHS-Managements und Optimierungspotenzial in 5 Fragen.",
+     k:"digitalisierung check ehs 4.0 reifegrad optimierungspotenzial tool"},
+    {t:"CO₂-Bilanz-Rechner", u:"tools/OAK_CO2-Rechner.html", d:"CO₂-Fußabdruck (Scope 1 & 2) aus Strom, Gas, Heizöl und Kraftstoffen schätzen.",
+     k:"co2 co₂ bilanz rechner treibhausgas ghg scope 1 2 klima emissionen csrd strom gas heizöl diesel tool"},
+    {t:"ADR-1.000-Punkte-Rechner", u:"tools/OAK_ADR-Punkte-Rechner.html", d:"Gefahrgut-Freistellung nach ADR 1.1.3.6 (1.000-Punkte-Regel) prüfen.",
+     k:"adr gefahrgut 1000 punkte freistellung 1.1.3.6 beförderungskategorie begrenzte mengen transport tool"},
+    {t:"EMKG-Helfer (Beta)", u:"tools/OAK_EMKG-Helfer.html", d:"Maßnahmenstufe und BAuA-Schutzleitfäden aus den H-Sätzen ableiten (EMKG).",
+     k:"emkg einfaches maßnahmenkonzept gefahrstoffe h-sätze schutzleitfaden baua maßnahmenstufe einatmen gefstoffv tool beta"},
+    {t:"Substitutions-Checker (Beta)", u:"tools/OAK_Substitutions-Checker.html", d:"Gefahrstoffe nach dem GHS-Spaltenmodell vergleichen (TRGS 600).",
+     k:"substitution ersatzstoff spaltenmodell ghs trgs 600 gefstoffv vergleich gefahrstoffe h-sätze tool beta"},
+    {t:"Helfer-Aushänge", u:"tools/OAK_Helfer-Aushang.html", d:"Aushänge für Ersthelfer, Brandschutz- und Sicherheitsbeauftragte erzeugen.",
+     k:"helfer aushang ersthelfer brandschutzhelfer sicherheitsbeauftragte aushänge generator vorlage tool"}
+  ];
+
+  function getQ(){ var m=location.search.match(/[?&]q=([^&]*)/); return m?decodeURIComponent(m[1].replace(/\+/g," ")):""; }
+  var q = getQ().trim();
+  var navq = document.getElementById('navq'); if(navq) navq.value = q;
+
+  var res = document.getElementById('results');
+  if(!q){ return; }
+
+  document.getElementById('shead').textContent = 'Suchergebnisse';
+  document.getElementById('ssub').textContent = 'für „' + q + '"';
+
+  var terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  var hits = INDEX.map(function(e){
+    var hay = (e.t+" "+e.d+" "+e.k).toLowerCase();
+    var titleHay = e.t.toLowerCase();
+    var score = 0;
+    terms.forEach(function(tm){ if(hay.indexOf(tm)>=0){ score += 1; if(titleHay.indexOf(tm)>=0) score += 2; } });
+    return {e:e, score:score};
+  }).filter(function(x){ return x.score>0; }).sort(function(a,b){ return b.score-a.score; });
+
+  if(hits.length===0){
+    res.innerHTML = '<div class="search-empty">Keine Treffer für <strong>„'+q.replace(/</g,"&lt;")+'"</strong>. '+
+      'Probieren Sie einen anderen Begriff – oder schreiben Sie mir direkt über das <a href="kontakt.html">Kontaktformular</a>.</div>';
+    return;
+  }
+  res.innerHTML = hits.map(function(x){
+    return '<a class="search-result" href="'+x.e.u+'"><b>'+x.e.t+'</b><p>'+x.e.d+'</p><span class="rurl">'+x.e.u+'</span></a>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

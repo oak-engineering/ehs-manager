@@ -2,458 +2,1018 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>EHS Manager – Oak Engineering</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>OAK engineering – EHS-Management & Digitalisierung in Augsburg & München</title>
+<meta name="description" content="OAK engineering – externes EHS-Management & Digitalisierung für Unternehmen in Augsburg, München und ganz Bayern: Arbeitsschutz-Beratung (externe SiFa ab 2027), Immissionsschutz, Störfallrecht, Gefahrstoffe und KI-gestützte Lösungen. Inhaber Nikolai Krawielitzki.">
+<link rel="canonical" href="https://www.oak-engineering.de/">
+<meta name="author" content="Nikolai Krawielitzki – OAK engineering">
+<meta name="robots" content="index, follow">
+<meta name="geo.region" content="DE-BY">
+<meta name="geo.placename" content="Augsburg, München">
+<meta name="geo.position" content="48.3705;10.8978">
+<meta name="ICBM" content="48.3705, 10.8978">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_DE">
+<meta property="og:site_name" content="OAK engineering">
+<meta property="og:title" content="OAK engineering – EHS-Management & Digitalisierung in Augsburg & München">
+<meta property="og:description" content="Externes EHS-Management & Digitalisierung: Arbeitsschutz-Beratung (externe SiFa ab 2027), Immissionsschutz, Gefahrstoffe und KI-Lösungen – für Augsburg, München und ganz Bayern.">
+<meta property="og:url" content="https://www.oak-engineering.de/">
+<meta property="og:image" content="https://www.oak-engineering.de/assets/oak-logo.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OAK engineering – EHS-Management & Digitalisierung in Augsburg & München">
+<meta name="twitter:description" content="Arbeitsschutz-Beratung (externe SiFa ab 2027), Immissionsschutz & KI-gestütztes EHS-Management für Augsburg, München und ganz Bayern.">
+<meta name="twitter:image" content="https://www.oak-engineering.de/assets/oak-logo.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "OAK engineering",
+  "description": "Externes EHS-Management & Digitalisierung – Arbeitssicherheit, Umweltschutz und KI-gestützte Lösungen für Unternehmen in Augsburg, München und ganz Bayern.",
+  "url": "https://www.oak-engineering.de/",
+  "image": "https://www.oak-engineering.de/assets/oak-logo.png",
+  "founder": { "@type": "Person", "name": "Nikolai Krawielitzki" },
+  "telephone": "+49-15679-787193",
+  "email": "info@oak-engineering.de",
+  "address": { "@type": "PostalAddress", "streetAddress": "Gögginger Straße 137", "postalCode": "86199", "addressLocality": "Augsburg", "addressRegion": "Bayern", "addressCountry": "DE" },
+  "areaServed": [
+    { "@type": "City", "name": "Augsburg" },
+    { "@type": "City", "name": "München" },
+    { "@type": "AdministrativeArea", "name": "Schwaben" },
+    { "@type": "AdministrativeArea", "name": "Oberbayern" },
+    { "@type": "AdministrativeArea", "name": "Bayern" }
+  ],
+  "knowsAbout": [
+    "Arbeitssicherheit", "Externe Fachkraft für Arbeitssicherheit", "SiFa", "Gefährdungsbeurteilung",
+    "Gefahrstoffe", "Immissionsschutz", "Störfallrecht", "Gefahrgut", "Gewässerschutz",
+    "ISO 14001", "CO2-Bilanzierung", "EHS-Management", "Digitalisierung im Arbeitsschutz"
+  ]
+}
+</script>
+<link rel="stylesheet" href="fonts.css">
 <style>
-.module-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; margin-bottom: 28px; }
-.module-card {
-  background: var(--surface); border: 0.5px solid var(--border);
-  border-radius: var(--r-lg); overflow: hidden; cursor: pointer;
-  text-decoration: none; color: var(--text);
-  transition: border-color .15s, box-shadow .15s;
+/* ── TOKENS ─────────────────────────────────────────────────────────── */
+:root {
+  --oak:        #2D6A4F;
+  --oak-deep:   #1B4332;
+  --oak-mid:    #40916C;
+  --oak-light:  #74C69D;
+  --oak-pale:   #D8F3DC;
+  --oak-ghost:  #F0FAF3;
+  --ink:        #111A14;
+  --ink-2:      #2C3A30;
+  --muted:      #6B7C70;
+  --border:     #D6E4DA;
+  --sand:       #F7F4EE;
+  --white:      #FDFCFA;
+  --warn:       #8B6914;
+
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans:  'Jost', sans-serif;
+
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+/* ── RESET ──────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--sans);
+  background: var(--white);
+  color: var(--ink);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* ── NAV ────────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 5vw;
+  height: 68px;
+  background: rgba(253,252,250,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: box-shadow .3s var(--ease);
+}
+nav.scrolled { box-shadow: 0 2px 24px rgba(27,67,50,.08); }
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.nav-logo img { height: 38px; width: auto; }
+.nav-wordmark {
+  display: flex; flex-direction: column; line-height: 1;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--oak-deep);
+  letter-spacing: .02em;
+}
+.nav-wordmark small {
+  font-family: var(--sans);
+  font-size: .58rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.nav-links {
+  display: flex; align-items: center; gap: 1.3rem;
+  font-size: .76rem; font-weight: 500; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--muted);
+}
+.nav-links a:hover { color: var(--oak); }
+.nav-dd { position: relative; display: flex; align-items: center; }
+.nav-dd-btn { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--muted);
+  background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: .3rem; padding: 0; transition: color .2s; }
+.nav-dd-btn svg { width: 9px; height: 9px; transition: transform .2s; }
+.nav-dd:hover .nav-dd-btn, .nav-dd:focus-within .nav-dd-btn { color: var(--oak); }
+.nav-dd:hover .nav-dd-btn svg, .nav-dd.open .nav-dd-btn svg { transform: rotate(180deg); }
+.nav-dd-menu { position: absolute; top: calc(100% + 16px); left: 50%; transform: translateX(-50%);
+  min-width: 215px; background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 14px 34px rgba(27,67,50,.13); padding: .5rem; display: none; flex-direction: column; z-index: 200; }
+.nav-dd:hover .nav-dd-menu, .nav-dd:focus-within .nav-dd-menu, .nav-dd.open .nav-dd-menu { display: flex; }
+.nav-dd-menu a { text-transform: none; letter-spacing: 0; font-size: .9rem; color: var(--ink-2); padding: .55rem .7rem; border-radius: 7px; }
+.nav-dd-menu a:hover { background: var(--oak-ghost); color: var(--oak); }
+.nav-search { display: flex; align-items: center; background: var(--white);
+  border: 1.5px solid var(--border); border-radius: 99px; padding: 0 .15rem 0 .7rem; height: 34px; }
+.nav-search input { border: none; outline: none; background: none; font-family: var(--sans);
+  font-size: .8rem; width: 110px; color: var(--ink); }
+.nav-search input::placeholder { color: var(--muted); text-transform: none; letter-spacing: 0; }
+.nav-search button { border: none; background: none; color: var(--oak); cursor: pointer;
+  display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; }
+.nav-search button:hover { background: var(--oak-ghost); }
+.nav-search:focus-within { border-color: var(--oak); box-shadow: 0 0 0 3px var(--oak-pale); }
+.nav-cta {
+  background: var(--oak-deep); color: var(--white) !important;
+  padding: .5rem 1.25rem; border-radius: 3px;
+  font-size: .8rem !important;
+  transition: background .2s;
+}
+.nav-cta:hover { background: var(--oak) !important; }
+.nav-burger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-burger span {
+  display: block; width: 22px; height: 1.5px;
+  background: var(--ink); margin: 5px 0;
+  transition: all .3s;
+}
+
+/* ── HERO ───────────────────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 68px 8vw 0;
+  background: var(--oak-deep);
+  overflow: hidden;
+}
+#gridCanvas {
+  position: absolute; inset: 0; z-index: 0;
+  width: 100%; height: 100%; display: block;
+}
+.hero-overlay {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 95% 85% at 28% 42%, rgba(27,67,50,.82) 0%, rgba(27,67,50,.32) 46%, transparent 78%),
+    linear-gradient(180deg, rgba(17,26,20,.45) 0%, transparent 28%, rgba(17,26,20,.5) 100%);
+}
+.hero-content {
+  position: relative; z-index: 2;
+  max-width: 1080px; width: 100%; margin: 0 auto;
+  padding: 6rem 0;
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: var(--sans);
+  font-size: .72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--oak-light);
+  display: flex; align-items: center; gap: .6rem;
+  margin-bottom: 1.5rem;
+  opacity: 0; animation: fadeUp .8s var(--ease) .2s forwards;
+}
+.hero-eyebrow::before {
+  content: ''; display: block;
+  width: 28px; height: 1px; background: var(--oak-light);
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(2.6rem, 5.5vw, 4.6rem);
+  font-weight: 300;
+  line-height: 1.1;
+  color: #fff;
+  margin-bottom: 1.6rem;
+  text-shadow: 0 2px 30px rgba(0,0,0,.28);
+  opacity: 0; animation: fadeUp .8s var(--ease) .4s forwards;
+}
+.hero-title em { font-style: italic; color: var(--oak-light); }
+.hero-sub {
+  font-size: 1.05rem; font-weight: 300;
+  color: rgba(255,255,255,.8); line-height: 1.7;
+  max-width: 560px;
+  margin-bottom: 3rem;
+  text-shadow: 0 1px 16px rgba(0,0,0,.25);
+  opacity: 0; animation: fadeUp .8s var(--ease) .6s forwards;
+}
+.hero-cards {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+  max-width: 1120px;
+  opacity: 0; animation: fadeUp .8s var(--ease) .8s forwards;
+}
+@media (max-width: 1024px) { .hero-cards { grid-template-columns: repeat(2, 1fr); max-width: 560px; } }
+.hero-card {
+  pointer-events: auto;
   display: flex; flex-direction: column;
+  background: #16382A;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 8px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,.25);
+  transition: background .2s, border-color .2s, transform .15s;
+}
+.hero-card:hover {
+  background: #1F4C39;
+  border-color: var(--oak-light);
+  transform: translateY(-3px);
+}
+.hc-k {
+  font-size: .64rem; font-weight: 600; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--oak-light); margin-bottom: .6rem;
+}
+.hero-card b {
+  font-family: var(--serif); font-size: 1.45rem; font-weight: 600;
+  color: #fff; line-height: 1.15; margin-bottom: .5rem;
+}
+.hc-d { font-size: .8rem; color: rgba(255,255,255,.66); line-height: 1.5; flex: 1; }
+.hc-go {
+  margin-top: 1rem; font-size: .8rem; font-weight: 600;
+  color: var(--oak-light); letter-spacing: .02em;
+}
+.btn-primary {
+  display: inline-flex; align-items: center; gap: .5rem;
+  background: var(--oak-deep); color: var(--white);
+  padding: .85rem 2rem; border-radius: 3px;
+  font-family: var(--sans); font-size: .85rem; font-weight: 500;
+  letter-spacing: .04em;
+  transition: background .2s, transform .15s;
+  border: none; cursor: pointer;
+}
+.btn-primary:hover { background: var(--oak); transform: translateY(-1px); }
+
+/* ── SECTIONS ───────────────────────────────────────────────────────── */
+section { padding: 7rem 8vw; }
+.section-label {
+  font-size: .72rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .14em;
+  color: var(--oak);
+  display: flex; align-items: center; gap: .6rem;
+  margin-bottom: 1rem;
+}
+.section-label::before {
+  content: ''; width: 24px; height: 1px; background: var(--oak);
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 300; line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 1.25rem;
+}
+.section-title em { font-style: italic; color: var(--oak); }
+.section-intro {
+  font-size: 1rem; font-weight: 300;
+  color: var(--muted); line-height: 1.8;
+  max-width: 560px;
+}
+
+/* ── LEISTUNGEN ─────────────────────────────────────────────────────── */
+#leistungen { background: var(--sand); }
+.leistungen-2col {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem;
+  margin-top: 3.5rem;
+}
+.leist-group-title {
+  font-family: var(--serif); font-size: 1.6rem; font-weight: 600;
+  color: var(--oak-deep);
+  margin-bottom: 1.2rem; padding-bottom: .7rem;
+  border-bottom: 2px solid var(--oak-pale);
+}
+.leist-item { padding: 1.1rem 0; border-bottom: 1px solid var(--border); }
+.leist-item:last-child { border-bottom: none; }
+.leist-item b {
+  display: block; font-family: var(--serif);
+  font-size: 1.12rem; font-weight: 600; color: var(--ink);
+  margin-bottom: .3rem;
+}
+.leist-item p {
+  font-size: .86rem; font-weight: 300; color: var(--muted); line-height: 1.6;
+}
+@media (max-width: 760px) {
+  .leistungen-2col { grid-template-columns: 1fr; gap: 2.5rem; }
+}
+.leistungen-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5px;
+  margin-top: 4rem;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.leistung-card {
+  background: var(--white);
+  padding: 2.2rem 2rem;
+  transition: background .2s;
+  cursor: default;
+}
+.leistung-card:hover { background: var(--oak-ghost); }
+
+.leistung-icon {
+  display: block;
+  margin-bottom: .8rem;
+  color: var(--oak);
+  opacity: .7;
+  transition: opacity .2s;
+}
+.leistung-card:hover .leistung-icon { opacity: 1; }
+
+.leistung-num {
+  font-family: var(--serif);
+  font-size: 2.5rem; font-weight: 300;
+  color: var(--oak-pale);
+  line-height: 1;
+  margin-bottom: .8rem;
+  transition: color .2s;
+}
+.leistung-card:hover 
+.leistung-icon {
+  display: block;
+  margin-bottom: .8rem;
+  color: var(--oak);
+  opacity: .7;
+  transition: opacity .2s;
+}
+.leistung-card:hover .leistung-icon { opacity: 1; }
+
+.leistung-num { color: var(--oak-light); }
+.leistung-title {
+  font-family: var(--serif);
+  font-size: 1.15rem; font-weight: 600;
+  color: var(--ink);
+  margin-bottom: .6rem;
+  line-height: 1.3;
+}
+.leistung-desc {
+  font-size: .85rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+}
+
+/* ── VORTEILE ───────────────────────────────────────────────────────── */
+#vorteile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0;
+}
+.vorteile-left {
+  padding: 7rem 5vw 7rem 8vw;
+  background: var(--oak-deep);
+  color: var(--white);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.vorteile-left .section-label { color: var(--oak-light); }
+.vorteile-left .section-label::before { background: var(--oak-light); }
+.vorteile-left .section-title { color: var(--white); }
+.vorteile-left .section-title em { color: var(--oak-light); }
+.vorteile-left .section-intro { color: rgba(255,255,255,.65); max-width: 440px; }
+.vorteile-list {
+  margin-top: 2.5rem;
+  display: flex; flex-direction: column; gap: 1.2rem;
+}
+.vorteil-item {
+  display: flex; align-items: flex-start; gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-left: 3px solid var(--oak-light);
+  border-radius: 0 4px 4px 0;
+  transition: background .2s;
+}
+.vorteil-item:hover { background: rgba(255,255,255,.08); }
+.vorteil-icon {
+  font-size: 1.2rem; margin-top: .1rem; flex-shrink: 0;
+}
+.vorteil-text { font-size: .9rem; font-weight: 300; color: rgba(255,255,255,.85); line-height: 1.6; }
+.vorteil-text strong { color: var(--white); font-weight: 500; display: block; margin-bottom: .2rem; }
+.vorteile-right {
+  padding: 7rem 8vw 7rem 5vw;
+  background: var(--white);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 2px; margin-top: 3rem;
+  background: var(--border);
+}
+.stat-cell {
+  background: var(--white);
+  padding: 2rem 1.8rem;
+  transition: background .2s;
+}
+.stat-cell:hover { background: var(--oak-ghost); }
+.stat-num {
+  font-family: var(--serif);
+  font-size: 3rem; font-weight: 300;
+  color: var(--oak);
+  line-height: 1;
+  margin-bottom: .4rem;
+}
+.stat-label {
+  font-size: .8rem; font-weight: 400;
+  color: var(--muted); line-height: 1.5;
+}
+
+/* ── ÜBER MICH ──────────────────────────────────────────────────────── */
+#ueber { background: var(--sand); }
+.ueber-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 6rem;
+  align-items: start;
+  margin-top: 4rem;
+}
+.ueber-aside {
+  position: sticky; top: 100px;
+}
+.ueber-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 2px;
+}
+.ueber-name {
+  font-family: var(--serif);
+  font-size: 1.4rem; font-weight: 600;
+  color: var(--ink);
+  margin-bottom: .2rem;
+}
+.ueber-role {
+  font-size: .8rem; font-weight: 500;
+  color: var(--oak); text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 1.2rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.ueber-detail {
+  display: flex; align-items: center; gap: .7rem;
+  font-size: .85rem; color: var(--muted);
+  margin-bottom: .6rem;
+}
+.ueber-detail-icon { color: var(--oak); font-size: .9rem; }
+.ueber-qr {
+  margin-top: 1.5rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 1rem;
+}
+.ueber-qr img { width: 60px; height: 60px; }
+.ueber-qr-text { font-size: .75rem; color: var(--muted); line-height: 1.5; }
+.ueber-content h3 {
+  font-family: var(--serif);
+  font-size: 1.5rem; font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+.ueber-content h3:first-child { margin-top: 0; }
+.ueber-content p {
+  font-size: .95rem; font-weight: 300;
+  color: var(--muted); line-height: 1.85;
+  margin-bottom: 1rem;
+}
+.kompetenzen-list {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  margin-top: 1rem;
+}
+.kompetenz-tag {
+  background: var(--oak-ghost);
+  border: 1px solid var(--oak-pale);
+  color: var(--oak-deep);
+  font-size: .75rem; font-weight: 500;
+  padding: .35rem .8rem;
+  border-radius: 2px;
+  letter-spacing: .03em;
+}
+
+/* ── APPROACH ───────────────────────────────────────────────────────── */
+#vorgehen { background: var(--white); }
+.vorgehen-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0;
+  margin-top: 4rem;
+  counter-reset: steps;
+}
+.step {
+  padding: 2.5rem 2rem;
+  border-top: 2px solid var(--border);
+  counter-increment: steps;
+  transition: border-color .2s;
   position: relative;
 }
-.module-card:hover:not(.locked) { border-color: var(--border2); box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-.module-card.locked { opacity: .55; cursor: default; }
-.mc-accent { height: 2px; flex-shrink: 0; }
-.mc-body { padding: 18px; flex: 1; }
-.mc-icon {
-  width: 36px; height: 36px; border-radius: var(--r);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 12px; flex-shrink: 0;
+.step:hover { border-color: var(--oak); }
+.step::before {
+  content: counter(steps, decimal-leading-zero);
+  font-family: var(--serif);
+  font-size: 3rem; font-weight: 300;
+  color: var(--oak-pale);
+  display: block;
+  line-height: 1;
+  margin-bottom: .8rem;
+  transition: color .2s;
 }
-.mc-icon svg { width: 18px; height: 18px; stroke-width: 1.5; }
-.mc-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 5px; letter-spacing: -.01em; }
-.mc-desc { font-size: 12px; color: var(--text3); line-height: 1.5; margin-bottom: 12px; }
-.mc-stats { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; }
-.mc-stat { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-.mc-footer { padding: 10px 18px; border-top: 0.5px solid var(--border); font-size: 11px; color: var(--text3); display: flex; align-items: center; justify-content: space-between; }
-.mc-locked-badge { position: absolute; top: 12px; right: 12px; }
-.mc-coming { font-size: 11px; color: var(--text3); font-style: italic; }
+.step:hover::before { color: var(--oak-light); }
+.step-title {
+  font-family: var(--serif);
+  font-size: 1.1rem; font-weight: 600;
+  color: var(--ink); margin-bottom: .5rem;
+}
+.step-desc {
+  font-size: .85rem; font-weight: 300;
+  color: var(--muted); line-height: 1.7;
+}
 
-.admin-section { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 18px; margin-bottom: 22px; }
-.admin-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(180px,1fr)); gap: 8px; margin-top: 12px; }
-.admin-btn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 13px; border-radius: var(--r);
-  border: 0.5px solid var(--border);
-  background: var(--surface2);
-  cursor: pointer; font-family: var(--ff);
-  font-size: 12px; color: var(--text2);
-  transition: all .12s; text-align: left;
+/* ── BRANCHEN ───────────────────────────────────────────────────────── */
+#branchen { background: var(--sand); }
+.branchen-grid {
+  display: flex; flex-wrap: wrap;
+  gap: .75rem;
+  margin-top: 3rem;
 }
-.admin-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
-.admin-btn-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.admin-btn-icon svg { width: 14px; height: 14px; stroke-width: 1.5; }
+.branche-pill {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: .6rem 1.2rem;
+  font-size: .85rem; font-weight: 400;
+  color: var(--ink-2);
+  border-radius: 100px;
+  transition: all .2s;
+}
+.branche-pill:hover {
+  background: var(--oak-deep);
+  color: var(--white);
+  border-color: var(--oak-deep);
+}
+
+/* ── KONTAKT ────────────────────────────────────────────────────────── */
+#kontakt {
+  background: var(--oak-deep);
+  color: var(--white);
+  padding: 7rem 8vw;
+}
+#kontakt .section-label { color: var(--oak-light); }
+#kontakt .section-label::before { background: var(--oak-light); }
+#kontakt .section-title { color: var(--white); }
+#kontakt .section-title em { color: var(--oak-light); }
+.kontakt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 5rem;
+  margin-top: 4rem;
+  align-items: start;
+}
+.kontakt-info p {
+  font-size: .95rem; font-weight: 300;
+  color: rgba(255,255,255,.65); line-height: 1.85;
+  margin-bottom: 2rem;
+}
+.kontakt-detail {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: .9rem; color: rgba(255,255,255,.75);
+}
+.kontakt-detail-icon {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.kontakt-detail a { color: var(--oak-light); }
+.kontakt-detail a:hover { text-decoration: underline; }
+
+/* FORM */
+.kontakt-form {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  padding: 2.5rem;
+  border-radius: 2px;
+}
+.form-title {
+  font-family: var(--serif);
+  font-size: 1.4rem; font-weight: 600;
+  color: var(--white); margin-bottom: 1.5rem;
+}
+.form-group {
+  margin-bottom: 1.2rem;
+}
+.form-group label {
+  display: block;
+  font-size: .75rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: rgba(255,255,255,.5);
+  margin-bottom: .4rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.12);
+  color: var(--white);
+  padding: .75rem 1rem;
+  font-family: var(--sans); font-size: .9rem; font-weight: 300;
+  border-radius: 2px;
+  transition: border-color .2s;
+  outline: none;
+}
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255,255,255,.25);
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--oak-light);
+}
+.form-group select option { background: var(--oak-deep); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-submit {
+  width: 100%;
+  background: var(--oak-light);
+  color: var(--oak-deep);
+  border: none; cursor: pointer;
+  padding: .9rem 1.5rem;
+  font-family: var(--sans); font-size: .85rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  border-radius: 2px;
+  margin-top: .5rem;
+  transition: background .2s, transform .15s;
+}
+.form-submit:hover { background: var(--white); transform: translateY(-1px); }
+.form-note {
+  font-size: .75rem; color: rgba(255,255,255,.35);
+  margin-top: .8rem; line-height: 1.5;
+}
+.form-success {
+  display: none;
+  text-align: center; padding: 2rem;
+  color: var(--oak-light);
+  font-family: var(--serif); font-size: 1.2rem;
+}
+
+/* ── FOOTER ─────────────────────────────────────────────────────────── */
+footer {
+  background: var(--ink);
+  color: rgba(255,255,255,.45);
+  padding: 2.5rem 8vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .78rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 1rem; color: rgba(255,255,255,.7);
+}
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a:hover { color: var(--oak-light); }
+
+
+/* ── MODAL ──────────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+  align-items: flex-start; justify-content: center;
+  padding: 80px 5vw 40px; overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--white); max-width: 760px; width: 100%;
+  border-radius: 4px; overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.2);
+  animation: fadeUp .3s var(--ease) both;
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.5rem 2rem; border-bottom: 1px solid var(--border);
+  background: var(--sand);
+}
+.modal-title {
+  font-family: var(--serif); font-size: 1.4rem;
+  font-weight: 600; color: var(--oak-deep);
+}
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.4rem; color: var(--muted); padding: 4px 8px;
+  border-radius: 4px; transition: all .15s;
+}
+.modal-close:hover { background: var(--border); color: var(--ink); }
+.modal-body {
+  padding: 2rem; font-size: .9rem; color: var(--muted);
+  line-height: 1.85; max-height: 70vh; overflow-y: auto;
+}
+.modal-body h2 {
+  font-family: var(--serif); font-size: 1.2rem;
+  font-weight: 600; color: var(--ink);
+  margin: 1.5rem 0 .5rem; padding-bottom: .4rem;
+  border-bottom: 1px solid var(--border);
+}
+.modal-body h2:first-child { margin-top: 0; }
+.modal-body h3 {
+  font-size: .95rem; font-weight: 600;
+  color: var(--ink-2); margin: 1rem 0 .3rem;
+}
+.modal-body p { margin-bottom: .8rem; }
+.modal-body a { color: var(--oak); }
+.modal-body ul { padding-left: 1.5rem; margin-bottom: .8rem; }
+.modal-body li { margin-bottom: .3rem; }
+.modal-body strong { color: var(--ink-2); font-weight: 600; }
+
+/* ── ANIMATIONS ─────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.reveal.visible {
+  opacity: 1; transform: translateY(0);
+}
+
+/* ── MOBILE ─────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .nav-burger { display: block; }
+  .nav-links {
+    display: none; position: fixed; top: 68px; left: 0; right: 0;
+    flex-direction: column; align-items: stretch;
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 1.2rem 6vw; gap: 1.1rem; z-index: 99;
+    text-transform: none; letter-spacing: 0; font-size: .95rem;
+  }
+  .nav-links.open { display: flex; }
+  .nav-links a { padding: .25rem 0; }
+  .nav-dd { flex-direction: column; align-items: stretch; }
+  .nav-dd-btn { padding: .25rem 0; justify-content: space-between; width: 100%; text-transform: none; letter-spacing: 0; font-size: .95rem; }
+  .nav-dd-menu { position: static; transform: none; display: flex; min-width: 0; border: none; box-shadow: none; background: transparent; padding: .1rem 0 .3rem 1rem; }
+  .nav-dd-menu a { font-size: .92rem; padding: .35rem 0; }
+  .nav-search { width: 100%; height: 42px; }
+  .nav-search input { width: 100%; font-size: .95rem; }
+  .nav-cta { text-align: center; }
+}
+@media (max-width: 900px) {
+  .hero { padding: 68px 6vw 0; min-height: auto; }
+  .hero-content { padding: 4rem 0; }
+  .hero-cards { grid-template-columns: 1fr; }
+  section { padding: 4rem 6vw; }
+  .form-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
-<div id="app-root" style="display:none">
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <a href="index.html" class="sb-logo">
-    <div class="sb-logo-icon">
-      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
-    </div>
-    <div class="sb-logo-text">
-      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
-      <div class="sb-logo-sub">Oak Engineering</div>
-    </div>
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#home" aria-label="OAK engineering – zur Startseite">
+    <img src="assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
   </a>
-
-  <nav class="sb-nav">
-    <div class="sb-section">Übersicht</div>
-    <a href="dashboard.html" class="sb-item" id="snav-dashboard">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-      <span class="sb-label">Dashboard</span>
-    </a>
-
-    <div class="sb-section">Module</div>
-    <a href="datenbank.html" class="sb-item" id="snav-datenbank">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span>
-      <span class="sb-label">Datenbank</span>
-    </a>
-    <a href="schulungen.html" class="sb-item" id="snav-unterweisungen">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span>
-      <span class="sb-label">Unterweisungen</span>
-      <span class="sb-badge" id="snav-badge-unterweisungen" style="display:none"></span>
-    </a>
-    <a href="gbu.html" class="sb-item" id="snav-gbu">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
-      <span class="sb-label">GBU & BA</span>
-    </a>
-    <a href="unfaelle.html" class="sb-item" id="snav-unfaelle">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
-      <span class="sb-label">Unfälle</span>
-      <span class="sb-badge" id="snav-badge-unfaelle" style="display:none"></span>
-    </a>
-    <a href="sifa.html" class="sb-item" id="snav-sifa">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
-      <span class="sb-label">Sicherheitsfachkraft</span>
-    </a>
-
-    <div class="sb-section">Verwaltung</div>
-    <div class="sb-item admin-only" onclick="openSettingsModal()" id="snav-settings" style="display:none">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l-1.41-1.41M6.34 6.34L4.93 4.93"/></svg></span>
-      <span class="sb-label">Einstellungen</span>
+  <div class="nav-links" id="nav-links">
+    <form class="nav-search" role="search" action="suche.html" method="get">
+      <input type="search" name="q" placeholder="Suche …" aria-label="Suche auf der Website">
+      <button type="submit" aria-label="Suchen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    </form>
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="umweltschutz.html">Umweltschutz</a>
+        <a href="ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="schulungen.html">Schulungen</a>
+      </div>
     </div>
-    <div class="sb-item admin-only" onclick="openNutzerModal()" id="snav-nutzer" style="display:none">
-      <span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
-      <span class="sb-label">Nutzerverwaltung</span>
-    </div>
-  </nav>
-
-  <div class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()">
-    <svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg>
+    <a href="about.html">Über uns</a>
+    <a href="kontakt.html" class="nav-cta">Kontakt</a>
   </div>
-
-  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" title="Sidebar ein-/ausklappen">
-    <svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg>
+  <button class="nav-burger" id="burger" aria-label="Menü">
+    <span></span><span></span><span></span>
   </button>
+</nav>
 
-  <div class="sb-footer">
-    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
-      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
-        <span style="display:flex;align-items:center;gap:6px">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <span class="sb-label">Dark Mode</span>
-        </span>
-        <div id="dark-toggle" onclick="toggleDarkMode(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
-          <div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
-        </div>
-      </label>
-    </div>
-    <div class="sb-user" onclick="openUserMenuModal()">
-      <div class="sb-avatar" id="sb-av">?</div>
-      <div>
-        <div class="sb-user-name" id="sb-uname">–</div>
-        <div class="sb-user-role" id="sb-urole">–</div>
-      </div>
+<!-- HERO -->
+<section class="hero" id="home">
+  <canvas id="gridCanvas" aria-hidden="true"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <h1 class="hero-title">EHS neu gedacht –<br><em>digital und KI-unterstützt</em></h1>
+    <p class="hero-sub">Externe Expertise für Arbeitssicherheit und Umweltschutz – verbunden mit KI und Automatisierung, damit Sie mehr Zeit für das Wesentliche haben.</p>
+    <div class="hero-cards">
+      <a class="hero-card" href="arbeitssicherheit.html">
+        <span class="hc-k">Leistung</span>
+        <b>Arbeitssicherheit</b>
+        <span class="hc-d">Externe SiFa (ab 2027) · Gefahrstoffe · Psych. GBU · Sicherheitskultur · Schulungen</span>
+        <span class="hc-go">Mehr erfahren →</span>
+      </a>
+      <a class="hero-card" href="umweltschutz.html">
+        <span class="hc-k">Leistung</span>
+        <b>Umweltschutz</b>
+        <span class="hc-d">Immissionsschutz · Störfall · ISO 14001 · Gefahrgut · Gewässerschutz · CO₂</span>
+        <span class="hc-go">Mehr erfahren →</span>
+      </a>
+      <a class="hero-card" href="ki-digitalisierung.html">
+        <span class="hc-k">Querschnitt</span>
+        <b>KI &amp; Digitalisierung</b>
+        <span class="hc-d">Digitalisierung für Arbeits- &amp; Umweltschutz: KI-Auswertung, Automatisierung, Dashboards</span>
+        <span class="hc-go">Mehr erfahren →</span>
+      </a>
+      <a class="hero-card" href="schulungen.html">
+        <span class="hc-k">Weiterbildung</span>
+        <b>Schulungsangebot</b>
+        <span class="hc-d">11 Schulungen: Arbeitssicherheit · Umweltrecht · ISO 14001 · KI – online, vor Ort &amp; inhouse</span>
+        <span class="hc-go">Mehr erfahren →</span>
+      </a>
     </div>
   </div>
-</aside>
+</section>
 
-<!-- MAIN AREA -->
-<div class="main-area">
-  <!-- TOPNAV -->
-  <nav class="topnav">
-    <div class="topnav-left">
-      <span class="nav-crumb">EHS Manager</span>
-      <span class="nav-sep">›</span>
-      <span class="nav-page">Startseite</span>
-    </div>
-    <div class="topnav-right">
-      <span class="nav-badge-admin admin-only" id="top-admin-badge" style="display:none">Admin</span>
-      <div class="nav-btn-top" onclick="openUserMenuModal()">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
-        <span id="top-uname">–</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- CONTENT -->
-  <main class="content">
-    <div class="page-hd">
-      <div>
-        <div class="page-title" id="hero-title">Guten Tag 👋</div>
-        <div class="ts" id="hero-sub"></div>
-      </div>
-    </div>
-
-    <!-- Admin-Bereich -->
-    <div class="admin-section admin-only" id="admin-section" style="display:none">
-      <div style="font-size:13px;font-weight:500;color:var(--text2)">Administration</div>
-      <div class="admin-grid">
-        <button class="admin-btn" onclick="openNutzerModal()">
-          <div class="admin-btn-icon" style="background:var(--info-bg)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--info)" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-          </div>
-          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Nutzerverwaltung</div><div style="font-size:11px;color:var(--text3)" id="admin-users-count">–</div></div>
-        </button>
-        <button class="admin-btn" onclick="openSettingsModal()">
-          <div class="admin-btn-icon" style="background:var(--surface3)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2"/></svg>
-          </div>
-          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Grundeinstellungen</div><div style="font-size:11px;color:var(--text3)">Firma, SiFa, Dark Mode</div></div>
-        </button>
-        <button class="admin-btn" onclick="window.location.href='schulungen.html'">
-          <div class="admin-btn-icon" style="background:var(--ok-bg)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          </div>
-          <div><div style="font-weight:500;font-size:12px;color:var(--text)">Buchungsanfragen</div><div style="font-size:11px;color:var(--text3)" id="admin-anfragen-count">– offen</div></div>
-        </button>
-      </div>
-    </div>
-
-    <!-- Module -->
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:500;margin-bottom:12px">Module</div>
-    <div class="module-grid" id="module-grid"></div>
-    <div style="text-align:center;font-size:11px;color:var(--text4);margin-top:12px">EHS Manager · Oak Engineering · Version 2.0</div>
-  </main>
-</div>
-
-</div><!-- /app-root -->
-
-<!-- MODAL: User-Menü -->
-<div class="overlay" id="m-user" onclick="if(event.target===this)closeM('m-user')">
-<div class="modal" style="max-width:340px">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-title" id="um-name">Mein Konto</div>
-      <div class="modal-sub" id="um-role"></div>
-    </div>
-    <button class="btn btn-sm" onclick="closeM('m-user')">✕</button>
+<!-- REGION / SEO -->
+<style>
+.region{padding:clamp(3rem,7vw,5rem) 6vw;background:var(--oak-ghost,#F0FAF3);border-top:1px solid var(--border,#D6E4DA);}
+.region-inner{max-width:980px;margin:0 auto;}
+.region h2{font-family:var(--serif,'Cormorant Garamond',serif);font-weight:300;font-size:clamp(1.4rem,3.5vw,2rem);color:var(--oak-deep,#1B4332);line-height:1.2;margin:0 0 1rem;}
+.region p{font-size:1rem;line-height:1.7;color:var(--ink-2,#2C3A30);max-width:75ch;margin:0 0 1rem;}
+.region p strong{color:var(--oak-deep,#1B4332);font-weight:600;}
+.region-tags{font-size:.8rem;color:var(--muted,#6B7C70);letter-spacing:.01em;}
+</style>
+<section class="region reveal">
+  <div class="region-inner">
+    <h2>EHS-Management &amp; Digitalisierung in Augsburg, München und ganz Bayern</h2>
+    <p>OAK engineering begleitet Industrie und Mittelstand in der <strong>Arbeitssicherheit</strong> (externe SiFa-Betreuung ab 2027 bzw. in Kooperation), im <strong>Immissionsschutz</strong> und Störfallrecht, bei <strong>Gefahrstoffen</strong> und Gefährdungsbeurteilungen sowie mit KI-gestützter Digitalisierung des Arbeits- und Umweltschutzes. Wir sind in <strong>Augsburg</strong> und <strong>München</strong> persönlich vor Ort und betreuen Unternehmen in Schwaben, Oberbayern und – remote-gestützt – bundesweit.</p>
+    <p>Typische Anfragen: Arbeitsschutz-Beratung in Augsburg und München, Immissionsschutzbeauftragter, Gefahrstoffmanagement &amp; Substitutionsprüfung, ISO&nbsp;14001, Störfall-Verordnung, Gefahrgut sowie CO₂-Bilanzierung.</p>
+    <p class="region-tags">Arbeitsschutz-Beratung Augsburg · Arbeitsschutz-Beratung München · Immissionsschutz München · Arbeitssicherheit Bayern · Gefahrstoffmanagement · ISO 14001 · Störfall-Verordnung · Gefahrgutbeauftragter · CO₂-Bilanz</p>
   </div>
-  <div class="modal-body">
-    <div class="divider" style="margin:0"></div>
-    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doLogout()">↩ Abmelden</button>
-  </div>
-</div></div>
+</section>
 
-<div class="toast" id="toast"></div>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
 
 <script>
-// ── Konfiguration der Modulkacheln ────────────────────────
-const MODULES_CFG = [
-  {
-    id:'datenbank', href:'datenbank.html',
-    name:'Datenbank',
-    desc:'Maschinen, Gefahrstoffe, Arbeitsmittel, PSA, Beauftragte, Bereiche und Besucher verwalten.',
-    accent:'#2563eb', iconBg:'#eff6ff', iconColor:'#2563eb',
-    icon:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
-    stats: async () => {
-      try {
-        const [m,g] = await Promise.all([
-          getSB().from('maschinen').select('id',{count:'exact',head:true}),
-          getSB().from('gefahrstoffe').select('id',{count:'exact',head:true}).eq('aktiv',true)
-        ]);
-        const chips = [{l:(m.count||0)+' Maschinen',c:'b-neutral'},{l:(g.count||0)+' Gefahrstoffe',c:'b-neutral'}];
-        return chips;
-      } catch { return []; }
-    }
-  },
-  {
-    id:'unterweisungen', href:'schulungen.html',
-    name:'Unterweisungen',
-    desc:'Online-Unterweisungen erstellen und durchführen, Präsenztermine planen, Teilnahme dokumentieren.',
-    accent:'#16a34a', iconBg:'#f0fdf4', iconColor:'#16a34a',
-    icon:'<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
-    stats: async () => {
-      try {
-        const {count} = await getSB().from('schulungen').select('id',{count:'exact',head:true});
-        const {count:proto} = await getSB().from('protokolle').select('id',{count:'exact',head:true})
-          .gte('datum',new Date(Date.now()-30*24*60*60*1000).toISOString());
-        return [{l:(count||0)+' Unterweisungen',c:'b-neutral'},{l:(proto||0)+' Durchf. (30 Tage)',c:'b-neutral'}];
-      } catch { return []; }
-    }
-  },
-  {
-    id:'gbu', href:'gbu.html',
-    name:'GBU & Betriebsanweisungen',
-    desc:'Gefährdungsbeurteilungen erstellen, Betriebsanweisungen generieren und verwalten.',
-    accent:'#7c3aed', iconBg:'#f5f3ff', iconColor:'#7c3aed',
-    icon:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>',
-    stats: async () => {
-      try {
-        const {count} = await getSB().from('gbu').select('id',{count:'exact',head:true});
-        return [{l:(count||0)+' GBU',c:'b-neutral'}];
-      } catch { return [{l:'Noch keine GBU',c:'b-neutral'}]; }
-    }
-  },
-  {
-    id:'unfaelle', href:'unfaelle.html',
-    name:'Unfälle & Beinahe-Unfälle',
-    desc:'Unfälle dokumentieren, analysieren, Maßnahmen ableiten und Meldungen erstellen.',
-    accent:'#dc2626', iconBg:'#fef2f2', iconColor:'#dc2626',
-    icon:'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
-    stats: async () => {
-      try {
-        const {count} = await getSB().from('unfaelle').select('id',{count:'exact',head:true});
-        return [{l:(count||0)+' Vorfälle',c:'b-neutral'}];
-      } catch { return [{l:'Noch keine Vorfälle',c:'b-ok'}]; }
-    }
-  },
-  {
-    id:'sifa', href:'sifa.html',
-    name:'Sicherheitsfachkraft',
-    desc:'Einsatzzeiten berechnen (DGUV V2), Jahresbericht erstellen und exportieren.',
-    accent:'#b45309', iconBg:'#fffbeb', iconColor:'#b45309',
-    icon:'<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>',
-    stats: async () => [{l:'Einsatzzeiten DGUV V2',c:'b-neutral'}]
-  },
-  {
-    id:'dashboard', href:'dashboard.html',
-    name:'Dashboard',
-    desc:'Kennzahlen aus allen Modulen grafisch aufbereitet – filterbar nach Bereich, Kostenstelle und Zeitraum.',
-    accent:'#0891b2', iconBg:'#ecfeff', iconColor:'#0891b2',
-    icon:'<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
-    kommt: true,
-    stats: async () => [{l:'In Entwicklung',c:'b-warn'}]
-  },
-];
-
-// ── State ──────────────────────────────────────────────────
-_profile = null;
-_collapsed = localStorage.getItem('sb_collapsed') === '1';
-
-function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
-let _tt;
-function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
-function openM(id){document.getElementById(id)?.classList.add('on');}
-function closeM(id){document.getElementById(id)?.classList.remove('on');}
-
-// ── Init ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Sidebar-Zustand aus localStorage herstellen
-  if (_collapsed) { 
-    const sb = document.getElementById('sidebar');
-    if (sb) sb.classList.add('collapsed');
-    const icon = document.getElementById('sb-toggle-icon');
-    if (icon) icon.innerHTML = '<polyline points="4,2 7,5 4,8"/>';
-  }
-  requireAuth(async (user, profile) => {
-    _profile = profile;
-    document.getElementById('app-root').style.display = 'flex';
-    updateUI(profile);
-    renderModules(profile);
-    loadAdminStats();
-  });
+// NAV scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-function updateUI(p) {
-  const kz = p?.kuerzel || p?.name?.slice(0,2).toUpperCase() || '?';
-  const name = p?.name || '–';
-  document.getElementById('sb-av').textContent = kz;
-  document.getElementById('sb-uname').textContent = name;
-  document.getElementById('sb-urole').textContent = p?.rolle === 'admin' ? 'Administrator' : 'Mitarbeiter';
-  document.getElementById('top-uname').textContent = name;
-  // Hero
-  const h = new Date().getHours();
-  const gruss = h < 12 ? 'Guten Morgen' : h < 17 ? 'Guten Tag' : 'Guten Abend';
-  document.getElementById('hero-title').textContent = `${gruss}, ${p?.name?.split(' ')[0] || 'Willkommen'} 👋`;
-  document.getElementById('hero-sub').textContent = new Date().toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + ' · EHS Manager';
-  // Admin-Elemente
-  const admin = p?.rolle === 'admin';
-  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
-  // Firma aus Einstellungen laden
-  try {
-    getOrgSettings().then(s => {
-      if (s?.firmenname) {
-        const el = document.getElementById('sb-firm');
-        if (el) el.textContent = s.firmenname;
+// Burger menu
+document.getElementById('burger').addEventListener('click', () => {
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+// Close menu on link click
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => document.getElementById('nav-links').classList.remove('open'));
+});
+
+// Dropdown "Leistungen" (Klick/Touch)
+document.querySelectorAll('.nav-dd-btn').forEach(b => {
+  b.addEventListener('click', e => { e.stopPropagation(); b.closest('.nav-dd').classList.toggle('open'); });
+});
+document.addEventListener('click', e => {
+  if(!e.target.closest('.nav-dd')) document.querySelectorAll('.nav-dd.open').forEach(d => d.classList.remove('open'));
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Interaktives Gitter im Hero (reagiert auf den Mauszeiger)
+(function(){
+  const canvas = document.getElementById('gridCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const GAP = 34, R = 145, PUSH = 26;
+  let w = 0, h = 0, cols = 0, rows = 0, dots = [];
+  const mouse = { x: -9999, y: -9999 };
+
+  function build(){
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = rect.width; h = rect.height;
+    if(w === 0 || h === 0) return;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cols = Math.ceil(w / GAP) + 1;
+    rows = Math.ceil(h / GAP) + 1;
+    dots = [];
+    for(let r = 0; r < rows; r++) for(let c = 0; c < cols; c++){
+      dots.push({ x: c*GAP, y: r*GAP, bx: c*GAP, by: r*GAP, c, r, glow: 0 });
+    }
+  }
+  const at = (c, r) => (c < 0 || r < 0 || c >= cols || r >= rows) ? null : dots[r*cols + c];
+
+  function draw(t){
+    ctx.clearRect(0, 0, w, h);
+    for(const d of dots){
+      const wave = Math.sin((d.bx + d.by) * 0.01 + t * 0.0006) * 2;
+      let tx = d.bx, ty = d.by + wave;
+      const dx = tx - mouse.x, dy = ty - mouse.y;
+      const dist = Math.hypot(dx, dy);
+      if(dist < R){
+        const f = 1 - dist / R, ang = Math.atan2(dy, dx);
+        tx += Math.cos(ang) * f * PUSH;
+        ty += Math.sin(ang) * f * PUSH;
+        d.glow = Math.max(d.glow, f);
       }
-    }).catch(()=>{});
-  } catch(e) {}
-  // Aktuellen Nav-Link markieren
-  document.getElementById('snav-dashboard')?.classList.remove('active');
-}
-
-async function renderModules(p) {
-  const grid = document.getElementById('module-grid');
-  grid.innerHTML = MODULES_CFG.map((m,i) => {
-    const hasAccess = canRead(m.id, p) || isAdmin(p);
-    const locked = !hasAccess;
-    return `<a class="module-card${locked?' locked':''}" href="${locked||m.kommt?'javascript:void(0)':m.href}"
-        onclick="${locked?`showAccessDenied('${m.id}');return false`:m.kommt?'':''}">
-      <div class="mc-accent" style="background:${m.accent}"></div>
-      <div class="mc-body">
-        <div class="mc-icon" style="background:${m.iconBg}">
-          <svg viewBox="0 0 24 24" fill="none" stroke="${m.iconColor}" stroke-width="1.5">${m.icon}</svg>
-        </div>
-        <div class="mc-name">${m.name}</div>
-        <div class="mc-desc">${m.desc}</div>
-        <div class="mc-stats" id="mstats-${m.id}">
-          <span class="badge b-neutral" style="color:var(--text4)">Wird geladen…</span>
-        </div>
-      </div>
-      <div class="mc-footer">
-        ${locked ? '<span style="color:var(--nok);font-size:11px">🔒 Kein Zugriff</span>' :
-          m.kommt ? '<span class="mc-coming">In Kürze verfügbar</span>' :
-          `<span style="color:var(--text3)">Öffnen →</span>`}
-        <span></span>
-      </div>
-    </a>`;
-  }).join('');
-
-  // Stats asynchron laden
-  for (const m of MODULES_CFG) {
-    try {
-      const chips = await m.stats();
-      const el = document.getElementById('mstats-'+m.id);
-      if (el) el.innerHTML = chips.length
-        ? chips.map(c => `<span class="badge ${c.c}">${c.l}</span>`).join('')
-        : '<span class="badge b-neutral">–</span>';
-    } catch {}
+      d.glow *= 0.9;
+      d.x += (tx - d.x) * 0.18;
+      d.y += (ty - d.y) * 0.18;
+    }
+    ctx.lineWidth = 1;
+    for(const d of dots){
+      const right = at(d.c+1, d.r), down = at(d.c, d.r+1);
+      for(const n of [right, down]){
+        if(!n) continue;
+        const g = Math.max(d.glow, n.glow);
+        ctx.strokeStyle = 'rgba(116,198,157,' + (0.05 + g*0.4) + ')';
+        ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(n.x, n.y); ctx.stroke();
+      }
+    }
+    for(const d of dots){
+      const g = d.glow;
+      ctx.fillStyle = 'rgba(' + Math.round(116+g*120) + ',' + Math.round(198+g*57) + ',' + Math.round(157+g*60) + ',' + (0.3 + g*0.7) + ')';
+      ctx.beginPath(); ctx.arc(d.x, d.y, 1.4 + g*2.4, 0, 6.2832); ctx.fill();
+    }
+    requestAnimationFrame(draw);
   }
-}
+  window.addEventListener('pointermove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+    if(x >= 0 && y >= 0 && x <= rect.width && y <= rect.height){ mouse.x = x; mouse.y = y; }
+    else { mouse.x = -9999; mouse.y = -9999; }
+  });
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 150); });
+  build();
+  requestAnimationFrame(draw);
+})();
 
-async function loadAdminStats() {
-  if (_profile?.rolle !== 'admin') return;
-  try {
-    const [users, anfragen] = await Promise.all([
-      getSB().from('profiles').select('id',{count:'exact',head:true}),
-      getSB().from('buchungsanfragen').select('id',{count:'exact',head:true}).eq('status','offen')
-    ]);
-    const uc = document.getElementById('admin-users-count');
-    const ac = document.getElementById('admin-anfragen-count');
-    if (uc) uc.textContent = (users.count||0) + ' Nutzer';
-    if (ac) ac.textContent = (anfragen.count||0) + ' offen';
-  } catch {}
-}
+// Contact form → mailto
+function sendForm() {
+  const fname   = document.getElementById('f-fname').value.trim();
+  const lname   = document.getElementById('f-lname').value.trim();
+  const company = document.getElementById('f-company').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const topic   = document.getElementById('f-topic').value;
+  const msg     = document.getElementById('f-msg').value.trim();
 
-// ── Sidebar ───────────────────────────────────────────────
-function toggleSidebar() {
-  _collapsed = !_collapsed;
-  localStorage.setItem('sb_collapsed', _collapsed ? '1' : '0');
-  _applySidebarCollapsed(_collapsed);
-}
-
-function _applySidebarCollapsed(c) {
-  const sb = document.getElementById('sidebar');
-  const icon = document.getElementById('sb-toggle-icon');
-  if (c) {
-    sb.classList.add('collapsed');
-    if (icon) icon.innerHTML = '<polyline points="4,2 7,5 4,8"/>';
-  } else {
-    sb.classList.remove('collapsed');
-    if (icon) icon.innerHTML = '<polyline points="6,2 3,5 6,8"/>';
+  if(!fname || !lname || !email || !msg) {
+    alert('Bitte füllen Sie alle Pflichtfelder aus.');
+    return;
   }
-}
 
-// ── User-Menü ─────────────────────────────────────────────
-function openUserMenuModal() {
-  const p = _profile;
-  document.getElementById('um-name').textContent = p?.name || 'Mein Konto';
-  document.getElementById('um-role').textContent = p?.rolle === 'admin' ? '👑 Administrator' : '👤 Mitarbeiter';
-  openM('m-user');
-}
+  const subject = encodeURIComponent(`Anfrage über Website: ${topic || 'Allgemein'}`);
+  const body = encodeURIComponent(
+`Name: ${fname} ${lname}${company ? '\nUnternehmen: ' + company : ''}
+E-Mail: ${email}
+Thema: ${topic || 'Nicht angegeben'}
 
-async function doLogout() { closeM('m-user'); await signOut(); }
+Nachricht:
+${msg}`
+  );
+  window.location.href = `mailto:info@oak-engineering.de?subject=${subject}&body=${body}`;
 
-// ── Dark Mode Toggle ──────────────────────────────────────
-function initDarkToggle() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  updateDarkToggleUI(isDark);
-}
-
-function toggleDarkMode(e) {
-  e && e.stopPropagation();
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  localStorage.setItem('ehs_theme', isDark ? 'dark' : 'light');
-  updateDarkToggleUI(isDark);
-}
-
-function updateDarkToggleUI(isDark) {
-  const toggle = document.getElementById('dark-toggle');
-  const knob = document.getElementById('dark-knob');
-  if (toggle) toggle.style.background = isDark ? '#1a1a1a' : 'var(--border2)';
-  if (knob) knob.style.left = isDark ? '18px' : '2px';
+  document.getElementById('form-fields').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
 }
 </script>
 </body>

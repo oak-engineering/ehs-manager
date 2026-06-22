@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>BImSchV-Anlagen-Check – genehmigungsbedürftig? | OAK engineering</title>
+<meta name="description" content="Schnellcheck: Ist Ihre Anlage nach der 4. BImSchV genehmigungsbedürftig? Kreuzen Sie typische Merkmale an und erhalten Sie eine erste Orientierung.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<link rel="stylesheet" href="../tools.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="widget">
+    <header class="wx-head">
+      <canvas id="gridCanvas" aria-hidden="true"></canvas>
+      <div class="wx-head-inner">
+        <h1>BImSchV-Anlagen-Check <span class="beta-tag">Beta</span></h1>
+        <p>Ist Ihre Anlage genehmigungsbedürftig? Kreuzen Sie an, was zutrifft – Sie erhalten eine erste Orientierung.</p>
+        <span class="ref">Genehmigungsbedürftigkeit · 4. BImSchV</span>
+      </div>
+    </header>
+
+    <div class="wx-body">
+      <div class="toggles">
+        <label>Welche Merkmale treffen auf Ihre Anlage zu? (Mehrfachauswahl)</label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 1 – Wärmeerzeugung, Bergbau, Energie"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Feuerungs-/Verbrennungsanlage ab ca. 1 MW</b><small>Kessel, BHKW, Öfen mit hoher Feuerungswärmeleistung</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 3 – Stahl, Eisen, Nichteisenmetalle"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Metallerzeugung oder -verarbeitung</b><small>Gießerei, Galvanik, Beizen, Schmieden, Oberflächenbehandlung von Metall</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 4 – Chemische Erzeugnisse"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Chemische Stoffumwandlung / Produktion</b><small>Herstellung chemischer Erzeugnisse, Stoffumwandlung im industriellen Maßstab</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 5 – Oberflächenbehandlung mit Lösemitteln"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Oberflächenbehandlung mit Lösemitteln</b><small>Lackieren, Beschichten, Reinigen, Drucken über den Lösemittel-Schwellen</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 7 – Nahrungsmittel, Tierhaltung"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Intensivtierhaltung über Platzzahl-Schwellen</b><small>Geflügel, Schweine, Rinder über den Schwellenwerten</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 8 – Verwertung/Beseitigung von Abfällen"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Behandlung, Lagerung oder Verwertung von Abfällen</b><small>Sortier-, Recycling-, Kompostier-, Verbrennungs- oder Deponieanlagen</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 9 – Lagerung, Be- und Entladen von Stoffen"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Lagerung größerer Mengen Gefahrstoffe / Gase</b><small>Tanklager, Gaslager, Umschlag gefährlicher Stoffe über den Mengenschwellen</small></span></label>
+        <label class="tg"><input type="checkbox" data-ref="Nr. 2 / 6 – Steine &amp; Erden, Holz, Zellstoff"><span class="box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span><span class="txt"><b>Steine/Erden, Holz oder Zellstoff im großen Maßstab</b><small>Brecher, Zement, Spanplatten, Sägewerke, Papier über den Schwellen</small></span></label>
+      </div>
+
+      <div class="result" id="result"></div>
+    </div>
+
+    <footer class="wx-foot">
+      <strong>Hinweis:</strong> Orientierende Ersteinschätzung. Die verbindliche Einstufung – und die Unterscheidung zwischen förmlichem Verfahren mit Öffentlichkeitsbeteiligung (Spalte 1, § 10 BImSchG) und vereinfachtem Verfahren (Spalte 2, § 19) – richtet sich nach Anlagenart und Mengenschwellen in Anhang 1 der 4. BImSchV. Keine Rechtsberatung. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+      <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20BImSchV-Anlagen-Check">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+    </footer>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const boxes=[...document.querySelectorAll('.tg input')];
+
+  function render(){
+    const matched=boxes.filter(b=>b.checked).map(b=>({
+      title:b.closest('.tg').querySelector('b').textContent, ref:b.dataset.ref
+    }));
+    const r=$('result');
+    let lead, head;
+    if(matched.length===0){
+      head='<div class="res-count"><b>0</b><span>Merkmale ausgewählt</span></div>';
+      lead='Nach diesen Merkmalen ist Ihre Anlage <b>wahrscheinlich nicht genehmigungsbedürftig</b> nach der 4. BImSchV. Sie unterliegt aber als nicht genehmigungsbedürftige Anlage den Betreiberpflichten nach § 22 BImSchG (Vermeidung schädlicher Umwelteinwirkungen) sowie ggf. dem Baurecht.';
+      r.innerHTML='<h2>Ihr Ergebnis</h2>'+head+'<p class="res-lead">'+lead+'</p>'
+        +'<div class="cta"><a class="btn btn-primary" href="../kontakt.html">Einschätzung anfragen →</a></div>';
+      return;
+    }
+    head='<div class="res-count"><b>'+matched.length+'</b><span>Merkmal(e) deuten auf eine<br>genehmigungsbedürftige Anlage hin</span></div>';
+    lead='Mindestens ein Merkmal spricht für eine <b>genehmigungsbedürftige Anlage nach der 4. BImSchV</b>. Die genaue Einstufung und ob ein förmliches (Spalte 1) oder vereinfachtes Verfahren (Spalte 2) gilt, ergibt sich aus Anhang 1 anhand Anlagenart und Mengenschwellen.';
+    const list=matched.map(m=>'<div class="duty"><b>'+m.title+'</b><span class="law">Anhang 1, '+m.ref+'</span></div>').join('');
+    r.innerHTML='<h2>Ihr Ergebnis</h2>'+head+'<p class="res-lead">'+lead+'</p><div class="duties">'+list+'</div>'
+      +'<div class="cta"><a class="btn btn-primary" id="ctaMail" href="#">Genehmigung klären →</a></div>';
+    const subj=encodeURIComponent('BImSchV-Check – '+matched.length+' Merkmal(e)');
+    const body=encodeURIComponent('Hallo Herr Krawielitzki,\n\nder BImSchV-Check hat folgende Merkmale ergeben:\n'+matched.map(m=>'• '+m.title+' ('+m.ref+')').join('\n')+'\n\nBitte helfen Sie mir bei der Einstufung und dem Genehmigungsverfahren.\n\nViele Grüße');
+    $('ctaMail').href='mailto:info@oak-engineering.de?subject='+subj+'&body='+body;
+  }
+  boxes.forEach(b=>b.addEventListener('change',render));
+  render();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

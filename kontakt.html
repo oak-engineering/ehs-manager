@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Kontakt – OAK engineering | EHS-Management &amp; Digitalisierung</title>
+<meta name="description" content="Kontakt zu OAK engineering – EHS-Management & Digitalisierung, Augsburg. Schreiben Sie uns oder nutzen Sie unsere digitale Visitenkarte.">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <form class="nav-search" role="search" action="suche.html" method="get">
+      <input type="search" name="q" placeholder="Suche …" aria-label="Suche auf der Website">
+      <button type="submit" aria-label="Suchen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    </form>
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="umweltschutz.html">Umweltschutz</a>
+        <a href="ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="about.html">Über uns</a>
+    <a href="kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<header class="sub-hero">
+  <div class="sub-eyebrow">Kontakt</div>
+  <h1>Bereit für den <em>ersten Schritt?</em></h1>
+  <p>Schreiben Sie uns oder rufen Sie an – wir melden uns in der Regel innerhalb von 24&nbsp;Stunden.
+     Das Erstgespräch ist selbstverständlich kostenlos und unverbindlich.</p>
+</header>
+
+<main class="prose">
+  <h2>Direkt erreichen</h2>
+  <div class="kontakt-rows">
+    <div><a href="mailto:info@oak-engineering.de">info@oak-engineering.de</a></div>
+    <div><a href="tel:+4915679787193">015679 787193</a></div>
+    <div>Gögginger Straße 137, 86199 Augsburg</div>
+  </div>
+
+  <div class="btn-row">
+    <a class="btn btn-primary" href="mailto:info@oak-engineering.de">E-Mail schreiben</a>
+    <a class="btn btn-ghost" href="visitenkarte.html">Digitale Visitenkarte</a>
+  </div>
+
+  <h2>Anfrage senden</h2>
+  <div class="form" id="form-fields">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vorname *</label>
+        <input type="text" id="f-fname" placeholder="Max" required>
+      </div>
+      <div class="form-group">
+        <label>Nachname *</label>
+        <input type="text" id="f-lname" placeholder="Mustermann" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Unternehmen</label>
+      <input type="text" id="f-company" placeholder="Musterfirma GmbH">
+    </div>
+    <div class="form-group">
+      <label>E-Mail *</label>
+      <input type="email" id="f-email" placeholder="max@musterfirma.de" required>
+    </div>
+    <div class="form-group">
+      <label>Thema</label>
+      <select id="f-topic">
+        <option value="">Bitte wählen ...</option>
+        <option>Arbeitssicherheit / externe SiFa</option>
+        <option>Gefahrstoffe</option>
+        <option>Sicherheitskultur</option>
+        <option>Schulungen</option>
+        <option>Immissionsschutz</option>
+        <option>Störfallrecht</option>
+        <option>Gefahrgut / ADR</option>
+        <option>Gewässerschutz</option>
+        <option>Umweltmanagement / ISO 14001</option>
+        <option>KI &amp; Digitalisierung im EHS</option>
+        <option>Allgemeine Anfrage</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Nachricht *</label>
+      <textarea id="f-msg" rows="4" placeholder="Kurze Beschreibung Ihres Anliegens ..." required></textarea>
+    </div>
+    <button class="btn btn-primary" onclick="sendForm()">Anfrage senden →</button>
+    <div class="form-note">* Pflichtfelder. Ihre Daten werden ausschließlich zur Bearbeitung Ihrer Anfrage verwendet.</div>
+  </div>
+  <div class="form-success" id="form-success">
+    ✓ Vielen Dank für Ihre Anfrage!<br>
+    <span style="font-family:var(--sans);font-size:.9rem;color:var(--muted)">Wir melden uns innerhalb von 24&nbsp;Stunden bei Ihnen.</span>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+function sendForm(){
+  const v = id => document.getElementById(id).value.trim();
+  const fname=v('f-fname'), lname=v('f-lname'), company=v('f-company'),
+        email=v('f-email'), topic=document.getElementById('f-topic').value, msg=v('f-msg');
+  if(!fname || !lname || !email || !msg){ alert('Bitte füllen Sie alle Pflichtfelder aus.'); return; }
+  const subject = encodeURIComponent('Anfrage über Website: ' + (topic || 'Allgemein'));
+  const body = encodeURIComponent(
+    'Name: ' + fname + ' ' + lname + (company ? '\nUnternehmen: ' + company : '') +
+    '\nE-Mail: ' + email + '\nThema: ' + (topic || 'Nicht angegeben') + '\n\nNachricht:\n' + msg);
+  window.location.href = 'mailto:info@oak-engineering.de?subject=' + subject + '&body=' + body;
+  document.getElementById('form-fields').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+</script>
+</body>
+</html>

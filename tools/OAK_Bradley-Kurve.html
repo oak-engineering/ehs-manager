@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>Sicherheitskultur-Check – Wo steht Ihr Betrieb auf der Bradley-Kurve? | OAK engineering</title>
+<meta name="description" content="5 Fragen, 1 Minute: Finden Sie heraus, wie reif die Sicherheitskultur in Ihrem Betrieb ist – eingeordnet auf der Bradley-Kurve, mit konkreter Empfehlung.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+:root{
+  --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D;
+  --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+  --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70;
+  --border:#D6E4DA; --white:#FDFCFA; --warn:#8B6914;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--oak-ghost);color:var(--ink);line-height:1.65;
+  -webkit-font-smoothing:antialiased;padding:clamp(1rem,4vw,3rem) 1rem;}
+.widget{max-width:680px;margin:0 auto;background:var(--white);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(27,67,50,.07);}
+.wx-head{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;padding:1.6rem clamp(1.2rem,4vw,2.2rem);}
+.wx-brand{display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;}
+.wx-logo{height:38px;width:auto;flex:none;}
+.wx-brand b{font-family:var(--serif);font-weight:600;font-size:1.2rem;letter-spacing:.02em;}
+.wx-brand span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;opacity:.8;border-left:1px solid rgba(255,255,255,.3);padding-left:.6rem;}
+.wx-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);line-height:1.15;margin-bottom:.4rem;}
+.wx-head p{font-size:.86rem;opacity:.9;font-weight:300;max-width:48ch;}
+.wx-head .ref{display:inline-block;margin-top:.8rem;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.14);padding:.25rem .7rem;border-radius:99px;}
+.wx-body{padding:clamp(1.3rem,4vw,2.2rem);}
+
+/* Progress */
+.prog{display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--muted);margin-bottom:1.3rem;}
+.prog-bar{flex:1;height:5px;background:var(--oak-pale);border-radius:99px;overflow:hidden;}
+.prog-bar i{display:block;height:100%;width:0;background:var(--oak);border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1);}
+
+/* Frage */
+.q-num{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--oak);margin-bottom:.5rem;}
+.q-text{font-family:var(--serif);font-size:1.45rem;font-weight:400;line-height:1.25;color:var(--ink);margin-bottom:1.2rem;}
+.opts{display:grid;gap:.6rem;}
+.opt{text-align:left;border:1.5px solid var(--border);border-radius:10px;padding:.85rem 1rem;background:#fff;
+  cursor:pointer;font-family:var(--sans);font-size:.92rem;color:var(--ink-2);line-height:1.4;
+  transition:border-color .15s,background .15s,transform .1s;display:flex;gap:.7rem;align-items:flex-start;}
+.opt:hover{border-color:var(--oak-light);background:var(--oak-ghost);}
+.opt:active{transform:scale(.99);}
+.opt .dot{flex:none;width:1.1rem;height:1.1rem;border-radius:50%;border:2px solid var(--border);margin-top:.15rem;transition:.15s;}
+.opt:hover .dot{border-color:var(--oak);}
+.nav-row{display:flex;justify-content:space-between;margin-top:1.4rem;}
+.back{background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:.84rem;cursor:pointer;padding:.4rem .2rem;}
+.back:hover{color:var(--oak);}
+.back[disabled]{opacity:0;pointer-events:none;}
+
+/* Ergebnis */
+.result{display:none;}
+.result.show{display:block;animation:fade .4s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.curve-wrap{background:var(--oak-deep);border-radius:12px;padding:1.4rem 1.2rem 1rem;color:#fff;margin-bottom:1.3rem;}
+.curve-wrap svg{width:100%;height:auto;display:block;overflow:visible;}
+.stage-name{font-family:var(--serif);font-size:1.9rem;font-weight:600;line-height:1.1;margin:.2rem 0 .3rem;}
+.stage-tag{display:inline-block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;background:var(--oak-light);color:var(--oak-deep);padding:.25rem .7rem;border-radius:99px;font-weight:600;margin-bottom:.7rem;}
+.stage-desc{font-size:.92rem;color:var(--ink-2);line-height:1.6;background:var(--oak-ghost);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;}
+.stage-desc b{color:var(--oak-deep);}
+.reco{font-size:.9rem;line-height:1.6;border-left:3px solid var(--oak);padding:.2rem 0 .2rem 1rem;color:var(--ink-2);margin-bottom:1.3rem;}
+.reco strong{color:var(--oak-deep);}
+.cta{display:flex;flex-wrap:wrap;gap:.7rem;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:6px;padding:.8rem 1.5rem;font-family:var(--sans);
+  font-size:.86rem;font-weight:500;cursor:pointer;border:none;transition:transform .15s,background .2s;text-decoration:none;}
+.btn-primary{background:var(--oak-deep);color:#fff;}
+.btn-primary:hover{background:var(--oak);transform:translateY(-1px);}
+.btn-ghost{background:#fff;color:var(--oak-deep);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--oak);}
+.restart{margin-top:1rem;background:none;border:none;color:var(--muted);font-size:.8rem;cursor:pointer;text-decoration:underline;}
+
+.wx-foot{padding:1.1rem clamp(1.2rem,4vw,2.2rem);background:var(--oak-ghost);border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.55;}
+.wx-foot a{color:var(--oak);font-weight:500;}
+
+/* ── Website-Integration: identischer Header & Footer ───────────── */
+body{padding:0 !important;}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);}
+nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+nav .nav-logo img{height:38px;width:auto;}
+.nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);
+  font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+.nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.nav-links a{transition:color .2s;text-decoration:none;color:var(--muted);}
+.nav-links a:hover{color:var(--oak);}
+.nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;
+  font-size:.78rem;font-weight:500;letter-spacing:.04em;transition:background .2s;}
+.nav-cta:hover{background:var(--oak);}
+.page-wrap{padding:clamp(1.5rem,4vw,3rem) 1rem;}
+.site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;
+  justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+.site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+.site-footer .footer-links{display:flex;gap:1.5rem;}
+.site-footer a{color:inherit;text-decoration:none;}
+.site-footer .footer-links a:hover{color:var(--oak-light);}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px;}
+@media(max-width:880px){
+  .nav-burger{display:block;}
+  .nav-links{display:none;position:fixed;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;z-index:99;text-transform:none;letter-spacing:0;font-size:.95rem;}
+  .nav-links.open{display:flex;}
+}
+@media(max-width:700px){.nav-wordmark small{display:none;}}
+.wx-head{position:relative;overflow:hidden;}
+.wx-head #gridCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;}
+.wx-head-inner{position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="widget">
+  <header class="wx-head">
+      <canvas id="gridCanvas" aria-hidden="true"></canvas>
+      <div class="wx-head-inner">
+<h1>Wo steht Ihre Sicherheitskultur?</h1>
+    <p>5 Fragen, rund 1&nbsp;Minute. Wir ordnen Ihren Betrieb auf der Bradley-Kurve ein – vom Reagieren zur gelebten Sicherheitskultur.</p>
+    <span class="ref">Sicherheitskultur · Bradley-Kurve</span>
+  </div>
+    </header>
+
+  <div class="wx-body">
+    <!-- Quiz -->
+    <div id="quiz">
+      <div class="prog"><span id="progTxt">Frage 1 / 5</span><div class="prog-bar"><i id="progBar"></i></div></div>
+      <div class="q-num" id="qNum"></div>
+      <h2 class="q-text" id="qText"></h2>
+      <div class="opts" id="opts"></div>
+      <div class="nav-row"><button class="back" id="back" disabled>← zurück</button></div>
+    </div>
+
+    <!-- Ergebnis -->
+    <div class="result" id="result">
+      <div class="curve-wrap">
+        <div class="stage-tag" id="stageTag"></div>
+        <div class="stage-name" id="stageName"></div>
+        <svg id="curveSvg" viewBox="0 0 420 210" role="img" aria-label="Bradley-Kurve mit Ihrer Position">
+          <!-- Achsen -->
+          <line x1="34" y1="14" x2="34" y2="170" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+          <line x1="34" y1="170" x2="410" y2="170" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+          <text x="6" y="92" fill="rgba(255,255,255,.65)" font-size="9" font-family="Jost" transform="rotate(-90 12,92)">Unfallrate</text>
+          <!-- Kurve -->
+          <path id="curvePath" fill="none" stroke="var(--oak-light)" stroke-width="3" stroke-linecap="round"/>
+          <!-- Stufengrenzen -->
+          <g id="stageLabels" font-family="Jost" font-size="9" fill="rgba(255,255,255,.7)" text-anchor="middle"></g>
+          <!-- Marker -->
+          <circle id="marker" r="8" fill="#fff" stroke="var(--oak-deep)" stroke-width="3"/>
+          <text id="markerLbl" fill="#fff" font-size="9.5" font-family="Jost" font-weight="600" text-anchor="middle">Sie</text>
+        </svg>
+      </div>
+      <div class="stage-desc" id="stageDesc"></div>
+      <div class="reco" id="reco"></div>
+      <div class="cta">
+        <a class="btn btn-primary" id="ctaMail" href="#">Sicherheitskultur gemeinsam stärken →</a>
+      </div>
+      <button class="restart" id="restart">Test wiederholen</button>
+    </div>
+  </div>
+
+  <footer class="wx-foot">
+    Orientierende Selbsteinschätzung nach dem Modell der Bradley-Kurve (DuPont). Ersetzt keine Begehung oder Gefährdungsbeurteilung. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+    <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20Sicherheitskultur-Check">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+  </footer>
+</div>
+</div><!-- /page-wrap -->
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  // 5 Fragen, je 4 Optionen → Stufe 1–4 (Reaktiv→Interdependent), bewusst gemischt
+  const Q = [
+    {q:"Wer ist in Ihrem Betrieb für Arbeitssicherheit verantwortlich?",
+     a:[["Das ist Sache der Geschäftsführung bzw. der Fachkraft für Arbeitssicherheit.",1],
+        ["Jeder hält die Vorschriften ein, weil sie vorgeschrieben sind.",2],
+        ["Jeder achtet eigenverantwortlich auf die eigene Sicherheit.",3],
+        ["Wir passen aufeinander auf und sprechen Kolleg:innen aktiv an.",4]]},
+    {q:"Wie gehen Sie mit Beinaheunfällen um?",
+     a:[["Die werden bei uns gar nicht erfasst.",1],
+        ["Nur dokumentiert, wenn es ausdrücklich verlangt wird.",2],
+        ["Einzelne melden sie von sich aus.",3],
+        ["Werden offen gemeldet und gemeinsam ausgewertet.",4]]},
+    {q:"Wie verhalten sich Ihre Führungskräfte zum Thema Sicherheit?",
+     a:[["Sicherheit gilt eher als Zeit- und Kostenfaktor.",1],
+        ["Führung fordert die Einhaltung der Regeln konsequent ein.",2],
+        ["Führung lebt sicheres Verhalten sichtbar vor.",3],
+        ["Führung fördert den offenen Dialog – Sicherheit ist gemeinsamer Wert.",4]]},
+    {q:"Wie erleben Ihre Mitarbeitenden Unterweisungen?",
+     a:[["Lästiges Pflichtprogramm.",1],
+        ["Regelmäßig, aber vor allem zum „Abhaken“.",2],
+        ["Die Mitarbeitenden bringen sich aktiv ein.",3],
+        ["Das Team entwickelt Maßnahmen eigenständig weiter.",4]]},
+    {q:"Was passiert nach einem Unfall?",
+     a:[["Es wird vor allem nach einem Schuldigen gesucht.",1],
+        ["Die Regeln werden verschärft.",2],
+        ["Die Ursachen werden sachlich analysiert.",3],
+        ["Wir lernen gemeinsam aus den Ursachen und verbessern das System.",4]]}
+  ];
+  const STAGES = [
+    {tag:"Stufe 1", name:"Reaktiv",
+     desc:"Sicherheit wird vor allem als <b>Pflicht und Reaktion</b> verstanden – gehandelt wird, wenn etwas passiert ist. Verantwortung liegt „oben“, nicht im Team.",
+     reco:"<strong>Empfehlung:</strong> Fundament schaffen – Gefährdungsbeurteilungen aktualisieren, Rollen klären, Führungskräfte ins Boot holen. Hier entsteht der größte Sicherheitsgewinn am schnellsten."},
+    {tag:"Stufe 2", name:"Abhängig",
+     desc:"Regeln werden <b>eingehalten, weil sie vorgeschrieben sind</b>. Sicherheit funktioniert über Kontrolle und Vorgaben – noch nicht aus Überzeugung.",
+     reco:"<strong>Empfehlung:</strong> Vom Vorschriften-Erfüllen zur Eigenverantwortung. Beteiligung fördern, Beinaheunfall-Meldungen etablieren, Unterweisungen interaktiver gestalten."},
+    {tag:"Stufe 3", name:"Unabhängig",
+     desc:"Jede:r übernimmt <b>Verantwortung für die eigene Sicherheit</b>. Sicheres Verhalten ist persönlicher Anspruch – der Schritt zum Team-Gedanken fehlt noch.",
+     reco:"<strong>Empfehlung:</strong> Vom „Ich“ zum „Wir“. Gegenseitiges Ansprechen kultivieren, Sicherheit zum Führungsthema und Teamwert machen."},
+    {tag:"Stufe 4", name:"Interdependent",
+     desc:"Sicherheit ist <b>gemeinsamer Wert</b>: Man passt aufeinander auf, spricht offen an und lernt zusammen. Das ist das Ziel einer reifen Sicherheitskultur.",
+     reco:"<strong>Empfehlung:</strong> Niveau halten und absichern – kontinuierliche Verbesserung, Vision-Zero-Kultur, regelmäßige Standortbestimmung. Ein externer Blick hält die Kultur lebendig."}
+  ];
+
+  let idx=0; const answers=new Array(Q.length).fill(null);
+
+  function render(){
+    const q=Q[idx];
+    $('qNum').textContent='Frage '+(idx+1);
+    $('progTxt').textContent='Frage '+(idx+1)+' / '+Q.length;
+    $('progBar').style.width=((idx)/Q.length*100)+'%';
+    $('qText').textContent=q.q;
+    const wrap=$('opts'); wrap.innerHTML='';
+    q.a.forEach(([txt,score])=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.innerHTML='<span class="dot"></span><span>'+txt+'</span>';
+      b.onclick=()=>{answers[idx]=score; next();};
+      if(answers[idx]===score) b.querySelector('.dot').style.background='var(--oak)';
+      wrap.appendChild(b);
+    });
+    $('back').disabled = idx===0;
+  }
+  function next(){ if(idx<Q.length-1){idx++;render();} else finish(); }
+  $('back').onclick=()=>{ if(idx>0){idx--;render();} };
+
+  // Kurve zeichnen
+  function curveY(t){ return 18 + 148*Math.pow(t,1.7); } // t 0..1, y wächst (Unfallrate sinkt nach rechts)
+  function curveX(t){ return 34 + 372*t; }
+  function drawCurve(){
+    // Unfallrate hoch (oben) links bei „Reaktiv“, sinkt nach rechts zu „Interdependent“
+    let d='M '+curveX(0).toFixed(1)+' '+curveY(0).toFixed(1);
+    for(let i=1;i<=40;i++){const t=i/40; d+=' L '+curveX(t).toFixed(1)+' '+curveY(t).toFixed(1);}
+    $('curvePath').setAttribute('d',d);
+    const names=['Reaktiv','Abhängig','Unabhängig','Inter-\ndependent'];
+    const g=$('stageLabels'); g.innerHTML='';
+    names.forEach((n,i)=>{
+      const t=(i+0.5)/4; const x=curveX(t);
+      const tx=document.createElementNS('http://www.w3.org/2000/svg','text');
+      tx.setAttribute('x',x); tx.setAttribute('y',188); tx.textContent=n.replace('\n','');
+      g.appendChild(tx);
+    });
+  }
+  function finish(){
+    $('progBar').style.width='100%';
+    const avg=answers.reduce((a,b)=>a+b,0)/answers.length;
+    const stageIdx=Math.min(3, Math.max(0, Math.round(avg)-1));
+    const s=STAGES[stageIdx];
+    drawCurve();
+    // Marker an Score-Position (avg 1..4 → t 0..1)
+    const t=(avg-1)/3;
+    const mx=curveX(t), my=curveY(t);
+    $('marker').setAttribute('cx',mx); $('marker').setAttribute('cy',my);
+    $('markerLbl').setAttribute('x',mx); $('markerLbl').setAttribute('y',my-13);
+    $('stageTag').textContent=s.tag+' von 4';
+    $('stageName').textContent=s.name;
+    $('stageDesc').innerHTML=s.desc;
+    $('reco').innerHTML=s.reco;
+    const subj=encodeURIComponent('Sicherheitskultur stärken – '+s.name);
+    const body=encodeURIComponent('Hallo Herr Krawielitzki,\n\nder Sicherheitskultur-Check hat für unseren Betrieb die Stufe „'+s.name+'“ (Bradley-Kurve) ergeben.\nIch interessiere mich für ein unverbindliches Gespräch, wie wir die Sicherheitskultur weiterentwickeln können.\n\nViele Grüße');
+    $('ctaMail').href='mailto:info@oak-engineering.de?subject='+subj+'&body='+body;
+    $('quiz').style.display='none'; $('result').classList.add('show');
+  }
+  $('restart').onclick=()=>{ idx=0; answers.fill(null); $('result').classList.remove('show'); $('quiz').style.display='block'; render(); };
+  render();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

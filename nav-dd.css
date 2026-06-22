@@ -1,0 +1,16 @@
+/* OAK Engineering – geteiltes Dropdown-Menü „Leistungen" (Tool-Seiten) */
+.nav-dd{position:relative;display:flex;align-items:center;}
+.nav-dd-btn{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--muted);background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.3rem;padding:0;transition:color .2s;}
+.nav-dd-btn svg{width:9px;height:9px;transition:transform .2s;}
+.nav-dd:hover .nav-dd-btn,.nav-dd:focus-within .nav-dd-btn{color:var(--oak);}
+.nav-dd:hover .nav-dd-btn svg,.nav-dd.open .nav-dd-btn svg{transform:rotate(180deg);}
+.nav-dd-menu{position:absolute;top:calc(100% + 16px);left:50%;transform:translateX(-50%);min-width:215px;background:var(--white);border:1px solid var(--border);border-radius:10px;box-shadow:0 14px 34px rgba(27,67,50,.13);padding:.5rem;display:none;flex-direction:column;z-index:200;}
+.nav-dd:hover .nav-dd-menu,.nav-dd:focus-within .nav-dd-menu,.nav-dd.open .nav-dd-menu{display:flex;}
+.nav-dd-menu a{text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--ink-2);padding:.55rem .7rem;border-radius:7px;}
+.nav-dd-menu a:hover{background:var(--oak-ghost);color:var(--oak);}
+
+/* Mobil: sobald das Burger-Menü offen ist – breakpoint-unabhängig */
+.nav-links.open .nav-dd{flex-direction:column;align-items:stretch;width:100%;}
+.nav-links.open .nav-dd-btn{padding:.25rem 0;justify-content:space-between;width:100%;text-transform:none;letter-spacing:0;font-size:.95rem;}
+.nav-links.open .nav-dd-menu{position:static;transform:none;display:flex;min-width:0;border:none;box-shadow:none;background:transparent;padding:.1rem 0 .3rem 1rem;}
+.nav-links.open .nav-dd-menu a{font-size:.92rem;padding:.35rem 0;}

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>Substitutions-Checker – Spaltenmodell TRGS 600 | OAK engineering</title>
+<meta name="description" content="Gefahrstoffe nach dem GHS-Spaltenmodell (TRGS 600) anhand ihrer H-Sätze vergleichen – automatische Einstufung von Gesundheits-, Umwelt- und physikalischen Gefahren, sauberes druckbares Ergebnis der Substitutionsprüfung. Verarbeitung lokal im Browser.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+  :root{
+    --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D; --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+    --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70; --border:#D6E4DA; --white:#FDFCFA;
+    --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+    --sh:#7b1f1f; --hoch:#c62828; --mit:#ef6c00; --ger:#8a8b1e; --ver:#2e7d32;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);color:var(--ink);background:var(--oak-ghost);font-size:14px;line-height:1.5;}
+
+  /* OAK Website-Chrome */
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  nav .nav-logo img{height:38px;width:auto;}
+  .nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+  .nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+  .nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  .nav-links a{transition:color .2s;text-decoration:none;color:var(--muted);}
+  .nav-links a:hover{color:var(--oak);}
+  .nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;letter-spacing:.04em;}
+  .nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;}
+  .nav-burger span{width:24px;height:2px;background:var(--oak-deep);display:block;}
+  @media(max-width:880px){.nav-burger{display:flex;}
+    .nav-links{position:absolute;top:68px;right:0;left:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;display:none;}
+    .nav-links.open{display:flex;}}
+  @media(max-width:700px){.nav-wordmark small{display:none;}}
+
+  .tool-head{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;padding:1.8rem 5vw;}
+  .tool-head .th-inner{max-width:1180px;margin:0 auto;}
+  .tool-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.1;margin:0 0 .5rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+  .beta{font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.12em;background:#fff;color:var(--oak-deep);padding:.22rem .6rem;border-radius:99px;text-transform:uppercase;}
+  .tool-head p{font-size:.9rem;opacity:.92;font-weight:300;max-width:78ch;margin:0 0 1.1rem;}
+  .tool-head .th-actions{display:flex;gap:.6rem;flex-wrap:wrap;}
+  .tool-head button{font-family:var(--sans);font-size:.82rem;font-weight:500;border:none;border-radius:6px;padding:.6rem 1.2rem;cursor:pointer;}
+  .b-print{background:#fff;color:var(--oak-deep);}
+  .b-demo{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(1.2rem,3vw,2rem) 5vw;}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.3rem;box-shadow:0 4px 16px rgba(27,67,50,.05);}
+  .card h2{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--oak-deep);margin-bottom:.3rem;}
+  .card h2 .step{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;background:var(--oak);color:#fff;border-radius:50%;font-size:.8rem;margin-right:.5rem;vertical-align:middle;}
+  .card .sub{font-size:.82rem;color:var(--muted);margin-bottom:1rem;}
+
+  .pflicht{background:#fff4e5;border:1px solid #ef9a3d;border-radius:8px;padding:.7rem 1rem;font-size:.82rem;color:#8a4b00;margin-bottom:1rem;line-height:1.5;}
+  .pflicht b{color:#6b3a00;}
+
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;}
+  label.fld{display:flex;flex-direction:column;gap:.25rem;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  label.fld input,label.fld select,.subcol input,.subcol select,.subcol textarea{font-family:var(--sans);font-size:.92rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);padding:.5rem .6rem;border:1.5px solid var(--border);border-radius:8px;background:#fff;width:100%;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--oak);box-shadow:0 0 0 3px var(--oak-pale);}
+
+  /* Stoff-Spalten */
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;}
+  @media(max-width:760px){.cols{grid-template-columns:1fr;}}
+  .subcol{border:1.5px solid var(--border);border-radius:10px;padding:1rem 1.1rem;background:#fff;}
+  .subcol.cur{border-top:4px solid var(--muted);}
+  .subcol.alt{border-top:4px solid var(--oak);}
+  .subcol h3{font-size:.95rem;color:var(--oak-deep);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem;}
+  .subcol .tag{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:.15rem .5rem;border-radius:99px;}
+  .subcol.cur .tag{background:#eceff0;color:var(--muted);}
+  .subcol.alt .tag{background:var(--oak-pale);color:var(--oak-deep);}
+  .ff{margin-bottom:.7rem;}
+  .ff > span{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:.25rem;}
+  .hint{font-size:.72rem;color:var(--muted);margin-top:.3rem;line-height:1.45;}
+  .recog{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem;}
+  .hchip{font-size:.7rem;background:var(--oak-ghost);border:1px solid var(--border);border-radius:6px;padding:.15rem .45rem;color:var(--ink-2);}
+  .hchip.unknown{background:#fdecea;border-color:#e0a; color:#b3261e;}
+
+  /* Ergebnis */
+  .result{background:var(--oak-deep);border-radius:14px;padding:clamp(1.2rem,3vw,1.8rem);color:#fff;margin-top:.4rem;}
+  .result h2{font-family:var(--serif);font-weight:300;font-size:1.5rem;margin-bottom:.3rem;color:#fff;}
+  .result .rsub{font-size:.82rem;opacity:.85;margin-bottom:1.2rem;}
+  table.cmp{width:100%;border-collapse:collapse;font-size:.86rem;background:#fff;border-radius:10px;overflow:hidden;}
+  table.cmp th,table.cmp td{padding:.6rem .7rem;text-align:left;border-bottom:1px solid #e3e9e6;vertical-align:middle;}
+  table.cmp thead th{background:var(--oak-ghost);color:var(--oak-deep);font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;}
+  table.cmp td.kr{font-weight:600;color:var(--ink-2);width:30%;}
+  .badge{display:inline-block;padding:.2rem .6rem;border-radius:99px;font-size:.78rem;font-weight:700;white-space:nowrap;}
+  .b5{background:#f3d9d9;color:var(--sh);} .b4{background:#fdecea;color:var(--hoch);}
+  .b3{background:#fff4e5;color:var(--mit);} .b2{background:#f7f8e3;color:var(--ger);} .b1{background:#e8f5e9;color:var(--ver);}
+  td.verdict{font-weight:700;white-space:nowrap;}
+  .v-better{color:var(--ver);} .v-equal{color:var(--muted);} .v-worse{color:var(--hoch);}
+  .fazit{margin-top:1.2rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:1rem 1.2rem;font-size:.92rem;line-height:1.55;}
+  .fazit b{color:var(--oak-light);}
+
+  .note{font-size:.74rem;color:var(--muted);margin-top:1rem;line-height:1.5;}
+  .legend{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem;}
+
+  .site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+  .site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+  .site-footer .footer-links{display:flex;gap:1.5rem;}
+  .site-footer a{color:inherit;text-decoration:none;}
+  .site-footer .footer-links a:hover{color:var(--oak-light);}
+
+  @media print{
+    nav,.tool-head,.site-footer,.card.input,.no-print{display:none!important;}
+    body{background:#fff;}
+    .wrap{max-width:100%;padding:0;}
+    .result{background:#fff;color:#000;border:1px solid #999;}
+    .result h2,.result .rsub,.fazit{color:#000;}
+    .fazit{background:#f4f4f4;border:1px solid #ccc;}
+    .fazit b{color:var(--oak-deep);}
+    table.cmp th,table.cmp td,.badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    @page{size:A4 portrait;margin:14mm;}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<header class="tool-head">
+  <div class="th-inner">
+    <h1>Substitutions-Checker <span class="beta">Beta</span></h1>
+    <p>Gefahrstoffe nach dem <b>GHS-Spaltenmodell</b> (TRGS&nbsp;600, GefStoffV §§&nbsp;6–7) anhand ihrer H-Sätze vergleichen. Die Gesundheits-, Umwelt- und physikalischen Gefahren werden automatisch eingestuft – das Ergebnis ist sauber ausdruckbar. Verarbeitung ausschließlich lokal im Browser.</p>
+    <div class="th-actions">
+      <button class="b-print" onclick="window.print()">Ergebnis drucken / als PDF</button>
+      <button class="b-demo" onclick="loadDemo()">Beispiel laden</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card input">
+    <div class="pflicht" id="pflichtBox" style="display:none"></div>
+    <h2><span class="step">1</span>Bearbeitung</h2>
+    <div class="meta-grid">
+      <label class="fld">Durchgeführt von<input id="bearbeiter" placeholder="Name"></label>
+      <label class="fld">Abteilung / Bereich<input id="abteilung" placeholder="z. B. Instandhaltung"></label>
+      <label class="fld">Datum<input id="datum" placeholder="TT.MM.JJJJ"></label>
+    </div>
+  </div>
+
+  <div class="card input">
+    <h2><span class="step">2</span>Gefahrstoffe gegenüberstellen</h2>
+    <p class="sub">H-Sätze als Liste eingeben (z. B. <code>H226, H319, H336</code>). Die Gefahren-Spalten werden automatisch eingestuft.<br><b>Wo finde ich das?</b> H-Sätze: Sicherheitsdatenblatt (SDB) <b>Abschnitt 2</b> · WGK: SDB <b>Abschnitt 12</b> bzw. UBA-Datenbank „Rigoletto".</p>
+    <div class="cols">
+      <div class="subcol cur" data-side="cur">
+        <h3>Gegenwärtige Lösung <span class="tag">Ist-Zustand</span></h3>
+        <div class="ff"><span>Bezeichnung / Produkt</span><input data-k="name" placeholder="Produktname"></div>
+        <div class="ff"><span>Verwendungszweck</span><input data-k="zweck" placeholder="wofür eingesetzt"></div>
+        <div class="ff"><span>H-Sätze</span><input data-k="hsaetze" list="hlist" placeholder="H315, H319, H226 …" oninput="recompute()"><div class="recog" data-recog></div></div>
+        <div class="ff"><span>WGK (Wassergefährdungsklasse)</span>
+          <select data-k="wgk" onchange="recompute()"><option value="">— unbekannt —</option><option value="3">WGK 3 (stark wassergefährdend)</option><option value="2">WGK 2 (deutlich)</option><option value="1">WGK 1 (schwach)</option><option value="0">nwg / nicht wassergefährdend</option></select></div>
+      </div>
+      <div class="subcol alt" data-side="alt">
+        <h3>Alternative (Stoff/Verfahren) <span class="tag">Substitut</span></h3>
+        <div class="ff"><span>Bezeichnung / Produkt</span><input data-k="name" placeholder="Produktname"></div>
+        <div class="ff"><span>Verwendungszweck</span><input data-k="zweck" placeholder="wofür eingesetzt"></div>
+        <div class="ff"><span>H-Sätze</span><input data-k="hsaetze" list="hlist" placeholder="H412 …" oninput="recompute()"><div class="recog" data-recog></div></div>
+        <div class="ff"><span>WGK (Wassergefährdungsklasse)</span>
+          <select data-k="wgk" onchange="recompute()"><option value="">— unbekannt —</option><option value="3">WGK 3 (stark wassergefährdend)</option><option value="2">WGK 2 (deutlich)</option><option value="1">WGK 1 (schwach)</option><option value="0">nwg / nicht wassergefährdend</option></select></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card input" style="text-align:center;background:transparent;border:none;box-shadow:none;padding:0;margin-bottom:1.3rem;">
+    <button class="b-print" style="background:var(--oak);color:#fff;padding:.8rem 2rem;font-size:1rem;font-weight:600;border-radius:8px;border:none;cursor:pointer" onclick="document.getElementById('ergebnis').scrollIntoView({behavior:'smooth'})">Ergebnis ansehen ↓</button>
+  </div>
+
+  <div id="ergebnis" class="result">
+    <h2>Ergebnis der Substitutionsprüfung</h2>
+    <div class="rsub" id="rsub">— H-Sätze eingeben —</div>
+    <div id="cmpWrap"></div>
+    <div class="fazit" id="fazit"></div>
+    <div class="note">
+      Bewertung nach dem <a href="https://www.dguv.de/ifa/praxishilfen/gefahrstoffe-am-arbeitsplatz/spaltenmodell-zur-substitutionspruefung/index.jsp" target="_blank" rel="noopener" style="color:#74C69D;font-weight:600">GHS-Spaltenmodell der DGUV/IFA</a> (Stand 2020) auf Basis der eingegebenen H-Sätze. Spaltenmodell und Substitutionsprüfung sind eine <b style="color:var(--oak-light)">Entscheidungshilfe</b> nach <b style="color:var(--oak-light)">TRGS&nbsp;600</b> / §§&nbsp;6–7 GefStoffV und ersetzen nicht die fachkundige Gesamtbewertung. Einstufungen sind anhand des aktuellen Sicherheitsdatenblatts zu prüfen. · Erstellt mit OAK engineering. · <b style="color:var(--oak-light)">Feedback &amp; Verbesserungsvorschläge?</b> <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20Substitutions-Checker" style="color:#74C69D;font-weight:500;">info@oak-engineering.de</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<datalist id="hlist"></datalist>
+
+<script>
+/* ============ GHS-Spaltenmodell (IFA/DGUV, Stand 2020) ============
+   Einstufung je Spalte: 5=sehr hoch · 4=hoch · 3=mittel · 2=gering · 1=vernachlässigbar
+   g = Gesundheitsgefahren · u = Umweltgefahren · p = physikalische (Brand/Explosion)  */
+const HP = {
+  // --- Gesundheit ---
+  H300:{t:"Lebensgefahr bei Verschlucken",g:5}, H301:{t:"Giftig bei Verschlucken",g:4}, H302:{t:"Gesundheitsschädlich bei Verschlucken",g:3}, H303:{t:"Kann bei Verschlucken schädlich sein",g:2},
+  H304:{t:"Kann bei Verschlucken in die Atemwege tödlich sein",g:5}, H305:{t:"Kann bei Verschlucken in die Atemwege schädlich sein",g:3},
+  H310:{t:"Lebensgefahr bei Hautkontakt",g:5}, H311:{t:"Giftig bei Hautkontakt",g:4}, H312:{t:"Gesundheitsschädlich bei Hautkontakt",g:3}, H313:{t:"Kann bei Hautkontakt gesundheitsschädlich sein",g:2},
+  H314:{t:"Verursacht schwere Verätzungen der Haut und Augenschäden",g:4}, H315:{t:"Verursacht Hautreizungen",g:3}, H316:{t:"Verursacht milde Hautreizung",g:2}, H317:{t:"Kann allergische Hautreaktionen verursachen",g:3},
+  H318:{t:"Verursacht schwere Augenschäden",g:4}, H319:{t:"Verursacht schwere Augenreizung",g:3}, H320:{t:"Verursacht Augenreizung",g:2},
+  H330:{t:"Lebensgefahr bei Einatmen",g:5}, H331:{t:"Giftig bei Einatmen",g:4}, H332:{t:"Gesundheitsschädlich bei Einatmen",g:3}, H333:{t:"Kann bei Einatmen schädlich sein",g:2},
+  H334:{t:"Kann bei Einatmen Allergie, asthmaartige Symptome/Atembeschwerden verursachen",g:4}, H335:{t:"Kann die Atemwege reizen",g:3}, H336:{t:"Kann Schläfrigkeit und Benommenheit verursachen",g:3},
+  H340:{t:"Kann genetische Defekte verursachen",g:5}, H341:{t:"Kann vermutlich genetische Defekte verursachen",g:4},
+  H350:{t:"Kann Krebs erzeugen",g:5}, "H350i":{t:"Kann bei Einatmen Krebs erzeugen",g:5}, H351:{t:"Kann vermutlich Krebs erzeugen",g:4},
+  H360:{t:"Kann die Fruchtbarkeit beeinträchtigen oder das Kind im Mutterleib schädigen",g:5}, H361:{t:"Kann vermutlich die Fruchtbarkeit/das Kind schädigen",g:4}, H362:{t:"Kann Säuglinge über die Muttermilch schädigen",g:3},
+  H370:{t:"Schädigt die Organe",g:5}, H371:{t:"Kann die Organe schädigen",g:4}, H372:{t:"Schädigt die Organe bei längerer/wiederholter Exposition",g:5}, H373:{t:"Kann die Organe bei längerer/wiederholter Exposition schädigen",g:4},
+  EUH070:{t:"Giftig bei Berührung mit den Augen",g:5}, EUH071:{t:"Wirkt ätzend auf die Atemwege",g:4}, EUH066:{t:"Wiederholter Kontakt kann zu spröder oder rissiger Haut führen",g:2},
+  EUH029:{t:"Entwickelt bei Berührung mit Wasser giftige Gase",g:4}, EUH031:{t:"Entwickelt bei Berührung mit Säure giftige Gase",g:3}, EUH032:{t:"Entwickelt bei Berührung mit Säure sehr giftige Gase",g:4},
+  // --- Umwelt ---
+  H400:{t:"Sehr giftig für Wasserorganismen",u:4}, H410:{t:"Sehr giftig für Wasserorganismen, mit langfristiger Wirkung",u:5}, H411:{t:"Giftig für Wasserorganismen, mit langfristiger Wirkung",u:4},
+  H412:{t:"Schädlich für Wasserorganismen, mit langfristiger Wirkung",u:3}, H413:{t:"Kann für Wasserorganismen schädlich sein, mit langfristiger Wirkung",u:2},
+  H420:{t:"Schädigt die öffentliche Gesundheit und die Umwelt durch Ozonabbau",u:4}, EUH059:{t:"Die Ozonschicht schädigend",u:4},
+  // --- Physikalisch (Brand/Explosion) ---
+  H200:{t:"Instabil, explosiv",p:5}, H201:{t:"Explosiv, Gefahr der Massenexplosion",p:5}, H202:{t:"Explosiv; große Gefahr durch Splitter, Spreng-/Wurfstücke",p:5}, H203:{t:"Explosiv; Gefahr durch Feuer, Luftdruck oder Splitter",p:5}, H204:{t:"Gefahr durch Feuer oder Splitter",p:4}, H205:{t:"Gefahr der Massenexplosion bei Feuer",p:5},
+  H220:{t:"Extrem entzündbares Gas",p:5}, H221:{t:"Entzündbares Gas",p:4}, H222:{t:"Extrem entzündbares Aerosol",p:5}, H223:{t:"Entzündbares Aerosol",p:4}, H224:{t:"Flüssigkeit und Dampf extrem entzündbar",p:5}, H225:{t:"Flüssigkeit und Dampf leicht entzündbar",p:4}, H226:{t:"Flüssigkeit und Dampf entzündbar",p:3}, H228:{t:"Entzündbarer Feststoff",p:4}, H229:{t:"Behälter steht unter Druck: kann bei Erwärmung bersten",p:3},
+  H230:{t:"Kann auch in Abwesenheit von Luft explosionsartig reagieren",p:5}, H231:{t:"Kann auch in Abwesenheit von Luft bei erhöhtem Druck/Temperatur explosionsartig reagieren",p:5},
+  H240:{t:"Erwärmung kann Explosion verursachen",p:5}, H241:{t:"Erwärmung kann Brand oder Explosion verursachen",p:5}, H242:{t:"Erwärmung kann Brand verursachen",p:4},
+  H250:{t:"Entzündet sich in Berührung mit Luft von selbst",p:5}, H251:{t:"Selbsterhitzungsfähig; kann in Brand geraten",p:4}, H252:{t:"In großen Mengen selbsterhitzungsfähig; kann in Brand geraten",p:4},
+  H260:{t:"In Berührung mit Wasser entzündbare Gase, die sich spontan entzünden können",p:5}, H261:{t:"In Berührung mit Wasser entzündbare Gase",p:4},
+  H270:{t:"Kann Brand verursachen oder verstärken; Oxidationsmittel",p:5}, H271:{t:"Kann Brand oder Explosion verursachen; starkes Oxidationsmittel",p:5}, H272:{t:"Kann Brand verstärken; Oxidationsmittel",p:4},
+  H280:{t:"Enthält Gas unter Druck; kann bei Erwärmung explodieren",p:2}, H281:{t:"Enthält tiefkaltes Gas; kann Kälteverbrennungen verursachen",p:2},
+  EUH001:{t:"In trockenem Zustand explosiv",p:5}, EUH014:{t:"Reagiert heftig mit Wasser",p:4}, EUH018:{t:"Kann bei Verwendung explosionsfähiges Dampf/Luft-Gemisch bilden",p:3}, EUH019:{t:"Kann explosionsfähige Peroxide bilden",p:4}, EUH044:{t:"Explosionsgefahr bei Erhitzen unter Einschluss",p:4}
+};
+const CAT = {5:{l:"sehr hoch",c:"b5"},4:{l:"hoch",c:"b4"},3:{l:"mittel",c:"b3"},2:{l:"gering",c:"b2"},1:{l:"vernachlässigbar",c:"b1"}};
+const PFLICHT = ["H301","H311","H331","H300","H310","H330","H340","H341","H350","H350i","H351","H360","H361","H370","H371"];
+
+/* Datalist befüllen */
+document.getElementById("hlist").innerHTML = Object.keys(HP).map(h=>`<option value="${h}">${h} – ${HP[h].t}</option>`).join("");
+
+function parseH(str){
+  return (str||"").toUpperCase().match(/(EUH\d{3}|H\d{3}I?|H\d{3})/g)?.map(x=>x.replace(/\s/g,"")) || [];
+}
+function rate(codes, col){
+  let max=1, any=false;
+  codes.forEach(c=>{ const e=HP[c]; if(e && e[col]!=null){ any=true; if(e[col]>max) max=e[col]; } });
+  return any?max:1;
+}
+function sideData(side){
+  const box=document.querySelector(`.subcol[data-side="${side}"]`);
+  const g=k=>box.querySelector(`[data-k="${k}"]`);
+  const codes=parseH(g("hsaetze").value);
+  const wgk=g("wgk").value;
+  let u=rate(codes,"u");
+  if(wgk==="3") u=Math.max(u,5); else if(wgk==="2") u=Math.max(u,3); else if(wgk==="1") u=Math.max(u,2); else if(wgk==="0") u=Math.max(u,1);
+  return { name:g("name").value.trim(), zweck:g("zweck").value.trim(), codes, wgk,
+           g:rate(codes,"g"), u, p:rate(codes,"p") };
+}
+function recogChips(side){
+  const box=document.querySelector(`.subcol[data-side="${side}"]`);
+  const codes=parseH(box.querySelector('[data-k="hsaetze"]').value);
+  box.querySelector("[data-recog]").innerHTML = codes.map(c=>HP[c]
+    ? `<span class="hchip" title="${HP[c].t}">${c}</span>`
+    : `<span class="hchip unknown" title="nicht hinterlegt – bitte prüfen">${c} ?</span>`).join("");
+}
+function badge(v){ return `<span class="badge ${CAT[v].c}">${CAT[v].l}</span>`; }
+function verdict(cur,alt){ // niedriger = besser
+  if(alt<cur) return `<span class="v-better">günstiger ↓</span>`;
+  if(alt>cur) return `<span class="v-worse">ungünstiger ↑</span>`;
+  return `<span class="v-equal">gleichwertig</span>`;
+}
+
+function recompute(){
+  ["cur","alt"].forEach(recogChips);
+  const C=sideData("cur"), A=sideData("alt");
+  // Pflicht-Hinweis
+  const allCodes=[...new Set([...C.codes,...A.codes])];
+  const pf=allCodes.filter(c=>PFLICHT.includes(c));
+  const wgk3=(C.wgk==="3"||A.wgk==="3");
+  const pflichtBox=document.getElementById("pflichtBox");
+  if(pf.length||wgk3){
+    pflichtBox.style.display="block";
+    pflichtBox.innerHTML=`<b>Vorrangige / zwingende Substitutionsprüfung:</b> Es liegen besonders gefährliche Eigenschaften vor (${[...pf, wgk3?"WGK 3":""].filter(Boolean).join(", ")}). Für solche Stoffe ist die Substitutionsprüfung regelmäßig durchzuführen und zu dokumentieren (TRGS 600).`;
+  } else pflichtBox.style.display="none";
+
+  const rsub=document.getElementById("rsub");
+  if(!C.codes.length && !A.codes.length){ rsub.textContent="— H-Sätze eingeben —"; document.getElementById("cmpWrap").innerHTML=""; document.getElementById("fazit").innerHTML=""; return; }
+  rsub.innerHTML=`<b>${escapeHtml(C.name||"Gegenwärtige Lösung")}</b> &nbsp;→&nbsp; <b>${escapeHtml(A.name||"Alternative")}</b>`;
+
+  const rows=[
+    ["Gesundheitsgefahren","g"],
+    ["Umweltgefahren","u"],
+    ["Physikalische Gefahren (Brand/Explosion)","p"]
+  ];
+  let html=`<table class="cmp"><thead><tr><th>Spalte (Gefahrenbereich)</th><th>Gegenwärtig</th><th>Alternative</th><th>Bewertung</th></tr></thead><tbody>`;
+  rows.forEach(([label,col])=>{
+    html+=`<tr><td class="kr">${label}</td><td>${badge(C[col])}</td><td>${badge(A[col])}</td><td class="verdict">${verdict(C[col],A[col])}</td></tr>`;
+  });
+  html+=`</tbody></table>`;
+  document.getElementById("cmpWrap").innerHTML=html;
+
+  // Fazit
+  const cols=["g","u","p"];
+  const better=cols.filter(c=>A[c]<C[c]).length, worse=cols.filter(c=>A[c]>C[c]).length;
+  let txt;
+  if(!A.codes.length){ txt=`Für die Alternative wurden noch keine H-Sätze eingegeben.`; }
+  else if(worse===0 && better>0){ txt=`<b>Die Alternative ist hinsichtlich der Gefährdung vorzuziehen</b> – in ${better} von 3 Spalten geringer, in keiner höher eingestuft. Die Substitution ist – vorbehaltlich der Eignung – umzusetzen bzw. konkret weiterzuverfolgen.`; }
+  else if(worse===0 && better===0){ txt=`<b>Gefährdungstechnisch gleichwertig.</b> Die Entscheidung richtet sich nach Eignung, Verfahren und Wirtschaftlichkeit.`; }
+  else if(better>0 && worse>0){ txt=`<b>Gemischtes Bild:</b> Die Alternative ist in ${better} Spalte(n) günstiger, in ${worse} Spalte(n) ungünstiger. Eine Substitution ist nur sinnvoll, wenn die höhere Gefährdung wirksam beherrscht wird – Einzelfallabwägung dokumentieren.`; }
+  else { txt=`<b>Die Alternative ist ungünstiger</b> (in ${worse} Spalte(n) höher eingestuft, in keiner geringer). Eine Substitution ist aus Gefährdungssicht nicht angezeigt.`; }
+  document.getElementById("fazit").innerHTML=txt;
+}
+function escapeHtml(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function loadDemo(){
+  const set=(side,k,v)=>document.querySelector(`.subcol[data-side="${side}"] [data-k="${k}"]`).value=v;
+  set("cur","name","Reiniger X (lösemittelhaltig)"); set("cur","zweck","Teilereinigung"); set("cur","hsaetze","H225, H319, H336, H411"); set("cur","wgk","2");
+  set("alt","name","Wässriger Reiniger Y"); set("alt","zweck","Teilereinigung"); set("alt","hsaetze","H319, H412"); set("alt","wgk","1");
+  document.getElementById("bearbeiter").value="Nikolai Krawielitzki"; document.getElementById("datum").value="14.06.2026";
+  recompute();
+}
+recompute();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>Digitalisierungs-Check EHS 4.0 – Wie digital ist Ihr Arbeitsschutz? | OAK engineering</title>
+<meta name="description" content="5 Fragen zum digitalen Reifegrad Ihres EHS-Managements – mit Reifegrad-Einstufung und konkretem Optimierungspotenzial.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+:root{
+  --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D;
+  --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+  --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70;
+  --border:#D6E4DA; --white:#FDFCFA; --warn:#8B6914;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--oak-ghost);color:var(--ink);line-height:1.65;
+  -webkit-font-smoothing:antialiased;padding:clamp(1rem,4vw,3rem) 1rem;}
+.widget{max-width:680px;margin:0 auto;background:var(--white);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(27,67,50,.07);}
+.wx-head{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;padding:1.6rem clamp(1.2rem,4vw,2.2rem);}
+.wx-brand{display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;}
+.wx-logo{height:38px;width:auto;flex:none;}
+.wx-brand b{font-family:var(--serif);font-weight:600;font-size:1.2rem;letter-spacing:.02em;}
+.wx-brand span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;opacity:.8;border-left:1px solid rgba(255,255,255,.3);padding-left:.6rem;}
+.wx-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);line-height:1.15;margin-bottom:.4rem;}
+.wx-head p{font-size:.86rem;opacity:.9;font-weight:300;max-width:48ch;}
+.wx-head .ref{display:inline-block;margin-top:.8rem;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.14);padding:.25rem .7rem;border-radius:99px;}
+.wx-body{padding:clamp(1.3rem,4vw,2.2rem);}
+.prog{display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--muted);margin-bottom:1.3rem;}
+.prog-bar{flex:1;height:5px;background:var(--oak-pale);border-radius:99px;overflow:hidden;}
+.prog-bar i{display:block;height:100%;width:0;background:var(--oak);border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1);}
+.q-num{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--oak);margin-bottom:.5rem;}
+.q-text{font-family:var(--serif);font-size:1.45rem;font-weight:400;line-height:1.25;color:var(--ink);margin-bottom:1.2rem;}
+.opts{display:grid;gap:.6rem;}
+.opt{text-align:left;border:1.5px solid var(--border);border-radius:10px;padding:.85rem 1rem;background:#fff;
+  cursor:pointer;font-family:var(--sans);font-size:.92rem;color:var(--ink-2);line-height:1.4;
+  transition:border-color .15s,background .15s,transform .1s;display:flex;gap:.7rem;align-items:flex-start;}
+.opt:hover{border-color:var(--oak-light);background:var(--oak-ghost);}
+.opt:active{transform:scale(.99);}
+.opt .dot{flex:none;width:1.1rem;height:1.1rem;border-radius:50%;border:2px solid var(--border);margin-top:.15rem;transition:.15s;}
+.opt:hover .dot{border-color:var(--oak);}
+.nav-row{display:flex;justify-content:space-between;margin-top:1.4rem;}
+.back{background:none;border:none;color:var(--muted);font-family:var(--sans);font-size:.84rem;cursor:pointer;padding:.4rem .2rem;}
+.back:hover{color:var(--oak);}
+.back[disabled]{opacity:0;pointer-events:none;}
+
+.result{display:none;}
+.result.show{display:block;animation:fade .4s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.score-box{background:var(--oak-deep);border-radius:12px;padding:1.5rem 1.4rem;color:#fff;margin-bottom:1.3rem;text-align:center;}
+.gauge{position:relative;width:170px;height:170px;margin:0 auto .8rem;}
+.gauge svg{transform:rotate(-90deg);}
+.gauge-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-num b{font-family:var(--serif);font-size:2.6rem;font-weight:600;line-height:1;}
+.gauge-num small{font-size:.72rem;opacity:.8;letter-spacing:.05em;text-transform:uppercase;}
+.lvl-tag{display:inline-block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;background:var(--oak-light);color:var(--oak-deep);padding:.25rem .8rem;border-radius:99px;font-weight:600;}
+.lvl-name{font-family:var(--serif);font-size:1.7rem;margin-top:.5rem;}
+.stage-desc{font-size:.92rem;color:var(--ink-2);line-height:1.6;background:var(--oak-ghost);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem;margin-bottom:1rem;}
+.potential{display:flex;align-items:center;gap:1rem;border-left:3px solid var(--oak);padding:.6rem 0 .6rem 1rem;margin-bottom:1.3rem;}
+.potential b{font-family:var(--serif);font-size:2rem;color:var(--oak-deep);line-height:1;}
+.potential span{font-size:.88rem;color:var(--ink-2);}
+.cta{display:flex;flex-wrap:wrap;gap:.7rem;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:6px;padding:.8rem 1.5rem;font-family:var(--sans);
+  font-size:.86rem;font-weight:500;cursor:pointer;border:none;transition:transform .15s,background .2s;text-decoration:none;}
+.btn-primary{background:var(--oak-deep);color:#fff;}
+.btn-primary:hover{background:var(--oak);transform:translateY(-1px);}
+.btn-ghost{background:#fff;color:var(--oak-deep);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--oak);}
+.restart{margin-top:1rem;background:none;border:none;color:var(--muted);font-size:.8rem;cursor:pointer;text-decoration:underline;}
+.wx-foot{padding:1.1rem clamp(1.2rem,4vw,2.2rem);background:var(--oak-ghost);border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.55;}
+.wx-foot a{color:var(--oak);font-weight:500;}
+
+/* ── Website-Integration: identischer Header & Footer ───────────── */
+body{padding:0 !important;}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);}
+nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+nav .nav-logo img{height:38px;width:auto;}
+.nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);
+  font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+.nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.nav-links a{transition:color .2s;text-decoration:none;color:var(--muted);}
+.nav-links a:hover{color:var(--oak);}
+.nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;
+  font-size:.78rem;font-weight:500;letter-spacing:.04em;transition:background .2s;}
+.nav-cta:hover{background:var(--oak);}
+.page-wrap{padding:clamp(1.5rem,4vw,3rem) 1rem;}
+.site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;
+  justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+.site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+.site-footer .footer-links{display:flex;gap:1.5rem;}
+.site-footer a{color:inherit;text-decoration:none;}
+.site-footer .footer-links a:hover{color:var(--oak-light);}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px;}
+@media(max-width:880px){
+  .nav-burger{display:block;}
+  .nav-links{display:none;position:fixed;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;z-index:99;text-transform:none;letter-spacing:0;font-size:.95rem;}
+  .nav-links.open{display:flex;}
+}
+@media(max-width:700px){.nav-wordmark small{display:none;}}
+.wx-head{position:relative;overflow:hidden;}
+.wx-head #gridCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;}
+.wx-head-inner{position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="widget">
+  <header class="wx-head">
+      <canvas id="gridCanvas" aria-hidden="true"></canvas>
+      <div class="wx-head-inner">
+<h1>Wie digital ist Ihr Arbeitsschutz?</h1>
+    <p>5 kurze Fragen zum EHS-Management in Ihrem Betrieb. Sie erhalten Ihren digitalen Reifegrad und Ihr Optimierungspotenzial.</p>
+    <span class="ref">Digitalisierung &amp; KI · EHS 4.0</span>
+  </div>
+    </header>
+
+  <div class="wx-body">
+    <div id="quiz">
+      <div class="prog"><span id="progTxt">Frage 1 / 5</span><div class="prog-bar"><i id="progBar"></i></div></div>
+      <div class="q-num" id="qNum"></div>
+      <h2 class="q-text" id="qText"></h2>
+      <div class="opts" id="opts"></div>
+      <div class="nav-row"><button class="back" id="back" disabled>← zurück</button></div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="score-box">
+        <div class="gauge">
+          <svg width="170" height="170" viewBox="0 0 170 170">
+            <circle cx="85" cy="85" r="74" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="14"/>
+            <circle id="gaugeArc" cx="85" cy="85" r="74" fill="none" stroke="var(--oak-light)" stroke-width="14"
+              stroke-linecap="round" stroke-dasharray="465" stroke-dashoffset="465"/>
+          </svg>
+          <div class="gauge-num"><b id="scorePct">0</b><small>Reifegrad</small></div>
+        </div>
+        <span class="lvl-tag" id="lvlTag"></span>
+        <div class="lvl-name" id="lvlName"></div>
+      </div>
+      <div class="stage-desc" id="lvlDesc"></div>
+      <div class="potential"><b id="potNum">0%</b><span id="potTxt"></span></div>
+      <div class="cta">
+        <a class="btn btn-primary" id="ctaMail" href="#">Digitalisierungs-Potenzial heben →</a>
+      </div>
+      <button class="restart" id="restart">Test wiederholen</button>
+    </div>
+  </div>
+
+  <footer class="wx-foot">
+    Orientierende Selbsteinschätzung des digitalen Reifegrads im EHS-Management. Das ausgewiesene Potenzial ist ein Richtwert. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+    <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20Digitalisierungs-Check">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+  </footer>
+</div>
+</div><!-- /page-wrap -->
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const Q=[
+    {q:"Wie dokumentieren Sie Gefährdungsbeurteilungen und Unterweisungen?",
+     a:[["Überwiegend auf Papier / in Ordnern.",1],["In einzelnen Word-/Excel-Dateien.",2],
+        ["In einer zentralen EHS-Software.",3],["Digital, verknüpft und teils automatisiert.",4]]},
+    {q:"Wie behalten Sie Fristen im Blick (Prüfungen, Unterweisungen, Begehungen)?",
+     a:[["Aus dem Kopf bzw. über den Kalender.",1],["Über eine Excel-Liste.",2],
+        ["Software mit automatischen Erinnerungen.",3],["Vollautomatische Fristenverfolgung mit Eskalation.",4]]},
+    {q:"Wie laufen Ihre Unterweisungen ab?",
+     a:[["Präsenz mit Unterschriftenliste auf Papier.",1],["PDF/Folien per E-Mail.",2],
+        ["E-Learning mit Test.",3],["Online mit automatischer Nachweis-Erfassung.",4]]},
+    {q:"Wie werten Sie EHS-Kennzahlen aus (Unfälle, Audits, Maßnahmen)?",
+     a:[["Gar nicht systematisch.",1],["Manuell in Excel.",2],
+        ["Über ein Dashboard.",3],["Automatisierte Auswertung / KI-gestützt.",4]]},
+    {q:"Nutzen Sie KI oder Automatisierung im EHS-Bereich?",
+     a:[["Nein, bisher nicht.",1],["In Einzelfällen, ausprobiert.",2],
+        ["Regelmäßig für einzelne Aufgaben.",3],["Systematisch in mehreren Prozessen.",4]]}
+  ];
+  const LEVELS=[
+    {tag:"Reifegrad 1", name:"Papierbasiert",
+     desc:"Ihr EHS-Management läuft überwiegend manuell und auf Papier. Das ist <b>aufwendig, fehleranfällig</b> und bei Audits schwer nachweisbar – aber der beste Ausgangspunkt für schnelle Verbesserungen."},
+    {tag:"Reifegrad 2", name:"Teil-digitalisiert",
+     desc:"Sie nutzen Office-Dateien – ein erster Schritt, aber <b>Daten liegen verstreut</b>, Fristen müssen manuell gepflegt werden und Auswertungen kosten Zeit."},
+    {tag:"Reifegrad 3", name:"Digitalisiert",
+     desc:"Sie arbeiten mit zentralen Tools und behalten den Überblick. Jetzt geht es um <b>Vernetzung und Automatisierung</b>, um den verbleibenden Handaufwand zu senken."},
+    {tag:"Reifegrad 4", name:"Vernetzt & automatisiert",
+     desc:"Sehr gut – Ihr EHS-Management ist weitgehend digital und automatisiert. Hier zählt <b>Feinschliff</b>: KI-gestützte Auswertung, durchgängige Datenflüsse, kontinuierliche Optimierung."}
+  ];
+  let idx=0; const answers=new Array(Q.length).fill(null);
+
+  function render(){
+    const q=Q[idx];
+    $('qNum').textContent='Frage '+(idx+1);
+    $('progTxt').textContent='Frage '+(idx+1)+' / '+Q.length;
+    $('progBar').style.width=(idx/Q.length*100)+'%';
+    $('qText').textContent=q.q;
+    const wrap=$('opts'); wrap.innerHTML='';
+    q.a.forEach(([txt,score])=>{
+      const b=document.createElement('button');
+      b.className='opt'; b.innerHTML='<span class="dot"></span><span>'+txt+'</span>';
+      b.onclick=()=>{answers[idx]=score; next();};
+      if(answers[idx]===score) b.querySelector('.dot').style.background='var(--oak)';
+      wrap.appendChild(b);
+    });
+    $('back').disabled=idx===0;
+  }
+  function next(){ if(idx<Q.length-1){idx++;render();} else finish(); }
+  $('back').onclick=()=>{ if(idx>0){idx--;render();} };
+
+  function finish(){
+    $('progBar').style.width='100%';
+    const sum=answers.reduce((a,b)=>a+b,0);
+    const maxSum=Q.length*4, minSum=Q.length;
+    const pct=Math.round((sum-minSum)/(maxSum-minSum)*100); // 0..100
+    const avg=sum/Q.length;
+    const lvlIdx=Math.min(3,Math.max(0,Math.round(avg)-1));
+    const lvl=LEVELS[lvlIdx];
+    // Gauge
+    const C=465; const off=C*(1-pct/100);
+    setTimeout(()=>{$('gaugeArc').style.transition='stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)';$('gaugeArc').style.strokeDashoffset=off;},60);
+    // Zahl hochzählen
+    let cur=0; const t=setInterval(()=>{cur+=Math.ceil(pct/24)||1; if(cur>=pct){cur=pct;clearInterval(t);} $('scorePct').textContent=cur;},28);
+    $('lvlTag').textContent=lvl.tag+' von 4';
+    $('lvlName').textContent=lvl.name;
+    $('lvlDesc').innerHTML=lvl.desc;
+    const pot=100-pct;
+    $('potNum').textContent=pot+'%';
+    $('potTxt').innerHTML= pot<=10
+      ? 'geschätztes Optimierungspotenzial – Sie sind sehr gut aufgestellt, Feinschliff genügt.'
+      : 'geschätztes Optimierungspotenzial – so viel Zeit und Sicherheit lässt sich durch Digitalisierung noch gewinnen.';
+    const subj=encodeURIComponent('Digitalisierungs-Check EHS – Reifegrad '+lvl.name);
+    const body=encodeURIComponent('Hallo Herr Krawielitzki,\n\nder Digitalisierungs-Check hat für unseren Betrieb ergeben:\n• Reifegrad: '+lvl.name+' ('+pct+'/100)\n• Optimierungspotenzial: '+pot+'%\n\nIch interessiere mich für ein Gespräch, wie wir unser EHS-Management digitalisieren können.\n\nViele Grüße');
+    $('ctaMail').href='mailto:info@oak-engineering.de?subject='+subj+'&body='+body;
+    $('quiz').style.display='none'; $('result').classList.add('show');
+  }
+  $('restart').onclick=()=>{idx=0;answers.fill(null);$('gaugeArc').style.transition='none';$('gaugeArc').style.strokeDashoffset=465;$('result').classList.remove('show');$('quiz').style.display='block';render();};
+  render();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

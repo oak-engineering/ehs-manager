@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>AwSV-Anlagen-Check – Gefährdungsstufe &amp; Pflichten | OAK engineering</title>
+<meta name="description" content="Ermitteln Sie in 30 Sekunden die Gefährdungsstufe (A–D) Ihrer Anlage mit wassergefährdenden Stoffen nach § 39 AwSV – inklusive der typischen Pflichten.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<link rel="stylesheet" href="../tools.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="widget">
+    <header class="wx-head">
+      <canvas id="gridCanvas" aria-hidden="true"></canvas>
+      <div class="wx-head-inner">
+        <h1>AwSV-Anlagen-Check</h1>
+        <p>Welche Gefährdungsstufe hat Ihre Anlage mit wassergefährdenden Stoffen – und welche Pflichten folgen daraus?</p>
+        <span class="ref">Gefährdungsstufe nach § 39 AwSV</span>
+      </div>
+    </header>
+
+    <div class="wx-body">
+      <!-- 1: WGK -->
+      <div class="step">
+        <p class="step-label"><i>1</i> Wassergefährdungsklasse (WGK)</p>
+        <div class="groups">
+          <label class="grp">
+            <input type="radio" name="wgk" value="1">
+            <span class="grp-top"><span class="grp-name">WGK 1 – schwach wassergefährdend</span><span class="grp-tag">WGK&nbsp;1</span></span>
+            <span class="grp-ex">z. B. viele Mineralöle, Diesel, schwach gefährdende Gemische</span>
+          </label>
+          <label class="grp">
+            <input type="radio" name="wgk" value="2">
+            <span class="grp-top"><span class="grp-name">WGK 2 – deutlich wassergefährdend</span><span class="grp-tag">WGK&nbsp;2</span></span>
+            <span class="grp-ex">z. B. viele Lösemittel, Säuren/Laugen, Altöl</span>
+          </label>
+          <label class="grp">
+            <input type="radio" name="wgk" value="3">
+            <span class="grp-top"><span class="grp-name">WGK 3 – stark wassergefährdend</span><span class="grp-tag">WGK&nbsp;3</span></span>
+            <span class="grp-ex">z. B. viele Pflanzenschutzmittel, stark giftige Stoffe</span>
+          </label>
+        </div>
+        <p class="hint">Die WGK steht im Sicherheitsdatenblatt (Abschnitt 12/15) bzw. in der Rigoletto-Datenbank des UBA.</p>
+      </div>
+
+      <!-- 2: Volumen -->
+      <div class="step">
+        <p class="step-label"><i>2</i> Volumen bzw. Masse der Anlage</p>
+        <div class="field">
+          <div class="num-wrap">
+            <button class="stepbtn" type="button" data-step="-1" aria-label="weniger">−</button>
+            <input id="vol" type="number" min="0" step="0.1" value="5" inputmode="decimal">
+            <button class="stepbtn" type="button" data-step="1" aria-label="mehr">+</button>
+          </div>
+          <p class="hint">Maßgebliches Volumen in m³ (flüssig) bzw. Masse in Tonnen (fest) – größte Einzelanlage.</p>
+        </div>
+      </div>
+
+      <!-- 3: Lage -->
+      <div class="step">
+        <p class="step-label"><i>3</i> Lage der Anlage</p>
+        <div class="seg" id="lage">
+          <label><input type="radio" name="lage" value="ob" checked>oberirdisch</label>
+          <label><input type="radio" name="lage" value="unter">unterirdisch</label>
+        </div>
+        <p class="hint">Unterirdische Anlagen unterliegen grundsätzlich strengeren Prüf- und Fachbetriebspflichten.</p>
+      </div>
+
+      <!-- Ergebnis -->
+      <div class="result" id="result">
+        <h2>Ihr Ergebnis</h2>
+        <div class="stage-badge"><b id="stageLetter">–</b><span id="stageName">Gefährdungsstufe</span></div>
+        <p class="res-lead" id="resLead">Bitte Wassergefährdungsklasse wählen.</p>
+        <div class="duties" id="duties"></div>
+        <div class="cta">
+          <a class="btn btn-primary" id="ctaMail" href="#">Anlage prüfen lassen →</a>
+        </div>
+      </div>
+    </div>
+
+    <footer class="wx-foot">
+      <strong>Hinweis:</strong> Vereinfachte Orientierung nach der Gefährdungsstufentabelle (§ 39 AwSV). Sonderfälle wie Schutzgebiete, HBV-/Abfüll-/Umschlaganlagen, Heizölverbraucheranlagen und R-Sätze sind nicht abgebildet. Keine Rechtsberatung. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+      <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20AwSV-Anlagen-Check">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+    </footer>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  // Gefährdungsstufentabelle § 39 AwSV: [Volumenband][WGK-1]
+  const TABLE=[
+    ['A','A','A'], // ≤ 0,22
+    ['A','A','B'], // > 0,22 – 1
+    ['A','B','C'], // > 1 – 10
+    ['A','C','D'], // > 10 – 100
+    ['B','D','D'], // > 100 – 1000
+    ['C','D','D']  // > 1000
+  ];
+  function band(v){ if(v<=0.22)return 0; if(v<=1)return 1; if(v<=10)return 2; if(v<=100)return 3; if(v<=1000)return 4; return 5; }
+  const STAGE_TXT={
+    A:'Geringes Gefährdungspotenzial. Oberirdisch in der Regel keine wiederkehrende Sachverständigenprüfung – die allgemeinen Betreiberpflichten gelten dennoch.',
+    B:'Erhöhtes Potenzial. Für Errichtung, Instandhaltung und Innenreinigung gilt die Fachbetriebspflicht.',
+    C:'Hohes Potenzial. Prüfung durch einen Sachverständigen und Anzeige der Anlage sind erforderlich.',
+    D:'Sehr hohes Potenzial. Zusätzlich ist in der Regel eine Eignungsfeststellung erforderlich – höchste Anforderungen.'
+  };
+
+  function calc(){
+    const wgkEl=document.querySelector('input[name=wgk]:checked');
+    const v=parseFloat($('vol').value)||0;
+    const unter=document.querySelector('input[name=lage]:checked').value==='unter';
+    if(!wgkEl || v<=0){
+      $('stageLetter').textContent='–'; $('stageName').textContent='Gefährdungsstufe';
+      $('resLead').textContent='Bitte Wassergefährdungsklasse und Volumen angeben.'; $('duties').innerHTML=''; return;
+    }
+    const wgk=parseInt(wgkEl.value);
+    const stage=TABLE[band(v)][wgk-1];
+    $('stageLetter').textContent=stage;
+    $('stageName').textContent='Gefährdungsstufe '+stage;
+    $('resLead').textContent=STAGE_TXT[stage] + (unter?' Achtung: unterirdische Anlage – siehe unten.':'');
+
+    const rank={A:0,B:1,C:2,D:3}[stage];
+    const duties=[];
+    duties.push({t:'Betreiber-Grundpflichten',d:'Besorgnisgrundsatz, Dichtheit, Rückhaltevermögen, Überwachung und Betriebsanweisung.',law:['§ 62 AwSV']});
+    if(rank>=1 || unter) duties.push({t:'Fachbetriebspflicht',d:'Errichtung, Instandhaltung, Instandsetzung und Reinigung nur durch zertifizierte Fachbetriebe.',law:['§ 45 AwSV']});
+    if(rank>=2 || unter) duties.push({t:'Prüfung durch Sachverständigen',d:'Prüfung vor Inbetriebnahme und wiederkehrend durch einen anerkannten Sachverständigen.',law:['§ 46 AwSV']});
+    if(rank>=2 || unter) duties.push({t:'Anzeigepflicht',d:'Errichtung und wesentliche Änderung sind der zuständigen Behörde anzuzeigen.',law:['§ 40 AwSV']});
+    if(rank>=3) duties.push({t:'Eignungsfeststellung',d:'Vor Errichtung/Betrieb ist in der Regel eine behördliche Eignungsfeststellung einzuholen.',law:['§ 41 AwSV']});
+    if(unter) duties.push({t:'Unterirdische Anlage',d:'Unabhängig von der Stufe grundsätzlich prüf- und fachbetriebspflichtig; erhöhte Anforderungen.',law:['§ 46 AwSV']});
+
+    $('duties').innerHTML=duties.map(x=>'<div class="duty"><b>'+x.t+'</b><p>'+x.d+'</p>'+x.law.map(l=>'<span class="law">'+l+'</span>').join('')+'</div>').join('');
+
+    const subj=encodeURIComponent('AwSV-Anlage prüfen – Gefährdungsstufe '+stage);
+    const body=encodeURIComponent('Hallo Herr Krawielitzki,\n\nüber den AwSV-Check habe ich ermittelt:\n• WGK: '+wgk+'\n• Volumen/Masse: '+v+'\n• Lage: '+(unter?'unterirdisch':'oberirdisch')+'\n• Gefährdungsstufe: '+stage+'\n\nBitte unterstützen Sie mich bei der Bewertung und den Pflichten.\n\nViele Grüße');
+    $('ctaMail').href='mailto:info@oak-engineering.de?subject='+subj+'&body='+body;
+  }
+
+  document.querySelectorAll('input[name=wgk],input[name=lage]').forEach(el=>el.addEventListener('change',calc));
+  $('vol').addEventListener('input',calc);
+  document.querySelectorAll('.stepbtn').forEach(b=>b.addEventListener('click',()=>{
+    const el=$('vol'); const d=parseInt(b.dataset.step);
+    let val=(parseFloat(el.value)||0)+d; if(val<0)val=0; el.value=val; calc();
+  }));
+  document.querySelector('input[name=wgk]').checked=true; calc();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

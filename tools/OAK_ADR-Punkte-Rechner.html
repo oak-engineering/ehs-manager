@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>ADR-1.000-Punkte-Rechner – Freistellung nach 1.1.3.6 | OAK engineering</title>
+<meta name="description" content="Prüfen Sie in 30 Sekunden, ob Ihre Gefahrgut-Beförderung unter die 1.000-Punkte-Freistellung nach ADR 1.1.3.6 fällt – als Orientierung für begrenzte Mengen je Beförderungseinheit.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+:root{
+  --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D;
+  --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+  --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70;
+  --border:#D6E4DA; --white:#FDFCFA; --warn:#8B6914;
+  --ok:#2D6A4F; --no:#B23A2E;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--oak-ghost);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;}
+.widget{max-width:680px;margin:0 auto;background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(27,67,50,.07);}
+
+.wx-head{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;padding:1.6rem clamp(1.2rem,4vw,2.2rem);}
+.wx-head #gridCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;}
+.wx-head-inner{position:relative;z-index:1;}
+.wx-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);line-height:1.15;margin-bottom:.4rem;}
+.wx-head p{font-size:.86rem;opacity:.9;font-weight:300;max-width:50ch;}
+.wx-head .ref{display:inline-block;margin-top:.8rem;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.14);padding:.25rem .7rem;border-radius:99px;}
+
+.wx-body{padding:clamp(1.3rem,4vw,2.2rem);}
+.step-label{display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--oak);margin:0 0 .9rem;}
+.step-label i{font-style:normal;display:grid;place-items:center;width:1.4rem;height:1.4rem;background:var(--oak);color:#fff;border-radius:50%;font-size:.78rem;}
+.step + .step{margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border);}
+.hint{font-size:.76rem;color:var(--muted);margin-top:.7rem;line-height:1.5;}
+
+/* Kategorie-Zeilen */
+.cat{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1.5px solid var(--border);border-radius:10px;padding:.7rem .9rem;margin-bottom:.6rem;}
+.cat-info b{display:block;font-size:.95rem;color:var(--ink);}
+.cat-info span{font-size:.74rem;color:var(--muted);}
+.cat-info .ex{display:block;font-size:.72rem;color:var(--muted);margin-top:.1rem;}
+.num-wrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;width:130px;flex:none;background:#fff;}
+.num-wrap input{flex:1;border:none;padding:.55rem .6rem;font-family:var(--sans);font-size:1rem;color:var(--ink);width:100%;background:transparent;text-align:right;}
+.num-wrap input:focus{outline:none;}
+.num-wrap:focus-within{border-color:var(--oak);box-shadow:0 0 0 3px var(--oak-pale);}
+.num-wrap .u{padding:0 .55rem;font-size:.78rem;color:var(--muted);background:var(--oak-ghost);align-self:stretch;display:flex;align-items:center;}
+
+.note-box{background:#FFF8E6;border:1px solid #EAD9A0;border-radius:10px;padding:.9rem 1.1rem;margin-top:.4rem;font-size:.82rem;color:var(--ink-2);line-height:1.55;}
+.note-box strong{color:var(--ink);}
+
+/* UN-Schnellsuche */
+.un-finder{background:var(--oak-ghost);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;margin-bottom:1.1rem;}
+.un-finder>label{display:block;font-size:.82rem;font-weight:600;color:var(--ink-2);margin-bottom:.45rem;}
+.un-finder>label .opt{font-weight:400;color:var(--muted);font-size:.76rem;}
+#unsearch{width:100%;border:1.5px solid var(--border);border-radius:9px;padding:.6rem .8rem;font-family:var(--sans);font-size:.95rem;background:#fff;color:var(--ink);}
+#unsearch:focus{outline:none;border-color:var(--oak);box-shadow:0 0 0 3px var(--oak-pale);}
+.un-hit{margin-top:.7rem;background:#fff;border:1px solid var(--oak-light);border-radius:9px;padding:.7rem .85rem;}
+.un-hit-txt{font-size:.86rem;color:var(--ink-2);margin-bottom:.55rem;line-height:1.45;}
+.un-hit-txt b{color:var(--oak-deep);}
+.un-hit-add{display:flex;gap:.5rem;align-items:center;}
+.add-btn{border:none;background:var(--oak);color:#fff;border-radius:8px;padding:.55rem 1.1rem;font-family:var(--sans);font-size:.85rem;font-weight:500;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.add-btn:hover{background:var(--oak-deep);}
+.un-miss{font-size:.76rem;color:var(--warn);margin-top:.6rem;line-height:1.5;}
+.cat{transition:background .3s;}
+
+/* Ergebnis */
+.result{margin-top:2rem;background:var(--oak-deep);border-radius:12px;padding:clamp(1.3rem,4vw,1.8rem);color:#fff;}
+.result h2{font-family:var(--serif);font-weight:300;font-size:1.35rem;margin-bottom:1.1rem;}
+.score-row{display:flex;align-items:baseline;gap:.6rem;margin-bottom:1.1rem;}
+.score-row b{font-family:var(--serif);font-size:2.8rem;font-weight:600;line-height:1;}
+.score-row span{font-size:.9rem;opacity:.85;}
+.verdict{border-radius:10px;padding:1rem 1.2rem;font-size:.95rem;line-height:1.5;display:flex;gap:.7rem;align-items:flex-start;}
+.verdict .ic{font-size:1.3rem;line-height:1;flex:none;}
+.verdict.ok{background:var(--oak-light);color:var(--oak-deep);}
+.verdict.no{background:#F3C9C2;color:#5E1B12;}
+.verdict b{font-weight:700;}
+.res-note{font-size:.74rem;opacity:.8;margin-top:1rem;line-height:1.5;}
+.cta{margin-top:1.3rem;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:6px;padding:.8rem 1.5rem;font-family:var(--sans);font-size:.86rem;font-weight:500;letter-spacing:.02em;cursor:pointer;border:none;transition:transform .15s,background .2s,color .2s;text-decoration:none;}
+.btn-primary{background:#fff;color:var(--oak-deep);}
+.btn-primary:hover{transform:translateY(-1px);background:var(--oak-pale);}
+
+.wx-foot{padding:1.1rem clamp(1.2rem,4vw,2.2rem);background:var(--oak-ghost);border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.55;}
+.wx-foot strong{color:var(--ink-2);}
+.wx-foot a{color:var(--oak);font-weight:500;}
+
+/* Website-Integration: Header & Footer */
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+nav .nav-logo img{height:38px;width:auto;}
+.nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+.nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.nav-links a{transition:color .2s;text-decoration:none;color:var(--muted);}
+.nav-links a:hover{color:var(--oak);}
+.nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;font-size:.78rem;font-weight:500;letter-spacing:.04em;transition:background .2s;}
+.nav-cta:hover{background:var(--oak);}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px;}
+.page-wrap{padding:clamp(1.5rem,4vw,3rem) 1rem;}
+.site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+.site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+.site-footer .footer-links{display:flex;gap:1.5rem;}
+.site-footer a{color:inherit;text-decoration:none;}
+.site-footer .footer-links a:hover{color:var(--oak-light);}
+@media(max-width:880px){
+  .nav-burger{display:block;}
+  .nav-links{display:none;position:fixed;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;z-index:99;text-transform:none;letter-spacing:0;font-size:.95rem;}
+  .nav-links.open{display:flex;}
+}
+@media(max-width:700px){.nav-wordmark small{display:none;}}
+@media(max-width:480px){.cat{flex-wrap:wrap;}.num-wrap{width:100%;}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="widget">
+
+  <header class="wx-head">
+    <canvas id="gridCanvas" aria-hidden="true"></canvas>
+    <div class="wx-head-inner">
+      <h1>ADR-1.000-Punkte-Rechner</h1>
+      <p>Fällt Ihre Gefahrgut-Beförderung unter die Freistellung für begrenzte Mengen je Beförderungseinheit? Tragen Sie die Mengen je Beförderungskategorie ein – wir rechnen die Punkte aus.</p>
+      <span class="ref">Freistellung nach ADR 1.1.3.6</span>
+    </div>
+  </header>
+
+  <div class="wx-body">
+
+    <div class="step">
+      <p class="step-label"><i>1</i> Mengen je Beförderungskategorie</p>
+
+      <div class="un-finder">
+        <label for="unsearch">Stoff über UN-Nummer finden <span class="opt">· optional, gängige Stoffe</span></label>
+        <input id="unsearch" list="unlist" placeholder="z. B. 1203 oder Benzin" autocomplete="off">
+        <datalist id="unlist"></datalist>
+        <div class="un-hit" id="unHit" hidden>
+          <div class="un-hit-txt" id="unHitTxt"></div>
+          <div class="un-hit-add">
+            <div class="num-wrap"><input id="unMenge" type="number" min="0" step="any" placeholder="Menge" inputmode="decimal"><span class="u">kg/l</span></div>
+            <button type="button" class="add-btn" id="unAddBtn">Übernehmen</button>
+          </div>
+        </div>
+        <p class="un-miss" id="unMiss" hidden>Nicht in der Schnellauswahl – bitte Menge unten direkt bei der passenden Kategorie eintragen (maßgeblich: Spalte&nbsp;15 der Tabelle&nbsp;A).</p>
+      </div>
+
+      <div class="cat">
+        <div class="cat-info"><b>Kategorie 1</b><span>Faktor × 50</span>
+          <span class="ex">sehr gefährlich – z.&nbsp;B. bestimmte Gase, giftige Stoffe</span></div>
+        <div class="num-wrap"><input id="k1" type="number" min="0" step="any" value="0" inputmode="decimal"><span class="u">kg/l</span></div>
+      </div>
+
+      <div class="cat">
+        <div class="cat-info"><b>Kategorie 2</b><span>Faktor × 3</span>
+          <span class="ex">z.&nbsp;B. entzündbare Flüssigkeiten VG&nbsp;II</span></div>
+        <div class="num-wrap"><input id="k2" type="number" min="0" step="any" value="0" inputmode="decimal"><span class="u">kg/l</span></div>
+      </div>
+
+      <div class="cat">
+        <div class="cat-info"><b>Kategorie 3</b><span>Faktor × 1</span>
+          <span class="ex">z.&nbsp;B. entzündbare Flüssigkeiten VG&nbsp;III (Diesel, Heizöl, Kerosin)</span></div>
+        <div class="num-wrap"><input id="k3" type="number" min="0" step="any" value="0" inputmode="decimal"><span class="u">kg/l</span></div>
+      </div>
+
+      <div class="cat">
+        <div class="cat-info"><b>Kategorie 4</b><span>Faktor × 0 – zählt nicht mit</span>
+          <span class="ex">wenige gering gefährliche Stoffe/Gegenstände – zählen nicht mit</span></div>
+        <div class="num-wrap"><input id="k4" type="number" min="0" step="any" value="0" inputmode="decimal"><span class="u">kg/l</span></div>
+      </div>
+
+      <p class="hint">Maßgeblich ist je Stoff die in Spalte&nbsp;(7a)/Unterabschnitt 1.1.3.6.3 genannte Bezugsgröße (Masse in kg, bei flüssigen/gasförmigen Stoffen Liter bzw. Fassungsraum). Die Beförderungskategorie steht in <strong>Tabelle&nbsp;A, Spalte&nbsp;(15)</strong>.</p>
+
+      <div class="note-box"><strong>Kategorie 0</strong> (z.&nbsp;B. viele explosive, radioaktive und einige besonders gefährliche Stoffe) ist von dieser Freistellung <strong>ausgeschlossen</strong> – höchstzulässige Menge 0. Sobald ein solcher Stoff dabei ist, gilt das volle ADR.</div>
+    </div>
+
+    <div class="result" id="result">
+      <h2>Ihr Ergebnis</h2>
+      <div class="score-row"><b id="pts">0</b><span>von max. 1.000&nbsp;Punkten</span></div>
+      <div class="verdict ok" id="verdict">
+        <span class="ic">✓</span>
+        <div id="verdictText"><b>Freistellung möglich.</b> Solange Sie unter 1.000&nbsp;Punkten bleiben und kein Stoff der Kategorie&nbsp;0 dabei ist, gelten weitreichende Erleichterungen.</div>
+      </div>
+      <p class="res-note">Bei Freistellung entfallen u.&nbsp;a. die orangefarbene Kennzeichnung der Beförderungseinheit und die ADR-Schulungsbescheinigung des Fahrers. <strong>Grundpflichten bleiben</strong>: ordnungsgemäße Verpackung, Kennzeichnung der Versandstücke, Beförderungspapier, Ladungssicherung und 2-kg-Feuerlöscher. Mengen mehrerer Stoffe werden addiert.</p>
+      <div class="cta">
+        <a class="btn btn-primary" id="ctaMail" href="mailto:info@oak-engineering.de?subject=Anfrage%20Gefahrgut-Beratung%20(ADR)">Gefahrgut-Beratung anfragen →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="wx-foot">
+    <strong>Hinweis:</strong> Unverbindliche Orientierung zur 1.000-Punkte-Regel (ADR 1.1.3.6). Die UN-Schnellauswahl umfasst nur <strong>gängige Stoffe ohne Gewähr</strong> – verbindlich ist die Beförderungskategorie in <strong>Spalte&nbsp;(15) der Tabelle&nbsp;A</strong>. Maßgeblich sind die aktuellen ADR-Vorgaben und der Einzelfall (u.&nbsp;a. Kategorie&nbsp;0, Sondervorschriften, Tunnelbeschränkungen). Keine Rechtsberatung. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+    <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20ADR-Punkte-Rechner">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+  </footer>
+
+</div>
+</div><!-- /page-wrap -->
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const FACT = {k1:50, k2:3, k3:1, k4:0};
+  const fmt = n => n.toLocaleString('de-DE',{maximumFractionDigits:0});
+
+  function calc(){
+    let pts = 0;
+    for(const id in FACT){
+      const v = Math.max(0, parseFloat($(id).value) || 0);
+      pts += v * FACT[id];
+    }
+    $('pts').textContent = fmt(pts);
+    const v = $('verdict'), t = $('verdictText');
+    if(pts <= 1000){
+      v.className = 'verdict ok';
+      v.querySelector('.ic').textContent = '✓';
+      t.innerHTML = '<b>Freistellung möglich.</b> Mit '+fmt(pts)+' von 1.000&nbsp;Punkten bleiben Sie im Rahmen – sofern kein Stoff der Kategorie&nbsp;0 dabei ist, gelten die Erleichterungen nach 1.1.3.6.';
+    } else {
+      v.className = 'verdict no';
+      v.querySelector('.ic').textContent = '✕';
+      t.innerHTML = '<b>Freistellung nicht möglich.</b> Mit '+fmt(pts)+' Punkten ist die 1.000-Punkte-Grenze überschritten – es gelten die <strong>vollen ADR-Pflichten</strong> (Kennzeichnung, ADR-Schein, schriftliche Weisungen u.&nbsp;a.).';
+    }
+  }
+  ['k1','k2','k3','k4'].forEach(id => $(id).addEventListener('input', calc));
+
+  // ── UN-Schnellsuche (kuratierte Auswahl gängiger Stoffe, ohne Gewähr) ──
+  // Beförderungskategorie = Spalte (15) der ADR-Tabelle A.
+  const DATA = [
+    {un:'1203', name:'Benzin (Ottokraftstoff)', vg:'II', cat:2},
+    {un:'1202', name:'Diesel / Heizöl EL / Gasöl', vg:'III', cat:3},
+    {un:'1223', name:'Kerosin', vg:'III', cat:3},
+    {un:'1170', name:'Ethanol, Lösung', vg:'II', cat:2},
+    {un:'1170', name:'Ethanol, Lösung', vg:'III', cat:3},
+    {un:'1090', name:'Aceton', vg:'II', cat:2},
+    {un:'1219', name:'Isopropanol (2-Propanol)', vg:'II', cat:2},
+    {un:'1263', name:'Farbe / Lack / Verdünnung', vg:'II', cat:2},
+    {un:'1263', name:'Farbe / Lack / Verdünnung', vg:'III', cat:3},
+    {un:'1993', name:'Entzündbarer flüssiger Stoff, n.a.g.', vg:'II', cat:2},
+    {un:'1993', name:'Entzündbarer flüssiger Stoff, n.a.g.', vg:'III', cat:3},
+    {un:'1789', name:'Salzsäure', vg:'II', cat:2},
+    {un:'1789', name:'Salzsäure', vg:'III', cat:3},
+    {un:'1830', name:'Schwefelsäure', vg:'II', cat:2},
+    {un:'1824', name:'Natronlauge (Natriumhydroxidlösung)', vg:'II', cat:2},
+    {un:'1824', name:'Natronlauge (Natriumhydroxidlösung)', vg:'III', cat:3},
+    {un:'1791', name:'Hypochloritlösung (Bleichlauge)', vg:'II', cat:2},
+    {un:'1791', name:'Hypochloritlösung (Bleichlauge)', vg:'III', cat:3},
+    {un:'1760', name:'Ätzender flüssiger Stoff, n.a.g.', vg:'II', cat:2},
+    {un:'1760', name:'Ätzender flüssiger Stoff, n.a.g.', vg:'III', cat:3},
+    {un:'1965', name:'Flüssiggas / LPG (Propan-Butan-Gemisch)', vg:'', cat:2},
+    {un:'1978', name:'Propan', vg:'', cat:2},
+    {un:'1011', name:'Butan', vg:'', cat:2},
+    {un:'1066', name:'Stickstoff, verdichtet', vg:'', cat:3},
+    {un:'1013', name:'Kohlendioxid', vg:'', cat:3},
+    {un:'1002', name:'Luft, verdichtet', vg:'', cat:3}
+  ];
+  const FAC = {1:50, 2:3, 3:1, 4:0};
+  const label = d => 'UN '+d.un+' · '+d.name+(d.vg ? ' · VG '+d.vg : '');
+
+  const map = {};
+  const dl = $('unlist');
+  DATA.forEach(d => { const v = label(d); map[v] = d; const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
+
+  const search = $('unsearch'), hit = $('unHit'), hitTxt = $('unHitTxt'),
+        miss = $('unMiss'), menge = $('unMenge'), addBtn = $('unAddBtn');
+  let current = null;
+
+  function resolve(){
+    const v = search.value.trim();
+    current = map[v] || null;
+    if(current){
+      hit.hidden = false; miss.hidden = true;
+      hitTxt.innerHTML = '<b>'+label(current)+'</b><br>Beförderungskategorie <b>'+current.cat+'</b> · Faktor ×'+FAC[current.cat];
+    } else {
+      hit.hidden = true;
+      miss.hidden = v.length < 3;
+    }
+  }
+  search.addEventListener('input', resolve);
+
+  addBtn.addEventListener('click', () => {
+    if(!current) return;
+    const m = Math.max(0, parseFloat(menge.value) || 0);
+    if(m <= 0){ menge.focus(); return; }
+    const field = $('k'+current.cat);
+    field.value = (parseFloat(field.value) || 0) + m;
+    calc();
+    const cat = field.closest('.cat');
+    cat.style.background = 'var(--oak-pale)';
+    setTimeout(() => { cat.style.background = ''; }, 700);
+    search.value = ''; menge.value = ''; current = null; hit.hidden = true; miss.hidden = true;
+  });
+
+  calc();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>KI &amp; Digitalisierung – OAK engineering | EHS-Management &amp; Digitalisierung</title>
+<meta name="description" content="KI & Digitalisierung im EHS: KI-gestützte Auswertung, Agentic Coding, Dashboards und individuelle EHS-Tools von OAK engineering.">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <form class="nav-search" role="search" action="suche.html" method="get">
+      <input type="search" name="q" placeholder="Suche …" aria-label="Suche auf der Website">
+      <button type="submit" aria-label="Suchen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    </form>
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="umweltschutz.html">Umweltschutz</a>
+        <a href="ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="about.html">Über uns</a>
+    <a href="kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<header class="sub-hero">
+  <canvas id="gridCanvas" aria-hidden="true"></canvas>
+  <div class="sub-overlay"></div>
+  <div class="sub-eyebrow">Leistungsfeld</div>
+  <h1>KI &amp; Digitalisierung</h1>
+  <p>EHS neu gedacht: klassische Expertise verbunden mit künstlicher Intelligenz und
+     Automatisierung, die Routineaufgaben übernimmt – damit Ihr Team Zeit für das Wesentliche hat.</p>
+</header>
+
+<main class="sub-layout">
+  <div class="leist-col">
+    <h2>Möglichkeiten im Detail</h2>
+    <div class="accordion">
+
+      <div class="acc-item open">
+        <button class="acc-head" type="button">KI-gestützte Auswertung &amp; Analytics <span class="acc-ico">+</span></button>
+        <div class="acc-body"><div class="acc-body-inner">
+          <p>Beinaheunfälle, Störungen und Audits enthalten wertvolle Muster – die in Excel-Listen meist ungenutzt bleiben.</p>
+          <p>Wir werten Ihre EHS-Daten KI-gestützt aus: Mustererkennung über Standorte, Schichten und Tätigkeiten hinweg, in Echtzeit statt erst im Monatsbericht.</p>
+          <span class="law">Mustererkennung</span><span class="law">Echtzeit-Analytics</span><span class="law">LLM</span><span class="law">Incident Analytics</span>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-head" type="button">Agentic Coding &amp; Automatisierung <span class="acc-ico">+</span></button>
+        <div class="acc-body"><div class="acc-body-inner">
+          <p>Viele EHS-Aufgaben sind wiederkehrend und regelbasiert – ideal für Automatisierung.</p>
+          <p>Wir entwickeln maßgeschneiderte Software-Agenten, die Fristen überwachen, Rechtskataster aktualisieren und Berichte selbstständig erzeugen – schnell und ohne großes IT-Projekt.</p>
+          <span class="law">Agentic Coding</span><span class="law">Automatisierung</span><span class="law">Fristenüberwachung</span><span class="law">Rechtskataster</span>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-head" type="button">EHS-Dashboards &amp; Reporting <span class="acc-ico">+</span></button>
+        <div class="acc-body"><div class="acc-body-inner">
+          <p>Kennzahlen, Gefährdungslagen und Maßnahmenfortschritt – auf einen Blick, statt in verstreuten Dateien.</p>
+          <p>Wir bauen interaktive Dashboards, die für Führungskräfte und Behörden gleichermaßen verständlich sind und Ihre Audit-Sicherheit erhöhen.</p>
+          <span class="law">Dashboard</span><span class="law">KPI</span><span class="law">Reporting</span><span class="law">Audit-Sicherheit</span>
+        </div></div>
+      </div>
+
+      <div class="acc-item">
+        <button class="acc-head" type="button">Individuelle EHS-Tools <span class="acc-ico">+</span></button>
+        <div class="acc-body"><div class="acc-body-inner">
+          <p>Kein Standardprodukt passt zu Ihrem Prozess? Dann entwickeln wir genau das Werkzeug, das Ihr Betrieb braucht.</p>
+          <p>Die kostenlosen Mini-Tools auf dieser Website sind ein Vorgeschmack darauf, wie pragmatisch und schnell solche Lösungen entstehen können.</p>
+          <span class="law">Web-Tools</span><span class="law">Low-Code</span><span class="law">MVP</span><span class="law">Schnittstellen</span>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <aside class="tools-col">
+    <div class="tools-panel">
+      <div class="tc-k">Interaktive Tools</div>
+      <h2>Selbst ausprobieren</h2>
+      <p class="tp-sub">Kostenlose Mini-Tools für eine schnelle Ersteinschätzung – wir entwickeln sie laufend weiter.</p>
+      <a class="tool-card" href="tools/OAK_Digitalisierungs-Check.html">
+        <span class="badge">Check</span>
+        <b>Digitalisierungs-Check</b>
+        <span class="d">EHS-4.0-Reifegrad und Optimierungspotenzial in 5 Fragen.</span>
+        <span class="go">Tool öffnen →</span>
+      </a>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

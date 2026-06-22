@@ -2,1281 +2,593 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>EHS Unterweisungen – Oak Engineering</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="auth.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Schulungen &amp; Weiterbildungen – OAK Engineering | EHS-Management &amp; Digitalisierung</title>
+<meta name="description" content="Praxisnahe EHS-Schulungen von OAK engineering: Arbeitssicherheit & Sicherheitskultur, Umweltrecht, ISO 14001/CSRD und KI/Digitalisierung – online, vor Ort oder inhouse in Augsburg, München und ganz Bayern.">
+<link rel="canonical" href="https://www.oak-engineering.de/schulungen.html">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="site.css">
+<style>
+/* ── Schulungs-spezifische Komponenten (OAK-CI) ─────────────────── */
+.sched-intro{max-width:760px;margin:0 auto 1.6rem;}
+.legend-typ{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin:.4rem 0 1.4rem;font-size:.78rem;color:var(--muted);}
+.legend-typ span{display:inline-flex;align-items:center;gap:.35rem;}
+.typ-badge{display:inline-block;font-size:.64rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:.18rem .55rem;border-radius:99px;}
+.t-pflicht{background:#FDE7E2;color:#B23A2E;} .t-frei{background:var(--oak-pale);color:var(--oak-deep);} .t-zukunft{background:#E5EEFB;color:#1B4E8F;}
+
+.filter-bar{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.6rem;}
+.chip{cursor:pointer;border:1.5px solid var(--border);background:#fff;border-radius:99px;padding:.45rem 1rem;font-family:var(--sans);font-size:.82rem;color:var(--ink-2);transition:.15s;}
+.chip:hover{border-color:var(--oak-light);}
+.chip.active{background:var(--oak-deep);color:#fff;border-color:var(--oak-deep);}
+
+.kurs-head-meta{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-left:.2rem;}
+.acc-head .kurs-title{flex:1;}
+.kurs-chip{display:inline-block;font-size:.7rem;color:var(--oak-deep);background:var(--oak-pale);padding:.12rem .5rem;border-radius:99px;font-weight:500;}
+.kurs-sec{margin:1rem 0;}
+.kurs-sec h4{font-family:var(--sans);font-size:.82rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--oak);margin-bottom:.4rem;}
+.kurs-sec ul{padding-left:1.2rem;margin:0;}
+.kurs-sec li{margin:.2rem 0;color:var(--ink-2);font-weight:300;}
+.kurs-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin:.2rem 0 .6rem;}
+.kurs-foot{display:flex;flex-wrap:wrap;gap:1.2rem;font-size:.82rem;color:var(--muted);border-top:1px solid var(--border);padding-top:.7rem;margin-top:.8rem;}
+.kurs-foot b{color:var(--ink-2);}
+.kurs-cta{margin-top:.9rem;display:flex;flex-wrap:wrap;gap:.5rem;}
+.kurs-cta .btn{padding:.7rem 1.2rem;font-size:.84rem;}
+
+/* Kalender / Termine */
+.cal-wrap{background:var(--oak-ghost);border:1px solid var(--border);border-radius:14px;padding:clamp(1.1rem,3vw,1.8rem);}
+.cal-note{font-size:.76rem;color:var(--muted);margin-bottom:1rem;}
+.cal-foot{font-size:.76rem;color:var(--muted);margin-top:1rem;line-height:1.5;border-top:1px solid var(--border);padding-top:.8rem;}
+.termin{display:grid;grid-template-columns:auto 1fr auto;gap:.9rem 1.1rem;align-items:center;background:#fff;border:1px solid var(--border);border-radius:11px;padding:.8rem 1rem;margin-bottom:.6rem;}
+.termin .t-date{font-family:var(--serif);font-weight:600;color:var(--oak-deep);line-height:1.1;text-align:center;min-width:54px;}
+.termin .t-date small{display:block;font-family:var(--sans);font-size:.66rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.termin .t-main b{display:block;font-size:.95rem;color:var(--ink);}
+.termin .t-main span{font-size:.78rem;color:var(--muted);}
+.termin .t-status{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.2rem .6rem;border-radius:99px;white-space:nowrap;}
+.s-offen{background:#E8F5E9;color:#2e7d32;} .s-wenige{background:#FFF4E5;color:#B26B00;} .s-ausgebucht{background:#F3D9D9;color:#7b1f1f;} .s-warteliste{background:#ECEFF0;color:#5b6472;}
+.termin .t-go{border:none;background:var(--oak);color:#fff;border-radius:8px;padding:.5rem .9rem;font-family:var(--sans);font-size:.8rem;font-weight:500;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.termin .t-go:hover{background:var(--oak-deep);}
+.termin .t-go:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
+.cal-empty{font-size:.86rem;color:var(--muted);padding:.6rem 0;}
+@media(max-width:560px){.termin{grid-template-columns:auto 1fr;}.termin .t-go{grid-column:1/-1;}}
+
+/* Anmeldeformular */
+.anm-card{background:var(--oak-deep);border-radius:16px;padding:clamp(1.3rem,4vw,2.2rem);color:#fff;}
+.anm-card h2{color:#fff;}
+.anm-card .lead{opacity:.9;font-size:.92rem;margin-bottom:1.3rem;max-width:60ch;}
+.anm-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.anm-field{display:flex;flex-direction:column;gap:.3rem;}
+.anm-field.full{grid-column:1/-1;}
+.anm-field label{font-size:.74rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:rgba(255,255,255,.8);}
+.anm-field input,.anm-field select,.anm-field textarea{font-family:var(--sans);font-size:.95rem;color:var(--ink);background:#fff;border:1.5px solid transparent;border-radius:9px;padding:.6rem .75rem;width:100%;}
+.anm-field input:focus,.anm-field select:focus,.anm-field textarea:focus{outline:none;border-color:var(--oak-light);box-shadow:0 0 0 3px rgba(116,198,157,.4);}
+.anm-consent{grid-column:1/-1;display:flex;gap:.6rem;align-items:flex-start;font-size:.82rem;color:rgba(255,255,255,.9);line-height:1.5;}
+.anm-consent input{margin-top:.2rem;width:1.1rem;height:1.1rem;flex:none;}
+.anm-consent a{color:var(--oak-light);font-weight:600;}
+.anm-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin-top:.3rem;}
+.btn-submit{border:none;background:#fff;color:var(--oak-deep);border-radius:8px;padding:.85rem 1.8rem;font-family:var(--sans);font-size:.92rem;font-weight:600;cursor:pointer;transition:transform .15s,background .2s;}
+.btn-submit:hover{transform:translateY(-1px);background:var(--oak-pale);}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.anm-hint{font-size:.78rem;color:rgba(255,255,255,.7);}
+.anm-msg{grid-column:1/-1;border-radius:9px;padding:.9rem 1.1rem;font-size:.9rem;display:none;}
+.anm-msg.ok{display:block;background:var(--oak-light);color:var(--oak-deep);font-weight:500;}
+.anm-msg.err{display:block;background:#F3C9C2;color:#5E1B12;}
+@media(max-width:600px){.anm-grid{grid-template-columns:1fr;}}
+
+.sec-head{text-align:center;margin:2.6rem 0 1.2rem;}
+.sec-head .ey{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--oak);font-weight:600;}
+.sec-head h2{font-family:var(--serif);font-weight:300;font-size:clamp(1.6rem,3.5vw,2.2rem);color:var(--ink);}
+
+/* DIN-A4-Flyer je Kurs (nur beim Drucken sichtbar) */
+#flyer{display:none;}
+@media print{
+  body > *:not(#flyer){display:none !important;}
+  #flyer{display:block !important;}
+  @page{size:A4 portrait;margin:0;}
+}
+.fly{font-family:var(--sans);color:var(--ink);width:210mm;min-height:297mm;padding:18mm;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fly-band{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;margin:-18mm -18mm 9mm;padding:15mm 18mm 9mm;}
+.fly-band img{height:13mm;width:auto;margin-bottom:6mm;}
+.fly-ey{font-size:10pt;letter-spacing:.16em;text-transform:uppercase;opacity:.85;}
+.fly h1{font-family:var(--serif);font-weight:600;font-size:25pt;line-height:1.12;margin:.15rem 0 0;}
+.fly-meta{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:5mm;}
+.fly-meta span{font-size:9pt;background:rgba(255,255,255,.16);padding:.15rem .6rem;border-radius:99px;}
+.fly-lead{font-size:11pt;line-height:1.5;color:var(--ink-2);margin-bottom:6mm;}
+.fly-sec{margin-bottom:5mm;}
+.fly-sec h3{font-size:10pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--oak);margin-bottom:1.5mm;}
+.fly-sec ul{margin:0;padding-left:5mm;}
+.fly-sec li{font-size:10.5pt;line-height:1.45;margin:.6mm 0;}
+.fly-sec p{font-size:10.5pt;line-height:1.45;margin:0;}
+.fly-foot{position:absolute;left:18mm;right:18mm;bottom:12mm;border-top:1.5px solid var(--oak);padding-top:3mm;font-size:8.5pt;color:var(--muted);display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.fly-foot b{color:var(--oak-deep);}
+</style>
 </head>
 <body>
-<div id="app-root" style="display:none">
-
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-  <a href="index.html" class="sb-logo">
-    <div class="sb-logo-icon">
-      <img src="logo.png" alt="Oak" onerror="this.parentNode.innerHTML='<svg width=18 height=18 viewBox=&quot;0 0 24 24&quot; fill=none stroke=white stroke-width=1.5><path d=&quot;M12 2L2 7l10 5 10-5-10-5z&quot;/><path d=&quot;M2 17l10 5 10-5&quot;/><path d=&quot;M2 12l10 5 10-5&quot;/></svg>'">
-    </div>
-    <div class="sb-logo-text">
-      <div class="sb-logo-name" id="sb-firm">EHS Manager</div>
-      <div class="sb-logo-sub">Oak Engineering</div>
-    </div>
+<nav>
+  <a class="nav-logo" href="index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
   </a>
-  <nav class="sb-nav">
-    <div class="sb-section">Übersicht</div>
-    <a href="index.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span><span class="sb-label">Startseite</span></a>
-    <div class="sb-section">Module</div>
-    <a href="datenbank.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></span><span class="sb-label">Datenbank</span></a>
-    <a href="schulungen.html" class="sb-item active"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></span><span class="sb-label">Unterweisungen</span></a>
-    <a href="gbu.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span><span class="sb-label">GBU & BA</span></a>
-    <a href="unfaelle.html" class="sb-item"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span class="sb-label">Unfälle</span></a>
-    <div class="sb-section">Verwaltung</div>
-    <div class="sb-item admin-only" onclick="openSettingsModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2"/></svg></span><span class="sb-label">Einstellungen</span></div>
-    <div class="sb-item admin-only" onclick="openNutzerModal()" style="display:none"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span><span class="sb-label">Nutzerverwaltung</span></div>
-  </nav>
-  <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()"><svg id="sb-toggle-icon" viewBox="0 0 10 10" fill="none" stroke="currentColor"><polyline points="6,2 3,5 6,8"/></svg></button>
-  <div class="sb-footer">
-    <div style="padding:6px 8px;border-bottom:0.5px solid var(--border)">
-      <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:5px 4px;border-radius:5px;font-size:12px;color:var(--text2)">
-        <span style="display:flex;align-items:center;gap:6px">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <span class="sb-label">Dark Mode</span>
-        </span>
-        <div id="dark-toggle" onclick="toggleDarkMode(event)" style="width:34px;height:18px;border-radius:9px;background:var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
-          <div id="dark-knob" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
-        </div>
-      </label>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <form class="nav-search" role="search" action="suche.html" method="get">
+      <input type="search" name="q" placeholder="Suche …" aria-label="Suche auf der Website">
+      <button type="submit" aria-label="Suchen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></button>
+    </form>
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="umweltschutz.html">Umweltschutz</a>
+        <a href="ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="schulungen.html">Schulungen</a>
+      </div>
     </div>
-    <div class="sb-user" onclick="openUserMenu()">
-      <div class="sb-avatar" id="u-av">?</div>
-      <div><div class="sb-user-name" id="u-name">–</div><div class="sb-user-role" id="u-role">–</div></div>
-    </div>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<div class="main-area">
-<nav class="topnav">
-  <div class="topnav-left">
-    <span class="nav-crumb">EHS Manager</span>
-    <span class="nav-sep">›</span>
-    <span class="nav-page">Unterweisungen</span>
-  </div>
-  <div class="topnav-right">
-    <span class="nav-badge-admin admin-only" id="top-admin-badge" style="display:none">Admin</span>
-    <div class="nav-btn-top" onclick="openUserMenu()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 00-16 0"/></svg>
-      <span id="top-uname">–</span>
-    </div>
+    <a href="about.html">Über uns</a>
+    <a href="kontakt.html" class="nav-cta">Kontakt</a>
   </div>
 </nav>
 
-<div class="content">
-  <div class="tabs">
-    <button class="tab on" onclick="switchView('schulungen')"  id="vtab-schulungen">Unterweisungen</button>
-    <button class="tab"    onclick="switchView('protokoll')"   id="vtab-protokoll">Protokoll</button>
-    <button class="tab"    onclick="switchView('buchung')"     id="vtab-buchung">Oak Schulungen</button>
+<header class="sub-hero">
+  <canvas id="gridCanvas" aria-hidden="true"></canvas>
+  <div class="sub-overlay"></div>
+  <div class="sub-eyebrow">Weiterbildung</div>
+  <h1>Schulungen &amp; Weiterbildungen</h1>
+  <p>Praxisnahe EHS-Qualifizierung – von Sicherheitskultur und Umweltrecht bis zu KI im Arbeitsschutz.
+     Online, vor Ort oder inhouse, immer mit konkretem Anwendungsbezug.</p>
+</header>
+
+<main class="prose">
+  <p class="sched-intro">Unsere Schulungen verbinden Recht und Praxis: kompakt, verständlich und sofort anwendbar.
+    Wählen Sie einen Bereich, klappen Sie den Kurs auf – und <strong>fragen Sie ihn unverbindlich an</strong>.
+    Termine, Ablauf und Preis stimmen wir individuell mit Ihnen ab (online, vor Ort oder inhouse).</p>
+
+  <div class="filter-bar" id="filterBar">
+    <button class="chip active" data-f="alle">Alle</button>
+    <button class="chip" data-f="Umwelt">Umwelt</button>
+    <button class="chip" data-f="Sicherheit">Arbeitssicherheit</button>
+    <button class="chip" data-f="Digital &amp; KI">Digital &amp; KI</button>
   </div>
 
-  <!-- SCHULUNGEN (intern + präsenz zusammen) -->
-  <div id="view-schulungen">
-    <div class="fb" style="margin-bottom:16px">
-      <div>
-        <h2 style="font-family:var(--fh);font-size:20px">Unterweisungen</h2>
-        <div class="ts" id="schulung-sub">Wird geladen…</div>
+  <div class="accordion" id="kursList"><!-- Kurse via JS --></div>
+
+  <div class="sec-head" id="kalender">
+    <div class="ey">Terminübersicht</div>
+    <h2>Nächste Termine</h2>
+  </div>
+  <div class="cal-wrap">
+    <div class="cal-note" id="calNote"></div>
+    <div id="terminList"></div>
+    <p class="cal-foot">Online-Schulungen finden bei ausreichender Teilnehmerzahl statt. Sollte ein Termin einmal nicht zustande kommen, erstatten wir bereits gezahlte Beträge selbstverständlich vollständig.</p>
+  </div>
+
+  <div class="sec-head" id="anmeldung">
+    <div class="ey">Anmeldung</div>
+    <h2>Zum Kurs anmelden</h2>
+  </div>
+  <div class="anm-card">
+    <p class="lead">Wählen Sie Kurs und Termin (oder „Inhouse / individueller Termin"). Wir bestätigen Ihre Anmeldung per E-Mail und melden uns mit allen Details. Unverbindlich und kostenfrei beraten wir Sie vorab gern.</p>
+    <form class="anm-grid" id="anmForm" autocomplete="on">
+      <div class="anm-field full">
+        <label for="f-kurs">Kurs *</label>
+        <select id="f-kurs" required></select>
       </div>
-      <button class="btn btn-p btn-sm admin-only" onclick="openNewSchulungModal()" id="btn-neue-schulung" style="display:none">+ Neue Unterweisung</button>
-    </div>
-    <div id="schulung-list"><div class="empty"><div class="empty-i">⏳</div><p>Wird geladen…</p></div></div>
-  </div>
-
-  <!-- PROTOKOLL -->
-  <div id="view-protokoll" style="display:none">
-    <div class="fb" style="margin-bottom:16px">
-      <div>
-        <h2 style="font-family:var(--fh);font-size:20px">Teilnehmer-Protokoll</h2>
-        <div class="ts" id="proto-sub"></div>
+      <div class="anm-field full">
+        <label for="f-termin">Termin</label>
+        <select id="f-termin"></select>
       </div>
-      <button class="btn btn-o btn-sm" onclick="exportProtokolleCSV()">⬇ CSV Export</button>
-    </div>
-    <div style="margin-bottom:12px">
-      <select id="proto-filter" onchange="renderProtokoll()" style="max-width:320px">
-        <option value="">– Alle Schulungen –</option>
-      </select>
-    </div>
-    <div id="protokoll-list"></div>
-  </div>
-
-  <!-- OAK SCHULUNGEN BUCHEN -->
-  <div id="view-buchung" style="display:none">
-    <div class="fb" style="margin-bottom:16px">
-      <div>
-        <h2 style="font-family:var(--fh);font-size:20px">🛒 Oak Engineering – Schulungsangebot</h2>
-        <div class="ts">Externe Schulungen direkt buchen · Preise zzgl. MwSt.</div>
+      <div class="anm-field"><label for="f-name">Name *</label><input id="f-name" type="text" required placeholder="Vor- und Nachname"></div>
+      <div class="anm-field"><label for="f-email">E-Mail *</label><input id="f-email" type="email" required placeholder="name@firma.de"></div>
+      <div class="anm-field"><label for="f-tel">Telefon</label><input id="f-tel" type="tel" placeholder="optional"></div>
+      <div class="anm-field"><label for="f-firma">Firma</label><input id="f-firma" type="text" placeholder="optional"></div>
+      <div class="anm-field"><label for="f-anzahl">Teilnehmerzahl</label><input id="f-anzahl" type="number" min="1" value="1"></div>
+      <div class="anm-field"><label for="f-format">Bevorzugtes Format</label>
+        <select id="f-format"><option>egal</option><option>Präsenz</option><option>Online</option><option>Inhouse</option></select></div>
+      <div class="anm-field full"><label for="f-msg">Nachricht</label><textarea id="f-msg" rows="3" placeholder="Fragen, Wunschtermin, Inhouse-Anfrage …"></textarea></div>
+      <label class="anm-consent"><input type="checkbox" id="f-ds" required>
+        <span>Ich bin mit der Verarbeitung meiner Daten zur Bearbeitung der Anmeldung einverstanden. Hinweise in der <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>. *</span></label>
+      <div class="anm-actions">
+        <button type="submit" class="btn-submit" id="anmSubmit">Anmeldung absenden →</button>
+        <span class="anm-hint">* Pflichtfelder · oder direkt: <a href="mailto:info@oak-engineering.de" style="color:var(--oak-light);font-weight:600">info@oak-engineering.de</a></span>
       </div>
-      <button class="btn btn-o btn-sm admin-only" onclick="openBuchungsanfragenModal()" id="btn-anfragen-admin" style="display:none">📋 Buchungsanfragen</button>
-    </div>
-    <div id="buchung-list"></div>
+      <div class="anm-msg" id="anmMsg"></div>
+    </form>
   </div>
+</main>
 
-</div><!-- /content -->
-</div><!-- /main-area -->
-</div><!-- /app-root -->
+<footer>
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="kontakt.html">Kontakt</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+    <a href="agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
 
-<!-- ═══════════════════════════════════════════
-     MODALS
-     ═══════════════════════════════════════════ -->
-
-<!-- MODAL: Unterweisung anlegen/bearbeiten -->
-<div class="overlay" id="m-schulung">
-<div class="modal modal-wide" style="max-height:92vh;overflow-y:auto">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-hd-title" id="m-schulung-title">Unterweisung anlegen</div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-schulung')">✕ Schließen</button>
-  </div>
-  <div class="modal-body">
-    <input type="hidden" id="edit-schulung-id">
-
-    <!-- Typ-Auswahl -->
-    <div class="section-block">
-      <div class="section-label">Schulungstyp</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:7px;border:2px solid var(--border);background:var(--s1);font-weight:400;flex:1;min-width:140px" id="typ-online-label">
-          <input type="radio" name="schulung-typ" value="online" id="typ-online" checked style="width:auto;accent-color:#1a1a1a" onchange="onTypChange()">
-          🖥 <strong>Online</strong> – Webinar, E-Learning
-        </label>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:7px;border:2px solid var(--border);background:var(--s1);font-weight:400;flex:1;min-width:140px" id="typ-praesenz-label">
-          <input type="radio" name="schulung-typ" value="praesenz" id="typ-praesenz" style="width:auto;accent-color:#1a1a1a" onchange="onTypChange()">
-          📍 <strong>Präsenz</strong> – Vor Ort
-        </label>
-      </div>
-    </div>
-
-    <div class="g2">
-      <div><label>Titel *</label><input id="s-titel" placeholder="z.B. Brandschutzunterweisung 2025"></div>
-      <div><label>Kategorie</label>
-        <select id="s-kategorie">
-          <option>Brandschutz</option><option>Gefahrstoffe</option>
-          <option>Arbeitssicherheit</option><option>Erste Hilfe</option>
-          <option>Ladungssicherung</option><option>Elektrische Sicherheit</option>
-          <option>Persönliche Schutzausrüstung</option><option>Ergonomie</option><option>Sonstiges</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Online-Felder -->
-    <div id="felder-online">
-      <div class="g2">
-        <div><label>Plattform / Tool</label><input id="s-plattform" placeholder="z.B. Microsoft Teams, Zoom, Moodle"></div>
-        <div><label>Gültig bis</label><input id="s-gueltig" type="date"></div>
-      </div>
-      <div class="g2">
-        <div><label>Wiederholungsintervall</label>
-          <select id="s-intervall">
-            <option value="">– einmalig –</option><option value="6">Halbjährlich</option>
-            <option value="12">Jährlich</option><option value="24">Alle 2 Jahre</option><option value="36">Alle 3 Jahre</option>
-          </select>
-        </div>
-        <div><label>Bestehensgrenze (%)</label><input id="s-bestehen" type="number" value="80" min="0" max="100"></div>
-      </div>
-    </div>
-
-    <!-- Präsenz-Felder -->
-    <div id="felder-praesenz" style="display:none">
-      <div class="g2">
-        <div><label>Datum *</label><input id="s-datum" type="date"></div>
-        <div><label>Uhrzeit</label>
-          <div style="display:flex;gap:8px">
-            <input id="s-von" type="time" value="09:00" placeholder="09:00">
-            <input id="s-bis" type="time" value="11:00" placeholder="11:00">
-          </div>
-        </div>
-      </div>
-      <div class="g2">
-        <div><label>Raum / Ort</label><input id="s-raum" placeholder="Schulungsraum 1, Halle 3"></div>
-        <div><label>Referent/in</label><input id="s-referent" placeholder="Max Mustermann"></div>
-      </div>
-      <div class="g2">
-        <div><label>Max. Teilnehmerzahl</label><input id="s-maxtn" type="number" value="20" min="1"></div>
-        <div><label>Anmeldefrist</label><input id="s-frist" type="date"></div>
-      </div>
-      <div><label>Kontakt-E-Mail (für Bestätigungen)</label><input id="s-kontakt" type="email" placeholder="ehs@oak-engineering.de"></div>
-    </div>
-
-    <div><label>Beschreibung / Lernziele</label>
-      <textarea id="s-beschreibung" rows="3" placeholder="Was lernen die Teilnehmer? Gesetzliche Grundlage?"></textarea>
-    </div>
-    <div class="g2">
-      <div><label>Pflichtschulung</label>
-        <select id="s-pflicht"><option value="ja">Ja – Pflichtschulung</option><option value="nein">Nein – freiwillig</option></select>
-      </div>
-    </div>
-
-    <!-- PDF Upload (nur Online) -->
-    <div class="section-block" id="pdf-block">
-      <div class="section-label">Unterweisungsunterlage (PDF)</div>
-      <div id="s-dok-info" style="margin-bottom:8px;font-size:13px;color:var(--t3)">Noch keine Datei hochgeladen</div>
-      <div class="gap">
-        <button type="button" class="btn btn-o btn-sm" onclick="document.getElementById('inp-schulung-pdf').click()">⬆ PDF hochladen</button>
-        <input type="file" id="inp-schulung-pdf" accept=".pdf" onchange="uploadSchulungPDF(event)" style="display:none">
-        <button type="button" class="btn btn-o btn-sm" id="btn-ki-fragen" onclick="generateKIFragen()" style="display:none">🤖 KI-Fragen generieren</button>
-      </div>
-      <div id="ki-fragen-status" style="display:none;margin-top:8px;padding:10px;background:rgba(26,26,26,.04);border:1px solid rgba(26,26,26,.15);border-radius:7px;font-size:13px"></div>
-    </div>
-
-    <!-- Fragenkatalog (nur Online) -->
-    <div class="section-block" id="fragen-block">
-      <div class="fb" style="margin-bottom:10px">
-        <div class="section-label" style="margin:0">Verständnisfragen</div>
-        <button type="button" class="btn btn-p btn-sm" onclick="addFrage()">+ Frage</button>
-      </div>
-      <div id="fragen-editor"></div>
-      <div class="ts" style="margin-top:6px">Mindestens 1 richtige Antwort pro Frage · Mindestens 1 Frage erforderlich</div>
-    </div>
-  </div>
-  <div class="modal-ft">
-    <button class="btn btn-o" onclick="closeM('m-schulung')">Abbrechen</button>
-    <button class="btn btn-p" onclick="saveSchulungModal()">
-      <span class="spinner" id="save-schulung-spinner" style="display:none"></span>Speichern
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Anmeldung Präsenz -->
-<div class="overlay" id="m-anmeldung">
-<div class="modal">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-hd-title" id="m-anmeldung-title">Anmelden</div>
-      <div class="modal-hd-sub" id="m-anmeldung-sub"></div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-anmeldung')">✕ Schließen</button>
-  </div>
-  <div class="modal-body">
-    <div><label>Name *</label><input id="anm-name" placeholder="Max Mustermann"></div>
-    <div><label>E-Mail * (für Bestätigungsmail)</label><input id="anm-email" type="email" placeholder="max.mustermann@firma.de"></div>
-  </div>
-  <div class="modal-ft">
-    <button class="btn btn-o" onclick="closeM('m-anmeldung')">Abbrechen</button>
-    <button class="btn btn-ok" onclick="submitAnmeldung()">
-      <span class="spinner" id="anm-spinner" style="display:none"></span>✓ Verbindlich anmelden
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Teilnehmerliste -->
-<div class="overlay" id="m-teilnehmer">
-<div class="modal modal-wide">
-  <div class="modal-hd">
-    <div class="modal-hd-title" id="m-teilnehmer-title">Teilnehmerliste</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-teilnehmer')">✕ Schließen</button>
-  </div>
-  <div class="modal-body" id="teilnehmer-body"></div>
-  <div class="modal-ft">
-    <button class="btn btn-ok" onclick="schulungDurchgefuehrt()">✓ Als durchgeführt markieren</button>
-  </div>
-</div></div>
-
-<!-- MODAL: Schulung teilen -->
-<div class="overlay" id="m-share">
-<div class="modal">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-hd-title" id="m-share-title">Schulung teilen</div>
-      <div class="modal-hd-sub" id="m-share-sub"></div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-share')">✕ Schließen</button>
-  </div>
-  <div class="modal-body" style="max-height:none">
-    <div class="share-tabs">
-      <button class="share-tab on" onclick="switchShareTab('qr')" id="stab-qr">📱 QR-Code</button>
-      <button class="share-tab" onclick="switchShareTab('link')" id="stab-link">🔗 Link</button>
-      <button class="share-tab" onclick="switchShareTab('mail')" id="stab-mail">✉ E-Mail</button>
-    </div>
-    <div id="share-qr">
-      <div id="qr-canvas"></div>
-      <p class="ts" style="text-align:center;margin-bottom:12px">Aushang im Werk – Teilnehmer scannen und starten direkt ohne Account</p>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button class="btn btn-p btn-sm" onclick="downloadQR()">⬇ PNG laden</button>
-        <button class="btn btn-o btn-sm" onclick="printQR()">🖨 Drucken</button>
-      </div>
-    </div>
-    <div id="share-link" style="display:none">
-      <label>Direktlink (kein Account erforderlich)</label>
-      <div style="display:flex;gap:8px">
-        <input id="share-link-input" readonly style="font-size:11px;font-family:var(--fm);background:var(--s3)">
-        <button class="btn btn-p btn-sm" onclick="copyShareLink()">Kopieren</button>
-      </div>
-      <div class="ts" style="margin-top:6px">Teilnehmer geben Name + E-Mail ein und führen die Schulung direkt durch.</div>
-    </div>
-    <div id="share-mail" style="display:none">
-      <div style="display:flex;flex-direction:column;gap:12px">
-        <div><label>Empfänger (optional)</label><input id="share-mail-to" type="email" placeholder="besucher@firma.de"></div>
-        <div><label>Nachricht</label><textarea id="share-mail-body" rows="4"></textarea></div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-ft" id="share-mail-ft" style="display:none">
-    <button class="btn btn-o" onclick="closeM('m-share')">Schließen</button>
-    <button class="btn btn-p" onclick="sendShareMail()">✉ E-Mail öffnen</button>
-  </div>
-  <div class="modal-ft" id="share-default-ft">
-    <button class="btn btn-o" onclick="closeM('m-share')">Schließen</button>
-  </div>
-</div></div>
-
-<!-- MODAL: Buchungsanfrage -->
-<div class="overlay" id="m-buchung">
-<div class="modal modal-wide">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-hd-title" id="m-buchung-titel">Schulung buchen</div>
-      <div class="modal-hd-sub" id="m-buchung-sub"></div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-buchung')">✕ Schließen</button>
-  </div>
-  <div class="modal-body">
-    <input type="hidden" id="buchung-katalog-id">
-    <div class="g2">
-      <div><label>Firma / Organisation *</label><input id="b-firma" placeholder="Musterfirma GmbH"></div>
-      <div><label>Ansprechpartner *</label><input id="b-kontakt" placeholder="Max Mustermann"></div>
-    </div>
-    <div class="g2">
-      <div><label>E-Mail *</label><input id="b-email" type="email" placeholder="max@musterfirma.de"></div>
-      <div><label>Telefon</label><input id="b-tel" placeholder="+49 821…"></div>
-    </div>
-    <div class="g2">
-      <div><label>Anzahl Teilnehmer *</label><input id="b-tn" type="number" min="1" placeholder="10"></div>
-      <div><label>Wunschtermin</label><input id="b-termin" type="date"></div>
-    </div>
-    <div><label>Alternativer Termin</label><input id="b-termin2" type="date"></div>
-    <div><label>Nachricht / besondere Anforderungen</label>
-      <textarea id="b-nachricht" rows="3" placeholder="Schulungsort, spezifische Themen, Branche…"></textarea>
-    </div>
-    <div style="padding:10px 14px;background:rgba(45,106,45,.06);border:1px solid rgba(45,106,45,.2);border-radius:7px;font-size:12px;color:var(--ok)">
-      ✓ Sie erhalten innerhalb von 24 Stunden eine Bestätigung von Oak Engineering.
-    </div>
-  </div>
-  <div class="modal-ft">
-    <button class="btn btn-o" onclick="closeM('m-buchung')">Abbrechen</button>
-    <button class="btn btn-ok" onclick="submitBuchung()">
-      <span class="spinner" id="buchung-spinner" style="display:none"></span>📩 Verbindlich anfragen
-    </button>
-  </div>
-</div></div>
-
-<!-- MODAL: Buchungsanfragen verwalten (Admin) -->
-<div class="overlay" id="m-anfragen">
-<div class="modal modal-wide" style="max-height:92vh;overflow-y:auto">
-  <div class="modal-hd" style="position:sticky;top:0">
-    <div class="modal-hd-title">📋 Buchungsanfragen</div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-anfragen')">✕ Schließen</button>
-  </div>
-  <div class="modal-body" id="anfragen-list" style="max-height:none"></div>
-</div></div>
-
-<!-- MODAL: User-Menü -->
-<div class="overlay" id="m-usermenu">
-<div class="modal" style="max-width:360px">
-  <div class="modal-hd">
-    <div>
-      <div class="modal-hd-title" id="um-name">Mein Konto</div>
-      <div class="modal-hd-sub" id="um-rolle"></div>
-    </div>
-    <button class="btn btn-o btn-sm" onclick="closeM('m-usermenu')">✕ Schließen</button>
-  </div>
-  <div class="modal-body">
-    <div>
-      <label>Claude API-Key (für KI-Funktionen)</label>
-      <div style="display:flex;gap:8px">
-        <input id="um-api-key" type="password" placeholder="sk-ant-…" style="font-size:12px;font-family:var(--fm)">
-        <button class="btn btn-p btn-sm" onclick="saveApiKeyUM()">Speichern</button>
-      </div>
-      <div class="ts" style="margin-top:4px" id="um-api-status"></div>
-    </div>
-    <div class="divider"></div>
-    <button class="btn btn-d" style="width:100%;justify-content:center" onclick="doSignOut()">↩ Abmelden</button>
-  </div>
-</div></div>
-
-<!-- MODAL: Player -->
-<div class="overlay" id="m-player" style="padding:0;align-items:stretch">
-<div style="background:var(--bg);width:100%;max-width:820px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh">
-  <div style="position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--border);padding:14px 20px">
-    <div class="fb" style="margin-bottom:6px">
-      <div>
-        <div style="font-family:var(--fh);font-size:16px;font-weight:700" id="player-titel"></div>
-        <div class="ts" id="player-sub"></div>
-      </div>
-      <button class="btn btn-o btn-sm" onclick="closePlayer()">✕ Beenden</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="prog-wrap" style="flex:1;margin:0"><div class="prog-fill" id="player-prog-fill" style="width:0%"></div></div>
-      <span class="ts" id="player-prog-text">0 / 0</span>
-    </div>
-  </div>
-  <div style="flex:1;overflow-y:auto;padding:24px 20px 120px" id="player-content"></div>
-  <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid var(--border);padding:12px 20px;display:flex;justify-content:space-between;align-items:center">
-    <button class="btn btn-o" id="player-back-btn" onclick="playerBack()">← Zurück</button>
-    <div class="ts" id="player-nav-info"></div>
-    <button class="btn btn-p" id="player-next-btn" onclick="playerNext()">Weiter →</button>
-  </div>
-</div></div>
-
-<div class="toast" id="toast"></div>
+<div id="flyer" aria-hidden="true"></div>
 
 <script>
-// ═══════════════════════════════════════════════════════════
-// GLOBALER STATE
-// ═══════════════════════════════════════════════════════════
-let currentProfile = null;
-let allSchulungen  = [];
-let allProtokoll   = [];
-let currentView    = 'schulungen';
-let pendingPDF     = null;
-let fragenDraft    = [];
-let shareSchulungId = null;
-let allAnfragen    = [];
+/* ============================================================
+   KONFIGURATION  –  hier kannst du ohne Code-Kenntnisse anpassen
+   ------------------------------------------------------------
+   1) TERMINE pflegst du in einem Google Sheet (siehe Spalten unten)
+      und trägst hier den "Im Web veröffentlichen"-CSV-Link ein.
+      Solange leer, werden die BEISPIEL-Termine unten gezeigt.
+   2) Das Anmeldeformular sendet an die Supabase-Funktion (fertig).
+   ============================================================ */
+const CONFIG = {
+  // Termine kommen live aus Supabase (Pflege im Dashboard, kein Deploy nötig)
+  TERMINE_ENDPOINT: "https://ayieotppxrjrzdpeofkx.supabase.co/rest/v1/schulungstermine?select=*&order=datum.asc",
+  ANMELDUNG_ENDPOINT: "https://ayieotppxrjrzdpeofkx.supabase.co/functions/v1/anmeldung",
+  SUPABASE_ANON: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5aWVvdHBweHJqcnpkcGVvZmt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTgwNzUsImV4cCI6MjA5NjY3NDA3NX0.3L9VJPGZq04LPxo9JV74fDPa696ObjqotjEZimHbykQ"
+};
+/* MODUS: "anfrage" = Schulungen nur anfragen (aktuell) · "buchung" = volles Buchungssystem
+   (Kalender, Termine, Zahlung, Bestätigungen). Zum Reaktivieren auf "buchung" stellen
+   und Termine in Supabase (Tabelle schulungstermine) eintragen. */
+const MODUS = "anfrage";
 
-// Oak Engineering fester Katalog (hardcoded, kein Admin-Upload nötig)
-const OAK_KATALOG = [
-  {
-    id: 'OAK-001',
-    titel: 'Fachliche Weiterbildung für Sicherheitsbeauftragte',
-    kategorie: 'Arbeitssicherheit',
-    beschreibung: 'Umfassende Weiterbildung für Sicherheitsbeauftragte gemäß DGUV Vorschrift 1 §20. Die Schulung vermittelt aktuelles Fachwissen zu Arbeitsschutzrecht, Gefährdungsbeurteilung, Unfallprävention sowie den Aufgaben und der Stellung des Sicherheitsbeauftragten im Betrieb.',
-    dauer: '1 Tag (8 UE)',
-    maxTn: 15,
-    preis_pp: null,
-    preis_gruppe: 1899,
-    preis_ab: 1,
-    format_optionen: ['online', 'vor-ort'],
-    zertifikat: 'ja',
-    rechtsgrundlage: 'DGUV Vorschrift 1 §20, ArbSchG §22',
-    zielgruppe: 'Sicherheitsbeauftragte, neu bestellte Sicherheitsbeauftragte, Führungskräfte',
-    intervall: 3,
-    inhalte: `• Rechtsgrundlagen: ArbSchG, DGUV Vorschrift 1, BetrVG
-• Aufgaben und Stellung des Sicherheitsbeauftragten
-• Gefährdungsbeurteilung – Methoden und Praxis
-• Unfallursachen erkennen und analysieren
-• Präventionsmaßnahmen entwickeln und umsetzen
-• Begehungen und Kontrollen wirksam durchführen
-• Kommunikation mit Arbeitgeber, Betriebsrat und DGUV
-• Praktische Übungen und Fallbeispiele
-• Aktuelle Änderungen im Arbeitsschutzrecht`,
-  }
+/* BEISPIEL-Termine (Fallback). Spalten = Google-Sheet-Spalten:
+   kurs_id, datum (JJJJ-MM-TT), enddatum, ort, format, status, hinweis  */
+const SAMPLE_TERMINE = [
+  {kurs_id:"iso14001", datum:"2026-10-20", enddatum:"2026-10-22", ort:"München",  format:"Präsenz",     status:"offen",   hinweis:""},
+  {kurs_id:"sibe",     datum:"2026-11-24", enddatum:"2026-11-25", ort:"Augsburg", format:"Präsenz",     status:"wenige",  hinweis:""},
+  {kurs_id:"kiboost",  datum:"2026-11-12", enddatum:"",           ort:"Online",   format:"Live-Online", status:"offen",   hinweis:""}
 ];
 
-function uid(p='X'){return p+Date.now()+Math.random().toString(36).slice(2,5);}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
-function fmt(iso){if(!iso)return'–';try{return new Date(iso).toLocaleDateString('de-DE');}catch{return iso;}}
-function fmtDT(iso){if(!iso)return'–';try{return new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch{return iso;}}
-let _tt;
-function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast on'+(type?' '+type:'');clearTimeout(_tt);_tt=setTimeout(()=>t.className='toast',3000);}
-function openM(id){document.getElementById(id)?.classList.add('on');}
-function closeM(id){document.getElementById(id)?.classList.remove('on');}
-function getApiKey(){return localStorage.getItem('ehs_api_key')||'';}
-async function claudeFetch(body){
-  const key=getApiKey();
-  if(!key){openUserMenu();throw new Error('Bitte API-Key hinterlegen');}
-  return fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify(body)});
-}
+/* ── Kurskatalog ────────────────────────────────────────────── */
+const KURSE = [
+  {id:"umwrecht-kompakt", bereich:"Umwelt", titel:"Umweltrecht kompakt: Haftung &amp; Compliance", typ:"Freiwillig", recht:"UGB / BImSchG / WHG", dauer:"1 Tag",
+   praxis:"Fallstudien: reale Urteile zum Organisationsverschulden, rechtssicheres Pflichtenübertragungs-System aufbauen.",
+   ziele:["Die wesentlichen umweltrechtlichen Pflichten überblicken","Haftungsrisiken erkennen und vermeiden","Verantwortlichkeiten rechtssicher übertragen"],
+   inhalte:["Überblick zentrale Umweltgesetze (BImSchG, WHG, KrWG, GefStoffV)","Betreiber- und Organisationspflichten","Haftung und Organisationsverschulden","Pflichtenübertragung und Beauftragtenwesen","Fallstudien zu realen Urteilen"],
+   zielgruppe:"Geschäftsführung, Werk-/Standortleitung, EHS- und Compliance-Verantwortliche.",
+   methodik:"1 Tag, Präsenz oder Inhouse; Vortrag und Fallarbeit.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-// ── Init ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  requireAuth(async (user, profile) => {
-    currentProfile = profile;
-    document.getElementById('app-root').style.display = 'flex';
-    updateUserUI();
-    applyRoleUI();
-    await loadAll();
-    switchView('schulungen');
-    checkURLShare();
-  });
-});
+  {id:"umwrecht-aufbau", bereich:"Umwelt", titel:"Umweltrecht – Aufbaukurs für EHS-Manager", typ:"Freiwillig", recht:"Aktuelle Rechtsprechung", dauer:"1–2 Tage",
+   praxis:"Strategie-Check: Genehmigungsmanagement bei Anlagenänderungen, Umgang mit Behörden, komplexe Haftungsfragen.",
+   ziele:["Komplexe Haftungs- und Genehmigungsfragen vertiefen","Aktuelle Rechtsprechung in die Praxis übersetzen","Genehmigungsmanagement strategisch steuern"],
+   inhalte:["Aktuelle Entwicklungen und Rechtsprechung","Genehmigungsmanagement bei Anlagenänderungen","Behördenkommunikation","Vertiefte Haftungsfragen","Strategie-Check anhand eigener Fälle"],
+   zielgruppe:"EHS-Manager, Umweltbeauftragte mit Vorkenntnissen, Führungskräfte.",
+   methodik:"1–2 Tage, Präsenz oder Inhouse; Aufbaukurs mit Diskussion und Fällen.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-function updateUserUI() {
-  const p = currentProfile;
-  document.getElementById('u-av').textContent = p?.kuerzel||p?.name?.slice(0,2).toUpperCase()||'?';
-  document.getElementById('u-name').textContent = p?.name||'–';
-  const r = document.getElementById('u-role'); if(r) r.textContent = p?.rolle==='admin'?'Administrator':'Mitarbeiter';
-  document.getElementById('top-uname').textContent = p?.name||'–';
-  const admin = p?.rolle==='admin';
-  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin?'':'none');
-  try { getOrgSettings().then(s=>{ if(s?.firmenname){const e=document.getElementById('sb-firm');if(e)e.textContent=s.firmenname;} }).catch(()=>{}); } catch(e) {}
-  const col = localStorage.getItem('sb_collapsed')==='1';
-  if(col){ document.getElementById('sidebar')?.classList.add('collapsed'); const ic=document.getElementById('sb-toggle-icon');if(ic)ic.innerHTML='<polyline points="4,2 7,5 4,8"/>'; }
-}
+  {id:"umw-basis", bereich:"Umwelt", titel:"Umweltschutz – Basiswissen für die Produktion", typ:"Freiwillig", recht:"Betriebsanweisungen", dauer:"0,5 Tage",
+   praxis:"Shopfloor-Sensibilisierung: Ressourceneffizienz am Arbeitsplatz, korrekte Trennung, Verhalten bei Leckagen.",
+   ziele:["Beschäftigte für Umweltthemen am Arbeitsplatz sensibilisieren","Abfalltrennung und Ressourceneffizienz verbessern","Richtig auf Leckagen und Störungen reagieren"],
+   inhalte:["Warum Umweltschutz im Betrieb zählt","Abfalltrennung und Wertstoffe","Ressourcen- und Energieeffizienz am Arbeitsplatz","Verhalten bei Leckagen und Stoffaustritt","Praxisbeispiele vom Shopfloor"],
+   zielgruppe:"Produktions- und Lagermitarbeitende, Teamleitungen.",
+   methodik:"0,5 Tage, Präsenz oder Inhouse; kurz, aktivierend, praxisnah.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-function toggleSidebar() {
-  const sb = document.getElementById('sidebar');
-  const ic = document.getElementById('sb-toggle-icon');
-  const col = sb.classList.toggle('collapsed');
-  localStorage.setItem('sb_collapsed', col ? '1' : '0');
-  if(ic) ic.innerHTML = col ? '<polyline points="4,2 7,5 4,8"/>' : '<polyline points="6,2 3,5 6,8"/>';
-}
+  {id:"iso14001", bereich:"Umwelt", titel:"Systematische Auditierung nach ISO 14001", typ:"Freiwillig", recht:"DIN EN ISO 14001", dauer:"2–3 Tage",
+   praxis:"Live-Audit: Probe-Audit durchführen, Umweltaspekte identifizieren, messbare Ziele (KPIs) ableiten.",
+   ziele:["Umweltmanagementsysteme nach ISO 14001 verstehen","Interne Audits planen und durchführen","Umweltaspekte bewerten und Ziele ableiten"],
+   inhalte:["Aufbau und Anforderungen der ISO 14001","Auditarten, Auditprogramm und -planung","Fragetechnik und Auditpsychologie","Bewertung von Umweltaspekten, Rechtskataster","Live-Audit mit KPI-Ableitung"],
+   zielgruppe:"Künftige interne Auditoren, Umweltmanagement-Beauftragte, QM-/EHS-Verantwortliche.",
+   methodik:"2–3 Tage, Präsenz oder Inhouse; Training mit realem Probe-Audit.",
+   abschluss:"Teilnahmebescheinigung als Nachweis interner Auditorenkompetenz."},
 
-function applyRoleUI() {
-  const admin = currentProfile?.rolle === 'admin';
-  document.querySelectorAll('.admin-only').forEach(el => el.style.display = admin ? '' : 'none');
-}
+  {id:"csrd", bereich:"Umwelt", titel:"CSRD-Reporting &amp; Nachhaltigkeitsmanagement", typ:"Freiwillig", recht:"EU-RL 2022/2464", dauer:"2 Tage",
+   praxis:"Berichts-Workshop: doppelte Wesentlichkeit bestimmen, Datenerhebung für den Nachhaltigkeitsbericht nach ESRS.",
+   ziele:["Die Anforderungen der CSRD und ESRS verstehen","Die doppelte Wesentlichkeit bestimmen","Datenerhebung und Berichtsaufbau strukturieren"],
+   inhalte:["CSRD und ESRS: Anwendungsbereich und Fristen","Doppelte Wesentlichkeit (Impact &amp; Financial)","Datenpunkte, Kennzahlen und Datenerhebung","Governance und Prüfungssicherheit","Berichts-Workshop mit Vorlagen"],
+   zielgruppe:"Nachhaltigkeits-/CSR-Verantwortliche, Controlling, Geschäftsleitung.",
+   methodik:"2 Tage, Präsenz oder Inhouse; Workshop mit Vorlagen.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-async function loadAll() {
-  try {
-    [allSchulungen, allProtokoll] = await Promise.all([schulungenGetAll(), protokolleGetAll()]);
-  } catch(e) { toast('Fehler beim Laden: ' + e.message, 'err'); }
-}
+  {id:"sibe", bereich:"Sicherheit", titel:"Fachliche Nähe für Sicherheitsbeauftragte (SiBe)", typ:"Pflicht", recht:"§ 22 SGB VII / DGUV V1", dauer:"2 Tage",
+   praxis:"Gefahren-Scouting: Begehung mit der „Sicherheits-Brille“, Kurz-Unterweisung moderieren, motivierende Gesprächsführung.",
+   ziele:["Die Rolle als Sicherheitsbeauftragte/r aktiv ausfüllen","Gefährdungen vor Ort erkennen und ansprechen","Kolleginnen und Kollegen motivierend einbinden"],
+   inhalte:["Auftrag, Stellung und Aufgaben nach § 22 SGB VII / DGUV V1","Zusammenarbeit mit SiFa, Betriebsarzt und Führung","Gefährdungen erkennen und melden","Kommunikation und Motivation","Gefahren-Scouting und Kurz-Unterweisung"],
+   zielgruppe:"Benannte und künftige Sicherheitsbeauftragte aller Branchen.",
+   methodik:"2 Tage, Präsenz oder Inhouse; viele Übungen und eine Begehung.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-function openUserMenu() {
-  const p = currentProfile;
-  document.getElementById('um-name').textContent = p?.name||'Mein Konto';
-  document.getElementById('um-rolle').textContent = (p?.rolle==='admin'?'👑 Administrator':'👤 Mitarbeiter')+(p?.kuerzel?' · '+p.kuerzel:'');
-  document.getElementById('um-api-key').value = getApiKey();
-  document.getElementById('um-api-status').textContent = '';
-  openM('m-usermenu');
-}
-function saveApiKeyUM(){const k=document.getElementById('um-api-key').value.trim();localStorage.setItem('ehs_api_key',k);document.getElementById('um-api-status').textContent=k?'✓ Gespeichert':'Gelöscht';toast('API-Key gespeichert ✓','ok');}
-async function doSignOut(){closeM('m-usermenu');await signOut();}
+  {id:"visionzero", bereich:"Sicherheit", titel:"Vision Zero: Aktive Gestaltung der Sicherheitskultur", typ:"Freiwillig", recht:"DGUV Strategie", dauer:"1–2 Tage",
+   praxis:"Kultur-Analyse: Arbeit mit der Bradley-Kurve, Workshop zur Fehler-Lern-Kultur, Safety-Incentives entwickeln.",
+   ziele:["Die Sicherheitskultur im Betrieb weiterentwickeln","Von reaktiver zu präventiver Kultur kommen","Wirksame Kultur-Maßnahmen gestalten"],
+   inhalte:["Vision Zero und die 7 Erfolgsfaktoren","Reifegrad der Sicherheitskultur (Bradley-Kurve)","Fehler-Lern-Kultur und Beinaheunfälle","Führung und Beteiligung","Kultur-Analyse und Safety-Incentives"],
+   zielgruppe:"Führungskräfte, SiFa, Sicherheitsbeauftragte, HSE-Verantwortliche.",
+   methodik:"1–2 Tage, Präsenz oder Inhouse; Workshop-Format.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-// ── View Switching ─────────────────────────────────────────
-function switchView(v) {
-  currentView = v;
-  ['schulungen','protokoll','buchung'].forEach(t => {
-    document.getElementById('view-'+t).style.display = t===v?'block':'none';
-    document.getElementById('vtab-'+t)?.classList.toggle('on', t===v);
-  });
-  if (v==='schulungen') renderSchulungList();
-  if (v==='protokoll')  renderProtokoll();
-  if (v==='buchung')    renderBuchungList();
-}
+  {id:"leadership", bereich:"Sicherheit", titel:"Leadership &amp; Safety: Fokus Führungskraft", typ:"Freiwillig", recht:"§ 13 ArbSchG / DGUV V1", dauer:"1 Tag",
+   praxis:"Delegations-Check: rechtssichere Pflichtenübertragungen erstellen, Rollenspiel zu wirksamen Toolbox Talks.",
+   ziele:["Führungsverantwortung im Arbeitsschutz wahrnehmen","Pflichten rechtssicher delegieren","Sicherheit im Team wirksam kommunizieren"],
+   inhalte:["Verantwortung und Haftung der Führungskraft","Rechtssichere Pflichtenübertragung","Vorbildwirkung und Sicherheitskommunikation","Toolbox Talks und Unterweisung","Delegations-Check und Rollenspiel"],
+   zielgruppe:"Führungskräfte, Meister, Teamleitungen, Projektleitende.",
+   methodik:"1 Tag, Präsenz oder Inhouse; Training mit Rollenspielen.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-// ── Schulungstyp Toggle ────────────────────────────────────
-function onTypChange() {
-  const typ = document.querySelector('input[name="schulung-typ"]:checked')?.value;
-  document.getElementById('felder-online').style.display  = typ==='online'  ? 'contents' : 'none';
-  document.getElementById('felder-praesenz').style.display = typ==='praesenz' ? 'contents' : 'none';
-  document.getElementById('pdf-block').style.display    = typ==='online'  ? 'block' : 'none';
-  document.getElementById('fragen-block').style.display = typ==='online'  ? 'block' : 'none';
-  // Typ-Label highlighten
-  document.getElementById('typ-online-label').style.borderColor  = typ==='online'  ? '#1a1a1a' : 'var(--border)';
-  document.getElementById('typ-praesenz-label').style.borderColor = typ==='praesenz' ? '#1a1a1a' : 'var(--border)';
-}
+  {id:"ehs40", bereich:"Digital &amp; KI", titel:"EHS 4.0: Die digitale Transformation im Betrieb", typ:"Zukunft", recht:"Strategisches Management", dauer:"1 Tag",
+   praxis:"Tool-Check: Softwarelösungen zur automatisierten Überwachung von Fristen, Auflagen und Katastern auswählen.",
+   ziele:["Digitalisierungspotenziale im EHS erkennen","Passende Softwarelösungen auswählen","Eine Digitalisierungs-Roadmap entwickeln"],
+   inhalte:["Status quo und Reifegrad der EHS-Digitalisierung","Fristen, Auflagen und Kataster digital führen","Auswahl und Einführung von Tools","Datenqualität und Schnittstellen","Tool-Check und Roadmap"],
+   zielgruppe:"EHS-Manager, Digitalisierungsverantwortliche, Geschäftsleitung.",
+   methodik:"1 Tag, Präsenz oder Online; Impuls und Roadmap-Arbeit.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
 
-// ═══════════════════════════════════════════════════════════
-// SCHULUNGEN LISTE
-// ═══════════════════════════════════════════════════════════
-function renderSchulungList() {
-  const el = document.getElementById('schulung-list');
-  document.getElementById('schulung-sub').textContent = allSchulungen.length + ' Schulung(en)';
-  if (!allSchulungen.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-i">📚</div><p style="margin-bottom:14px">Noch keine Schulungen angelegt.</p>
-      ${currentProfile?.rolle==='admin'?'<button class="btn btn-p" onclick="openNewSchulungModal()">+ Erste Unterweisung anlegen</button>':''}</div>`;
-    return;
+  {id:"kiboost", bereich:"Digital &amp; KI", titel:"KI-Boost für den Arbeitsschutz: LLMs &amp; Automation", typ:"Zukunft", recht:"Technologie-Trends", dauer:"1 Tag",
+   praxis:"Prompt-Engineering: KI-gestützt Unterweisungs-Folien und Gefährdungsbeurteilungen in Sekunden statt Stunden erstellen.",
+   ziele:["Den Nutzen von KI/LLMs im Arbeitsschutz verstehen","KI rechtssicher und sinnvoll einsetzen","Routineaufgaben mit KI beschleunigen"],
+   inhalte:["Wie LLMs funktionieren und wo sie helfen","Anwendungsfälle: Unterweisungen, GBU, Recherche","Grundlagen Prompt-Engineering","Datenschutz und Grenzen der KI","Hands-on am eigenen Use-Case"],
+   zielgruppe:"EHS-Fachkräfte, SiFa, alle mit Interesse an KI im Arbeitsschutz.",
+   methodik:"1 Tag, Präsenz oder Online; Hands-on.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."},
+
+  {id:"agentic", bereich:"Digital &amp; KI", titel:"Agentic Coding: KI-Agenten für EHS-Datenanalysen", typ:"Zukunft", recht:"Python / AI Agents", dauer:"2 Tage",
+   praxis:"Agent-Building: einen Agenten bauen, der autonom Messdaten visualisiert oder Gesetzestexte auf Änderungen scannt.",
+   ziele:["KI-Agenten für EHS-Datenanalysen verstehen und bauen","Wiederkehrende Auswertungen automatisieren","Erste eigene Agenten produktiv einsetzen"],
+   inhalte:["Grundlagen Agentic Coding und Tooling","Datenanbindung und sichere Verarbeitung","Aufbau eines Agenten Schritt für Schritt","Auswertung, Visualisierung, Monitoring","Agent-Building am eigenen Beispiel"],
+   zielgruppe:"Technisch interessierte EHS-Fachleute, Data-affine Anwender.",
+   methodik:"2 Tage, Präsenz oder Online; Workshop mit eigenem Agenten.",
+   abschluss:"Teilnahmebescheinigung von OAK engineering."}
+];
+
+/* ── Rendering ──────────────────────────────────────────────── */
+const $ = s => document.querySelector(s);
+const typClass = t => t==="Pflicht"?"t-pflicht":t==="Zukunft"?"t-zukunft":"t-frei";
+const esc = s => String(s==null?"":s);
+let TERMINE = [];
+
+function li(arr){ return arr.map(x=>`<li>${x}</li>`).join(""); }
+
+function ctaButtons(id){
+  if(MODUS==="buchung"){
+    return `<button class="btn btn-primary" data-anmelden="${id}">Anmelden →</button>`
+      + ` <button class="btn btn-ghost" data-inhouse="${id}">Inhouse anfragen</button>`
+      + ` <button class="btn btn-ghost" data-individuell="${id}">Individuell anfragen</button>`
+      + ` <button class="btn btn-ghost" data-flyer="${id}">Flyer (PDF)</button>`;
   }
-  const admin = currentProfile?.rolle === 'admin';
-  el.innerHTML = allSchulungen.map(s => {
-    const typ = s.typ || 'online';
-    const isPraesenz = typ === 'praesenz';
-    const protos = allProtokoll.filter(p => p.schulung_id === s.id);
-    const best = protos.filter(p => p.bestanden).length;
-    const overdue = s.gueltigBis && new Date(s.gueltigBis) < new Date();
-    const catColors = {Brandschutz:'#c0392b',Gefahrstoffe:'#e67e22','Arbeitssicherheit':'#2d6a2d','Erste Hilfe':'#2980b9',Sonstiges:'#555'};
-    const cc = catColors[s.kategorie]||'#555';
-    const typBadge = isPraesenz
-      ? `<span class="badge b-info">📍 Präsenz</span>`
-      : `<span class="badge b-info">🖥 Online</span>`;
-    return `<div class="schulung-card">
-      <div class="schulung-card-body">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div style="min-width:0;flex:1">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
-              <span style="font-size:15px;font-weight:600">${esc(s.titel)}</span>
-              <span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${cc}20;color:${cc};border:1px solid ${cc}40">${esc(s.kategorie)}</span>
-              ${typBadge}
-              ${s.pflicht==='ja'?'<span class="badge b-nok">Pflicht</span>':''}
-              ${overdue?'<span class="badge b-warn">⏰ Abgelaufen</span>':''}
-            </div>
-            ${s.beschreibung?`<div class="ts" style="margin-bottom:6px">${esc(s.beschreibung.slice(0,100))}${s.beschreibung.length>100?'…':''}</div>`:''}
-            <div style="display:flex;gap:14px;flex-wrap:wrap" class="ts">
-              ${isPraesenz
-                ? `<span>📅 ${fmt(s.datum)}${s.von?' · '+s.von:''} ${s.bis?'– '+s.bis:''} Uhr</span>
-                   ${s.raum?`<span>📍 ${esc(s.raum)}</span>`:''}
-                   ${s.referent?`<span>👤 ${esc(s.referent)}</span>`:''}`
-                : `<span>📝 ${s.fragen?.length||0} Fragen · Bestehen: ${s.bestehensgrenze||80}%</span>
-                   ${s.plattform?`<span>🖥 ${esc(s.plattform)}</span>`:''}
-                   ${s.gueltigBis?`<span>📅 Gültig bis: ${fmt(s.gueltigBis)}</span>`:''}`}
-              <span>👥 ${protos.length} Durchführungen${protos.length?' · '+best+' bestanden':''}</span>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0">
-            ${isPraesenz
-              ? `<button class="btn btn-ok btn-sm" onclick="openAnmeldungModal('${s.id}')">✓ Anmelden</button>`
-              : `<button class="btn btn-p btn-sm" onclick="startSchulungPlayer('${s.id}')">▶ Starten</button>`}
-            <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">
-              <button class="btn btn-o btn-sm" onclick="openShareModal('${s.id}')" title="Teilen">📤 Teilen</button>
-              ${isPraesenz&&admin?`<button class="btn btn-o btn-sm" onclick="openTeilnehmerModal('${s.id}')">👥</button>`:''}
-              ${admin?`<button class="btn btn-o btn-sm" onclick="editSchulung('${s.id}')">✏</button>
-              <button class="btn btn-d btn-sm" onclick="deleteSchulung('${s.id}')">🗑</button>`:''}
-            </div>
-          </div>
-        </div>
-        ${isPraesenz?`<div style="margin-top:10px">
-          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-bottom:3px">
-            <span>Anmeldungen</span><span>${protos.length}/${s.maxTn||20}</span>
-          </div>
-          <div class="prog-wrap" style="margin:0">
-            <div class="prog-fill ok" style="width:${Math.min(100,Math.round(protos.length/(s.maxTn||20)*100))}%"></div>
-          </div>
-        </div>`:''}
-      </div>
+  return `<button class="btn btn-primary" data-anfrage="${id}">Diese Schulung anfragen →</button>`
+    + ` <button class="btn btn-ghost" data-flyer="${id}">Flyer (PDF)</button>`;
+}
+
+function renderKurse(){
+  $("#kursList").innerHTML = KURSE.map(k=>`
+    <div class="acc-item" data-bereich="${k.bereich}" data-id="${k.id}">
+      <button class="acc-head" type="button">
+        <span class="kurs-title">${k.titel}</span>
+        <span class="acc-ico">+</span>
+      </button>
+      <div class="acc-body"><div class="acc-body-inner">
+        <div class="kurs-grid"><span class="kurs-chip">${k.recht}</span><span class="kurs-chip">${k.dauer}</span><span class="kurs-chip">${k.bereich}</span></div>
+        <p>${k.praxis}</p>
+        <div class="kurs-sec"><h4>Ziele</h4><ul>${li(k.ziele)}</ul></div>
+        <div class="kurs-sec"><h4>Inhalte</h4><ul>${li(k.inhalte)}</ul></div>
+        <div class="kurs-sec"><h4>Methodik</h4><p>${k.methodik}</p></div>
+        <div class="kurs-foot"><span><b>Zielgruppe:</b> ${k.zielgruppe}</span><span><b>Abschluss:</b> ${k.abschluss}</span></div>
+        <div class="kurs-cta">${ctaButtons(k.id)}</div>
+      </div></div>
+    </div>`).join("");
+}
+
+function fmtDate(d){
+  const p = d.split("-"); if(p.length<3) return d;
+  const m = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  return {tag:p[2], mon:m[parseInt(p[1])-1]||"", jahr:p[0]};
+}
+function terminLabel(t){
+  const k = KURSE.find(k=>k.id===t.kurs_id);
+  const d1 = fmtDate(t.datum);
+  let date = `${d1.tag}. ${d1.mon} ${d1.jahr}`;
+  if(t.enddatum){ const d2=fmtDate(t.enddatum); date = `${d1.tag}.–${d2.tag}. ${d2.mon} ${d2.jahr}`; }
+  return {kursTitel: k?k.titel:t.kurs_id, date, t};
+}
+// Verfügbarkeit dynamisch aus Plätzen & Belegung (Fallback: manuelles status-Feld)
+function statusInfo(t){
+  const p = (t.plaetze==null) ? null : (+t.plaetze);
+  const bel = (+t.belegt)||0;
+  const manual = (t.status||"").toLowerCase();
+  if(manual.includes("ausgebucht") || (p!=null && bel>=p)) return {cls:"s-ausgebucht", txt:"Ausgebucht", full:true};
+  if(manual.includes("warte")) return {cls:"s-warteliste", txt:"Warteliste", full:false};
+  const frei = (p!=null) ? (p-bel) : null;
+  if(frei!=null && frei<=3) return {cls:"s-wenige", txt:"Nur noch "+frei+" Plätze", full:false};
+  return {cls:"s-offen", txt:"Plätze frei", full:false};
+}
+
+function renderTermine(filter){
+  const wrap = $("#terminList");
+  let list = TERMINE.slice().filter(t=>t.datum).sort((a,b)=>a.datum.localeCompare(b.datum));
+  if(filter && filter!=="alle"){ list = list.filter(t=>{ const k=KURSE.find(k=>k.id===t.kurs_id); return k && k.bereich===filter; }); }
+  if(!list.length){ wrap.innerHTML = '<div class="cal-empty">Für diesen Bereich sind aktuell keine offenen Termine veröffentlicht – fragen Sie gern eine Inhouse-Schulung an.</div>'; return; }
+  wrap.innerHTML = list.map(t=>{
+    const L = terminLabel(t); const d = fmtDate(t.datum);
+    const si = statusInfo(t);
+    return `<div class="termin">
+      <div class="t-date">${d.tag}<small>${d.mon}</small></div>
+      <div class="t-main"><b>${L.kursTitel}</b><span>${L.date} · ${esc(t.ort)} · ${esc(t.format)}${t.hinweis?" · "+esc(t.hinweis):""}</span></div>
+      <span class="t-status ${si.cls}">${si.txt}</span>
+      <button class="t-go" data-termin='${JSON.stringify({kurs_id:t.kurs_id,label:L.date+" · "+esc(t.ort),format:t.format})}' ${si.full?"disabled":""}>${si.full?"Ausgebucht":"Anmelden"}</button>
     </div>`;
-  }).join('');
+  }).join("");
 }
 
-// ═══════════════════════════════════════════════════════════
-// SCHULUNG ANLEGEN / BEARBEITEN
-// ═══════════════════════════════════════════════════════════
-function openNewSchulungModal() {
-  document.getElementById('edit-schulung-id').value = '';
-  document.getElementById('m-schulung-title').textContent = 'Unterweisung anlegen';
-  // Reset
-  ['s-titel','s-beschreibung','s-plattform','s-raum','s-referent','s-kontakt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('s-kategorie').value = 'Brandschutz';
-  document.getElementById('s-gueltig').value = '';
-  document.getElementById('s-intervall').value = '12';
-  document.getElementById('s-bestehen').value = '80';
-  document.getElementById('s-pflicht').value = 'ja';
-  document.getElementById('s-datum').value = '';
-  document.getElementById('s-von').value = '09:00';
-  document.getElementById('s-bis').value = '11:00';
-  document.getElementById('s-maxtn').value = '20';
-  document.getElementById('s-frist').value = '';
-  document.getElementById('s-dok-info').textContent = 'Noch keine Datei hochgeladen';
-  document.getElementById('btn-ki-fragen').style.display = 'none';
-  document.getElementById('ki-fragen-status').style.display = 'none';
-  // Typ auf Online
-  document.getElementById('typ-online').checked = true;
-  pendingPDF = null; fragenDraft = [];
-  onTypChange();
-  renderFragenEditor();
-  openM('m-schulung');
-  setTimeout(()=>document.getElementById('s-titel')?.focus(), 120);
-}
-
-function editSchulung(id) {
-  const s = allSchulungen.find(x=>x.id===id); if (!s) return;
-  document.getElementById('edit-schulung-id').value = id;
-  document.getElementById('m-schulung-title').textContent = 'Unterweisung bearbeiten';
-  const set = (elId,val) => { const el=document.getElementById(elId); if(el&&val!=null) el.value=val; };
-  set('s-titel', s.titel); set('s-kategorie', s.kategorie||'Sonstiges');
-  set('s-beschreibung', s.beschreibung); set('s-pflicht', s.pflicht||'ja');
-  // Typ setzen
-  const typ = s.typ || 'online';
-  document.getElementById('typ-'+typ).checked = true;
-  onTypChange();
-  if (typ === 'online') {
-    set('s-plattform', s.plattform); set('s-gueltig', s.gueltigBis);
-    set('s-intervall', s.intervall); set('s-bestehen', s.bestehensgrenze||80);
-    document.getElementById('s-dok-info').textContent = s.pdf_name||'Keine Datei';
-    document.getElementById('btn-ki-fragen').style.display = s.pdf_datei?'inline-flex':'none';
-    pendingPDF = s.pdf_datei?{dataUrl:s.pdf_datei,name:s.pdf_name}:null;
-    fragenDraft = JSON.parse(JSON.stringify(s.fragen||[]));
-    renderFragenEditor();
-  } else {
-    set('s-datum', s.datum); set('s-von', s.von||'09:00'); set('s-bis', s.bis||'11:00');
-    set('s-raum', s.raum); set('s-referent', s.referent);
-    set('s-maxtn', s.maxTn||20); set('s-frist', s.anmeldefrist); set('s-kontakt', s.kontakt);
+/* CSV-Parser (einfach, für Google-Sheet-Export) */
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", q=false;
+  for(let i=0;i<text.length;i++){ const c=text[i];
+    if(q){ if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=c; }
+    else { if(c==='"') q=true; else if(c===","){row.push(cur);cur="";} else if(c==="\n"){row.push(cur);rows.push(row);row=[];cur="";} else if(c!=="\r") cur+=c; }
   }
-  openM('m-schulung');
+  if(cur!==""||row.length){ row.push(cur); rows.push(row); }
+  if(!rows.length) return [];
+  const hdr = rows[0].map(h=>h.trim().toLowerCase());
+  return rows.slice(1).filter(r=>r.some(c=>c.trim()!=="")).map(r=>{ const o={}; hdr.forEach((h,i)=>o[h]=(r[i]||"").trim()); return o; });
 }
 
-async function saveSchulungModal() {
-  const titel = document.getElementById('s-titel').value.trim();
-  if (!titel) { toast('Titel erforderlich','err'); return; }
-  const typ = document.querySelector('input[name="schulung-typ"]:checked')?.value || 'online';
-  if (typ==='online' && !fragenDraft.length) { toast('Mindestens eine Frage erforderlich','err'); return; }
-  const sp = document.getElementById('save-schulung-spinner');
-  sp.style.display = 'inline-block';
-  const editId = document.getElementById('edit-schulung-id').value;
-  const prev = editId ? allSchulungen.find(x=>x.id===editId) : null;
-  const s = {
-    id: prev?.id || uid('SCH'), titel, typ,
-    kategorie:   document.getElementById('s-kategorie').value,
-    beschreibung:document.getElementById('s-beschreibung').value.trim(),
-    pflicht:     document.getElementById('s-pflicht').value,
-    createdAt:   prev?.createdAt || new Date().toISOString(),
-  };
-  if (typ === 'online') {
-    Object.assign(s, {
-      plattform:      document.getElementById('s-plattform').value.trim(),
-      gueltigBis:     document.getElementById('s-gueltig').value,
-      intervall:      document.getElementById('s-intervall').value,
-      bestehensgrenze:parseInt(document.getElementById('s-bestehen').value)||80,
-      fragen:         fragenDraft,
-      pdf_datei:      pendingPDF?.dataUrl||prev?.pdf_datei||null,
-      pdf_name:       pendingPDF?.name||prev?.pdf_name||null,
-    });
-  } else {
-    Object.assign(s, {
-      datum:        document.getElementById('s-datum').value,
-      von:          document.getElementById('s-von').value,
-      bis:          document.getElementById('s-bis').value,
-      raum:         document.getElementById('s-raum').value.trim(),
-      referent:     document.getElementById('s-referent').value.trim(),
-      maxTn:        parseInt(document.getElementById('s-maxtn').value)||20,
-      anmeldefrist: document.getElementById('s-frist').value,
-      kontakt:      document.getElementById('s-kontakt').value.trim(),
-    });
-  }
-  try {
-    await schulungSave(s);
-    allSchulungen = await schulungenGetAll();
-    closeM('m-schulung'); renderSchulungList();
-    toast('Schulung gespeichert ✓','ok');
-  } catch(e) { toast('Fehler: '+e.message,'err'); }
-  finally { sp.style.display='none'; }
-}
-
-async function deleteSchulung(id) {
-  if (!confirm('Schulung und alle Protokolle löschen?')) return;
-  try {
-    await schulungDelete(id);
-    allSchulungen = await schulungenGetAll();
-    allProtokoll  = await protokolleGetAll();
-    renderSchulungList(); toast('Schulung gelöscht');
-  } catch(e) { toast('Fehler: '+e.message,'err'); }
-}
-
-// ── PDF & KI-Fragen ───────────────────────────────────────
-function uploadSchulungPDF(e) {
-  const file = e.target.files[0]; if (!file) return;
-  if (file.size>15*1024*1024) { toast('Max. 15 MB','err'); return; }
-  const r = new FileReader();
-  r.onload = ev => {
-    pendingPDF = {dataUrl:ev.target.result, name:file.name};
-    document.getElementById('s-dok-info').innerHTML = `<span style="color:var(--ok)">✓ ${esc(file.name)}</span>`;
-    document.getElementById('btn-ki-fragen').style.display = 'inline-flex';
-    toast(file.name+' bereit ✓','ok');
-  };
-  r.readAsDataURL(file); e.target.value='';
-}
-
-async function generateKIFragen() {
-  if (!pendingPDF?.dataUrl) { toast('Bitte zuerst PDF hochladen','err'); return; }
-  const st = document.getElementById('ki-fragen-status');
-  st.style.display='block';
-  st.innerHTML='<div style="display:flex;align-items:center;gap:8px"><span class="spinner"></span><span>KI generiert Fragen… (20–40 Sek.)</span></div>';
-  const titel = document.getElementById('s-titel').value||'Schulung';
-  const prompt = `Du bist EHS-Schulungsexperte. Lies das Dokument und generiere 5 Multiple-Choice-Fragen (4 Optionen, 1 richtige).\nSCHULUNG: ${titel}\nAntworte NUR mit JSON-Array:\n[{"frage":"...","optionen":[{"text":"...","richtig":false},{"text":"...","richtig":true},{"text":"...","richtig":false},{"text":"...","richtig":false}],"erklaerung":"..."}]`;
-  try {
-    const res = await claudeFetch({model:'claude-sonnet-4-20250514',max_tokens:3000,messages:[{role:'user',content:[
-      {type:'document',source:{type:'base64',media_type:'application/pdf',data:pendingPDF.dataUrl.split(',')[1]}},
-      {type:'text',text:prompt}
-    ]}]});
+async function loadTermine(){
+  const note = $("#calNote");
+  try{
+    const res = await fetch(CONFIG.TERMINE_ENDPOINT, {headers:{apikey:CONFIG.SUPABASE_ANON, Authorization:"Bearer "+CONFIG.SUPABASE_ANON}, cache:"no-store"});
+    if(!res.ok) throw new Error(res.status);
     const data = await res.json();
-    if (!res.ok) { st.innerHTML=`<span style="color:var(--nok)">Fehler: ${data.error?.message||'API'}</span>`; return; }
-    const text = (data.content||[]).map(b=>b.text||'').join('');
-    let parsed; try{parsed=JSON.parse(text.replace(/```json|```/g,'').trim());}catch(e){const m=text.match(/\[[\s\S]*\]/);if(m)try{parsed=JSON.parse(m[0]);}catch(e2){}}
-    if (!Array.isArray(parsed)||!parsed.length) { st.innerHTML='<span style="color:var(--nok)">Konnte Fragen nicht verarbeiten.</span>'; return; }
-    parsed.forEach(q=>fragenDraft.push({id:uid('Q'),frage:q.frage||'',optionen:(q.optionen||[]).map(o=>({text:o.text||'',richtig:!!o.richtig})),erklaerung:q.erklaerung||''}));
-    renderFragenEditor();
-    st.innerHTML=`<span style="color:var(--ok)">✓ ${parsed.length} Fragen generiert. Bitte prüfen.</span>`;
-    toast(parsed.length+' KI-Fragen generiert ✓','ok');
-  } catch(e) { st.innerHTML=`<span style="color:var(--nok)">Fehler: ${e.message}</span>`; }
-}
-
-// ── Fragen-Editor ──────────────────────────────────────────
-function renderFragenEditor() {
-  const el = document.getElementById('fragen-editor');
-  if (!fragenDraft.length) { el.innerHTML='<div class="ts" style="text-align:center;padding:12px">Keine Fragen. Manuell anlegen oder KI nutzen.</div>'; return; }
-  el.innerHTML = fragenDraft.map((f,fi)=>`
-    <div class="frage-item" id="frage-block-${fi}">
-      <div class="frage-hd">
-        <span style="font-size:12px;font-weight:600;color:var(--t2)">Frage ${fi+1}</span>
-        <div style="display:flex;gap:4px;margin-left:auto">
-          ${fi>0?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},-1)" style="padding:3px 7px">↑</button>`:''}
-          ${fi<fragenDraft.length-1?`<button class="btn btn-o btn-sm" onclick="moveFrage(${fi},1)" style="padding:3px 7px">↓</button>`:''}
-          <button class="btn btn-d btn-sm" onclick="removeFrage(${fi})" style="padding:3px 7px">🗑</button>
-        </div>
-      </div>
-      <div style="padding:10px 14px">
-        <div style="margin-bottom:8px"><label>Frage *</label>
-          <textarea rows="2" style="font-size:13px" onchange="fragenDraft[${fi}].frage=this.value">${esc(f.frage)}</textarea></div>
-        <div style="margin-bottom:6px"><label>Antwortoptionen (● = richtige Antwort)</label></div>
-        ${f.optionen.map((o,oi)=>`<div class="opt-row">
-          <input type="radio" name="richtig-${fi}" ${o.richtig?'checked':''} onchange="setRichtig(${fi},${oi})" style="width:auto;accent-color:#1a1a1a">
-          <input type="text" value="${esc(o.text)}" placeholder="Antwort ${oi+1}" style="font-size:13px;padding:7px 10px" onchange="fragenDraft[${fi}].optionen[${oi}].text=this.value">
-          ${f.optionen.length>2?`<button class="btn btn-d btn-sm" onclick="removeOption(${fi},${oi})" style="padding:3px 7px">✕</button>`:''}
-        </div>`).join('')}
-        ${f.optionen.length<6?`<button class="btn btn-o btn-sm" onclick="addOption(${fi})" style="margin-top:4px">+ Option</button>`:''}
-        <div style="margin-top:8px"><label>Erklärung (nach Antwort)</label>
-          <input type="text" value="${esc(f.erklaerung||'')}" placeholder="Warum ist diese Antwort richtig?" style="font-size:13px;padding:7px 10px" onchange="fragenDraft[${fi}].erklaerung=this.value"></div>
-      </div>
-    </div>`).join('');
-}
-function addFrage(){fragenDraft.push({id:uid('Q'),frage:'',optionen:[{text:'',richtig:true},{text:'',richtig:false},{text:'',richtig:false},{text:'',richtig:false}],erklaerung:''});renderFragenEditor();setTimeout(()=>{const el=document.getElementById('frage-block-'+(fragenDraft.length-1));if(el)el.scrollIntoView({behavior:'smooth'});},100);}
-function removeFrage(fi){fragenDraft.splice(fi,1);renderFragenEditor();}
-function moveFrage(fi,dir){const t=fi+dir;if(t<0||t>=fragenDraft.length)return;const tmp=fragenDraft[fi];fragenDraft[fi]=fragenDraft[t];fragenDraft[t]=tmp;renderFragenEditor();}
-function setRichtig(fi,oi){fragenDraft[fi].optionen.forEach((o,i)=>o.richtig=i===oi);renderFragenEditor();}
-function addOption(fi){fragenDraft[fi].optionen.push({text:'',richtig:false});renderFragenEditor();}
-function removeOption(fi,oi){if(fragenDraft[fi].optionen.length<=2)return;const wasR=fragenDraft[fi].optionen[oi].richtig;fragenDraft[fi].optionen.splice(oi,1);if(wasR&&fragenDraft[fi].optionen.length>0)fragenDraft[fi].optionen[0].richtig=true;renderFragenEditor();}
-
-// ═══════════════════════════════════════════════════════════
-// PLAYER (Online-Schulungen)
-// ═══════════════════════════════════════════════════════════
-let player={schulung:null,slide:0,antworten:{},answered:{}};
-
-function startSchulungPlayer(id) {
-  const s = allSchulungen.find(x=>x.id===id); if(!s)return;
-  if(!DB.activeUser&&!currentProfile){toast('Bitte zuerst anmelden','err');return;}
-  player={schulung:s,slide:0,antworten:{},answered:{}};
-  document.getElementById('player-titel').textContent=s.titel;
-  document.getElementById('player-sub').textContent=s.kategorie+' · '+s.fragen.length+' Fragen';
-  updatePlayerProgress();renderPlayerSlide();openM('m-player');
-}
-
-function getTotalSlides(){return(player.schulung?.fragen?.length||0)+2;}
-
-function updatePlayerProgress(){
-  const total=getTotalSlides(),pct=Math.round(player.slide/Math.max(total-1,1)*100);
-  document.getElementById('player-prog-fill').style.width=pct+'%';
-  document.getElementById('player-prog-text').textContent=(player.slide+1)+' / '+total;
-}
-
-function renderPlayerSlide(){
-  const s=player.schulung,total=getTotalSlides();
-  const pc=document.getElementById('player-content');
-  const backBtn=document.getElementById('player-back-btn');
-  const nextBtn=document.getElementById('player-next-btn');
-  const navInfo=document.getElementById('player-nav-info');
-  backBtn.style.display=player.slide>0?'inline-flex':'none';
-  updatePlayerProgress();
-  if(player.slide===0){
-    nextBtn.textContent='Schulung starten →';navInfo.textContent='';
-    pc.innerHTML=`<div style="max-width:560px;margin:0 auto;text-align:center;padding:20px 0">
-      <div style="font-size:52px;margin-bottom:16px">📚</div>
-      <h1 style="font-family:var(--fh);font-size:24px;font-weight:700;margin-bottom:10px">${esc(s.titel)}</h1>
-      ${s.beschreibung?`<p style="color:var(--t2);font-size:14px;line-height:1.6;margin-bottom:16px">${esc(s.beschreibung)}</p>`:''}
-      <div style="background:var(--s2);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left;font-size:13px;display:flex;flex-direction:column;gap:8px">
-        <div>📝 <strong>${s.fragen.length}</strong> Fragen · Bestehen: <strong>${s.bestehensgrenze||80}%</strong></div>
-        ${s.plattform?`<div>🖥 Plattform: <strong>${esc(s.plattform)}</strong></div>`:''}
-        ${s.pdf_datei?`<div>📄 Unterweisung verfügbar <button class="btn btn-o btn-sm" style="margin-left:8px" onclick="openSchulungPDF()">📖 Lesen</button></div>`:''}
-      </div>
-      <p style="font-size:13px;color:var(--t2)">Eingeloggt als: <strong>${esc(currentProfile?.name||'–')}</strong></p>
-    </div>`;return;
+    TERMINE = (Array.isArray(data)?data:[]).map(t=>({kurs_id:t.kurs_id, datum:t.datum||"", enddatum:t.enddatum||"", ort:t.ort||"", format:t.format||"", status:t.status||"offen", hinweis:t.hinweis||"", plaetze:t.plaetze, belegt:t.belegt, min_tn:t.min_tn}));
+    note.textContent = TERMINE.length
+      ? "Offene Termine – Inhouse-Schulungen jederzeit auf Anfrage. Kein passender Termin dabei? Fragen Sie einfach einen Wunschtermin an."
+      : "Aktuell sind keine offenen Termine veröffentlicht – Inhouse-Schulungen jederzeit auf Anfrage.";
+  }catch(e){
+    TERMINE = SAMPLE_TERMINE;
+    note.innerHTML = "<b>Beispieltermine</b> – der Terminkalender ist gerade nicht erreichbar.";
   }
-  if(player.slide===total-1){
-    const fragen=s.fragen;
-    const richtig=fragen.filter(f=>player.antworten[f.id]!=null&&f.optionen[player.antworten[f.id]]?.richtig).length;
-    const pct=Math.round(richtig/fragen.length*100);
-    const bestanden=pct>=(s.bestehensgrenze||80);
-    nextBtn.textContent=bestanden?'✓ Abschließen & speichern':'↺ Nochmals versuchen';
-    nextBtn.className='btn '+(bestanden?'btn-ok':'btn-p');
-    navInfo.textContent='';backBtn.style.display='none';
-    pc.innerHTML=`<div style="max-width:520px;margin:0 auto;text-align:center;padding:20px 0">
-      <div style="font-size:56px;margin-bottom:12px">${bestanden?'🎉':'❌'}</div>
-      <h2 style="font-family:var(--fh);font-size:26px;font-weight:700;margin-bottom:6px">${bestanden?'Bestanden!':'Nicht bestanden'}</h2>
-      <div style="font-size:44px;font-weight:800;color:${bestanden?'var(--ok)':'var(--nok)'};margin-bottom:6px">${pct}%</div>
-      <p style="color:var(--t2);margin-bottom:20px">${richtig} von ${fragen.length} richtig · Minimum: ${s.bestehensgrenze||80}%</p>
-      <div style="background:var(--s2);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left">
-        ${fragen.map(f=>{const ai=player.antworten[f.id];const r=ai!=null&&f.optionen[ai]?.richtig;return`<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="font-size:15px;flex-shrink:0">${r?'✓':'✗'}</span><div><div style="font-size:13px;font-weight:500;color:${r?'var(--ok)':'var(--nok)'}">${esc(f.frage)}</div>${ai!=null?`<div class="ts">Antwort: ${esc(f.optionen[ai]?.text||'–')}</div>`:'<div class="ts" style="color:var(--nok)">Nicht beantwortet</div>'}${!r&&f.erklaerung?`<div class="ts">💡 ${esc(f.erklaerung)}</div>`:''}</div></div>`;}).join('')}
-      </div>
-    </div>`;return;
-  }
-  const fi=player.slide-1,f=s.fragen[fi];if(!f)return;
-  const answered=player.answered[f.id],selectedIdx=player.antworten[f.id]??null;
-  navInfo.textContent='Frage '+(fi+1)+' von '+s.fragen.length;
-  nextBtn.textContent=answered?'Weiter →':'Überspringen';
-  nextBtn.className='btn '+(answered?'btn-p':'btn-o');
-  pc.innerHTML=`<div style="max-width:640px;margin:0 auto">
-    <div style="font-size:11px;color:var(--t2);font-family:var(--fm);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em">Frage ${fi+1} / ${s.fragen.length}</div>
-    <h2 style="font-size:18px;font-weight:600;line-height:1.5;margin-bottom:20px">${esc(f.frage)}</h2>
-    ${f.optionen.map((o,oi)=>{let cls='quiz-option';if(answered){cls+=' disabled';if(o.richtig)cls+=' correct';else if(oi===selectedIdx&&!o.richtig)cls+=' wrong';}else if(oi===selectedIdx)cls+=' selected';return`<button class="${cls}" onclick="${answered?'':'selectAntwort(\''+f.id+'\','+oi+')'}"><span style="width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${['A','B','C','D','E','F'][oi]}</span>${esc(o.text)}</button>`;}).join('')}
-    ${answered&&f.erklaerung?`<div class="quiz-feedback ${f.optionen[selectedIdx]?.richtig?'ok':'nok'}">💡 ${esc(f.erklaerung)}</div>`:''}
-    ${answered?`<div style="margin-top:14px;text-align:right"><button class="btn btn-p" onclick="playerNext()">Weiter →</button></div>`:''}
-  </div>`;
+  renderTermine(currentFilter);
+  buildTerminSelect();
 }
 
-function selectAntwort(fid,idx){player.antworten[fid]=idx;player.answered[fid]=true;renderPlayerSlide();}
-function openSchulungPDF(){const s=player.schulung;if(!s?.pdf_datei)return;const w=window.open();w.document.write('<iframe src="'+s.pdf_datei+'" style="width:100%;height:100vh;border:none"></iframe>');}
-async function playerNext(){
-  const total=getTotalSlides(),s=player.schulung;
-  if(player.slide===total-1){
-    const fragen=s.fragen,richtig=fragen.filter(f=>player.antworten[f.id]!=null&&f.optionen[player.antworten[f.id]]?.richtig).length;
-    const pct=Math.round(richtig/fragen.length*100),bestanden=pct>=(s.bestehensgrenze||80);
-    if(!bestanden){player.slide=0;player.antworten={};player.answered={};renderPlayerSlide();return;}
-    await saveProtokolleintrag(s,pct,bestanden);closePlayer();return;
-  }
-  if(player.slide<total-1){player.slide++;renderPlayerSlide();}
+/* Formular: Kurs- und Termin-Auswahl */
+function buildKursSelect(){
+  $("#f-kurs").innerHTML = '<option value="">— Kurs wählen —</option>' +
+    KURSE.map(k=>`<option value="${k.id}">${k.titel.replace(/&amp;/g,"&")}</option>`).join("");
 }
-function playerBack(){if(player.slide>0){player.slide--;renderPlayerSlide();}}
-function closePlayer(){closeM('m-player');renderSchulungList();}
-
-async function saveProtokolleintrag(s,score,bestanden){
-  try{
-    await protokollSave({id:uid('P'),schulungId:s.id,userName:currentProfile?.name||'–',userKz:currentProfile?.kuerzel||'–',score,bestanden,antworten:player.antworten});
-    allProtokoll=await protokolleGetAll();
-    toast(bestanden?'Schulung bestanden ✓ ('+score+'%)':'Schulung abgeschlossen – '+score+'%',bestanden?'ok':'');
-  }catch(e){toast('Protokoll-Fehler: '+e.message,'err');}
-}
-
-// ═══════════════════════════════════════════════════════════
-// ANMELDUNG (Präsenzschulungen)
-// ═══════════════════════════════════════════════════════════
-let _anmPraesenzId = null;
-function openAnmeldungModal(id) {
-  _anmPraesenzId = id;
-  const s = allSchulungen.find(x=>x.id===id);
-  document.getElementById('m-anmeldung-title').textContent = 'Anmelden: '+(s?.titel||'');
-  document.getElementById('m-anmeldung-sub').textContent = `${fmt(s?.datum||'')}${s?.von?' · '+s.von:''} ${s?.bis?'– '+s.bis:''} Uhr · ${s?.raum||''}`;
-  document.getElementById('anm-name').value = currentProfile?.name||'';
-  document.getElementById('anm-email').value = '';
-  openM('m-anmeldung');
-  setTimeout(()=>document.getElementById('anm-email')?.focus(),120);
-}
-
-async function submitAnmeldung(){
-  const name=document.getElementById('anm-name').value.trim();
-  const email=document.getElementById('anm-email').value.trim();
-  if(!name||!email){toast('Name und E-Mail erforderlich','err');return;}
-  const sp=document.getElementById('anm-spinner');sp.style.display='inline-block';
-  const s=allSchulungen.find(x=>x.id===_anmPraesenzId);
-  const protos=allProtokoll.filter(p=>p.schulung_id===_anmPraesenzId);
-  const status=protos.length>=(s?.maxTn||20)?'warteliste':'angemeldet';
-  try{
-    await anmeldungSave({id:uid('ANM'),schulungId:_anmPraesenzId,name,email,status});
-    allProtokoll=await protokolleGetAll();
-    closeM('m-anmeldung');
-    sendAnmeldungsBestaetigung(s,name,email,status);
-    renderSchulungList();
-    toast(status==='angemeldet'?'Anmeldung bestätigt ✓':'Auf Warteliste gesetzt','ok');
-  }catch(e){toast('Fehler: '+e.message,'err');}
-  finally{sp.style.display='none';}
-}
-
-function sendAnmeldungsBestaetigung(s,name,email,status){
-  if(!s)return;
-  const betreff=encodeURIComponent(`${status==='angemeldet'?'Anmeldebestätigung':'Warteliste'}: ${s.titel}`);
-  const body=encodeURIComponent(`Guten Tag ${name},\n\n`+(status==='angemeldet'?'Ihre Anmeldung wurde bestätigt:\n\n':'Sie wurden auf die Warteliste gesetzt:\n\n')+`Schulung: ${s.titel}\nDatum: ${fmt(s.datum)}${s.von?' · '+s.von:''} ${s.bis?'– '+s.bis:''} Uhr\n`+(s.raum?`Ort: ${s.raum}\n`:'')+(s.referent?`Referent: ${s.referent}\n`:'')+`\nBitte erscheinen Sie 5 Minuten vor Beginn.\n\nMit freundlichen Grüßen\nEHS-Team – Oak Engineering`);
-  window.location.href=`mailto:${email}?subject=${betreff}&body=${body}`;
-}
-
-// ── Teilnehmerliste (Admin) ────────────────────────────────
-let _tnPraesenzId = null;
-async function openTeilnehmerModal(id){
-  _tnPraesenzId=id;
-  const s=allSchulungen.find(x=>x.id===id);
-  document.getElementById('m-teilnehmer-title').textContent='Teilnehmer: '+(s?.titel||'');
-  const el=document.getElementById('teilnehmer-body');
-  el.innerHTML='<div style="text-align:center;padding:20px"><span class="spinner"></span></div>';
-  openM('m-teilnehmer');
-  const anm=await anmeldungenGet(id);
-  if(!anm.length){el.innerHTML='<div class="empty"><div class="empty-i">👥</div><p>Noch keine Anmeldungen.</p></div>';return;}
-  const statusLabel={angemeldet:'✓ Angemeldet',warteliste:'⏳ Warteliste',abgesagt:'✗ Abgesagt',teilgenommen:'✓ Teilgenommen'};
-  el.innerHTML=`<div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
-    ${anm.map(a=>`<div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px">
-      <div><div style="font-weight:500">${esc(a.name)}</div><div class="ts">${esc(a.email)}</div></div>
-      <div class="ts">${fmtDT(a.angemeldet_am)}</div>
-      <select style="font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--s2)" onchange="updateTnStatus('${a.id}',this.value)">
-        ${['angemeldet','warteliste','abgesagt','teilgenommen'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
-      </select>
-    </div>`).join('')}
-  </div>
-  <div class="ts" style="margin-top:8px">${anm.filter(a=>a.status==='angemeldet'||a.status==='teilgenommen').length} Anmeldungen · ${anm.filter(a=>a.status==='warteliste').length} Warteliste</div>`;
-}
-
-async function updateTnStatus(id,status){try{await anmeldungUpdateStatus(id,status);toast('Status aktualisiert ✓','ok');}catch(e){toast('Fehler: '+e.message,'err');}}
-
-async function schulungDurchgefuehrt(){
-  if(!confirm('Schulung als durchgeführt markieren?'))return;
-  const anm=await anmeldungenGet(_tnPraesenzId);
-  for(const a of anm.filter(x=>x.status==='angemeldet'))await anmeldungUpdateStatus(a.id,'teilgenommen');
-  toast('Schulung als durchgeführt markiert ✓','ok');
-  openTeilnehmerModal(_tnPraesenzId);
-}
-
-// ═══════════════════════════════════════════════════════════
-// PROTOKOLL
-// ═══════════════════════════════════════════════════════════
-async function renderProtokoll(){
-  allProtokoll=await protokolleGetAll();
-  const sel=document.getElementById('proto-filter');
-  const cur=sel.value;
-  sel.innerHTML='<option value="">– Alle Schulungen –</option>'+allSchulungen.map(s=>`<option value="${s.id}" ${s.id===cur?'selected':''}>${esc(s.titel)}</option>`).join('');
-  const filter=sel.value;
-  const data=allProtokoll.filter(p=>!filter||p.schulung_id===filter).sort((a,b)=>new Date(b.datum)-new Date(a.datum));
-  document.getElementById('proto-sub').textContent=data.length+' Einträge';
-  const el=document.getElementById('protokoll-list');
-  if(!data.length){el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Schulungen durchgeführt.</p></div>';return;}
-  const schulungName=id=>allSchulungen.find(s=>s.id===id)?.titel||id;
-  el.innerHTML=`<div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
-    <div class="proto-row proto-head"><div>Teilnehmer / Schulung</div><div>Datum</div><div>Ergebnis</div><div>Status</div></div>
-    ${data.map(p=>`<div class="proto-row">
-      <div><div style="font-weight:500">${esc(p.user_name||'–')}</div><div class="ts">${esc(schulungName(p.schulung_id))}</div></div>
-      <div class="ts">${fmtDT(p.datum)}</div>
-      <div style="font-weight:600;color:${p.bestanden?'var(--ok)':'var(--nok)'}">${p.score!=null?p.score+'%':'–'}</div>
-      <div><span class="badge ${p.bestanden?'b-ok':'b-nok'}">${p.bestanden?'✓ Bestanden':'✗ Nicht bestanden'}</span></div>
-    </div>`).join('')}
-  </div>`;
-}
-
-function exportProtokolleCSV(){
-  const csv='\uFEFFTeilnehmer,Schulung,Datum,Ergebnis (%),Bestanden\n'
-    +allProtokoll.map(p=>[`"${p.user_name||''}"`,`"${allSchulungen.find(s=>s.id===p.schulung_id)?.titel||p.schulung_id}"`,new Date(p.datum).toLocaleString('de-DE'),p.score,p.bestanden?'Ja':'Nein'].join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='Protokoll_'+new Date().toLocaleDateString('de-DE').replace(/\./g,'-')+'.csv';a.click();
-  URL.revokeObjectURL(url);toast('CSV exportiert ✓','ok');
-}
-
-// ═══════════════════════════════════════════════════════════
-// TEILEN (QR / LINK / MAIL)
-// ═══════════════════════════════════════════════════════════
-function buildShareURL(schulungId){
-  const base=window.location.href.split('/').slice(0,-1).join('/');
-  return base+'/schulung-extern.html?id='+encodeURIComponent(schulungId);
-}
-
-function openShareModal(id){
-  shareSchulungId=id;
-  const s=allSchulungen.find(x=>x.id===id);if(!s)return;
-  document.getElementById('m-share-title').textContent='📤 Teilen: '+s.titel;
-  document.getElementById('m-share-sub').textContent=s.kategorie+' · '+(s.fragen?.length||0)+' Fragen · kein Account erforderlich';
-  switchShareTab('qr');openM('m-share');
-}
-
-function switchShareTab(tab){
-  ['qr','link','mail'].forEach(t=>{
-    document.getElementById('share-'+t).style.display=t===tab?'block':'none';
-    document.getElementById('stab-'+t).classList.toggle('on',t===tab);
+function buildTerminSelect(){
+  if(MODUS!=="buchung") return;          // im Anfrage-Modus kein Termin-Feld
+  const kursId = $("#f-kurs").value;
+  const sel = $("#f-termin");
+  const opts = ['<option value="">Inhouse / individueller Termin</option>'];
+  TERMINE.filter(t=>t.kurs_id===kursId && t.datum).sort((a,b)=>a.datum.localeCompare(b.datum)).forEach(t=>{
+    const L = terminLabel(t);
+    if(statusInfo(t).full) return;
+    opts.push(`<option value="${L.date} · ${esc(t.ort)} (${esc(t.format)})" data-datum="${t.datum}" data-enddatum="${t.enddatum||''}">${L.date} · ${esc(t.ort)} (${esc(t.format)})</option>`);
   });
-  document.getElementById('share-mail-ft').style.display=tab==='mail'?'flex':'none';
-  document.getElementById('share-default-ft').style.display=tab==='mail'?'none':'flex';
-  if(tab==='qr')buildQRCode();
-  if(tab==='link')document.getElementById('share-link-input').value=buildShareURL(shareSchulungId);
-  if(tab==='mail'){
-    const s=allSchulungen.find(x=>x.id===shareSchulungId);
-    document.getElementById('share-mail-body').value=`Guten Tag,\n\nbitte führen Sie die folgende EHS-Unterweisung durch. Kein Account erforderlich – einfach auf den Link klicken, Name und E-Mail eingeben und starten:\n\n${s?.titel||''}\n\n${buildShareURL(shareSchulungId)}`;
+  sel.innerHTML = opts.join("");
+}
+
+let currentFilter = "alle";
+function applyFilter(f){
+  currentFilter = f;
+  document.querySelectorAll("#filterBar .chip").forEach(c=>c.classList.toggle("active", c.dataset.f===f));
+  document.querySelectorAll("#kursList .acc-item").forEach(it=>{
+    it.style.display = (f==="alle"||it.dataset.bereich===f) ? "" : "none";
+  });
+  renderTermine(f);
+}
+
+/* Anmeldung absenden */
+async function submitAnmeldung(e){
+  e.preventDefault();
+  const msg = $("#anmMsg"), btn = $("#anmSubmit");
+  const kursId = $("#f-kurs").value;
+  const kurs = KURSE.find(k=>k.id===kursId);
+  if(!kursId){ msg.className="anm-msg err"; msg.textContent="Bitte wählen Sie einen Kurs."; return; }
+  if(!$("#f-ds").checked){ msg.className="anm-msg err"; msg.textContent="Bitte bestätigen Sie den Datenschutzhinweis."; return; }
+  const payload = {
+    kurs_id: kursId,
+    kurs_titel: kurs ? kurs.titel.replace(/&amp;/g,"&") : kursId,
+    termin: MODUS==="buchung" ? ($("#f-termin").value || "Inhouse / individueller Termin") : "Anfrage (Termin nach Absprache)",
+    format: $("#f-format").value,
+    name: $("#f-name").value.trim(),
+    email: $("#f-email").value.trim(),
+    telefon: $("#f-tel").value.trim(),
+    firma: $("#f-firma").value.trim(),
+    anzahl_personen: parseInt($("#f-anzahl").value)||1,
+    nachricht: $("#f-msg").value.trim(),
+    datenschutz_ok: true,
+    modus: MODUS
+  };
+  // Datum nur im Buchungsmodus (für Kalender-Einladung)
+  if(MODUS==="buchung"){
+    const tOpt = $("#f-termin").options[$("#f-termin").selectedIndex];
+    payload.datum = (tOpt && tOpt.dataset.datum) ? tOpt.dataset.datum : null;
+    payload.enddatum = (tOpt && tOpt.dataset.enddatum) ? tOpt.dataset.enddatum : null;
   }
-}
-
-function buildQRCode(){
-  const el=document.getElementById('qr-canvas');el.innerHTML='';
-  const url=buildShareURL(shareSchulungId);
-  try{new QRCode(el,{text:url,width:200,height:200,colorDark:'#1a1a1a',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M});}
-  catch(e){el.innerHTML='<p class="ts" style="color:var(--nok)">QR-Code Fehler.</p>';}
-}
-
-function downloadQR(){
-  const canvas=document.querySelector('#qr-canvas canvas');if(!canvas)return;
-  const s=allSchulungen.find(x=>x.id===shareSchulungId);
-  const a=document.createElement('a');a.href=canvas.toDataURL('image/png');
-  a.download='QR_'+(s?.titel||'Schulung').replace(/[^a-zA-Z0-9]/g,'_')+'.png';a.click();
-  toast('QR-Code heruntergeladen ✓','ok');
-}
-
-function printQR(){
-  const canvas=document.querySelector('#qr-canvas canvas');if(!canvas)return;
-  const s=allSchulungen.find(x=>x.id===shareSchulungId);
-  const w=window.open('','_blank');
-  w.document.write(`<html><head><title>QR – ${s?.titel||''}</title>
-  <style>body{font-family:sans-serif;text-align:center;padding:40px;max-width:500px;margin:0 auto}@media print{button{display:none}}</style></head><body>
-  <h2>EHS Unterweisung</h2><h3>${s?.titel||''}</h3>
-  <p>${s?.kategorie||''} · Mit Smartphone scannen – kein Account erforderlich</p>
-  <img src="${canvas.toDataURL()}" width="200"><br> <p style="font-size:12px;color:#999">Oak Engineering · EHS Management</p>
-  <button onclick="window.print()">🖨 Drucken</button></body></html>`);
-  w.document.close();
-}
-
-function copyShareLink(){
-  const url=document.getElementById('share-link-input').value;
-  navigator.clipboard.writeText(url).then(()=>toast('Link kopiert ✓','ok')).catch(()=>{document.getElementById('share-link-input').select();document.execCommand('copy');toast('Link kopiert ✓','ok');});
-}
-
-function sendShareMail(){
-  const s=allSchulungen.find(x=>x.id===shareSchulungId);
-  const to=document.getElementById('share-mail-to').value.trim();
-  const subject=encodeURIComponent('EHS-Unterweisung: '+(s?.titel||''));
-  const body=document.getElementById('share-mail-body').value;
-  window.location.href=`mailto:${to}?subject=${subject}&body=${encodeURIComponent(body)}`;
-}
-
-function checkURLShare(){
-  const params=new URLSearchParams(window.location.search);
-  const shareParam=params.get('share');if(!shareParam)return;
+  btn.disabled = true; btn.textContent = "Wird gesendet …";
+  msg.className = "anm-msg"; msg.textContent = "";
   try{
-    const slim=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(shareParam)))));
-    if(!allSchulungen.find(x=>x.id===slim.id))allSchulungen.push(slim);
-    setTimeout(()=>startSchulungPlayer(slim.id),500);
-  }catch(e){console.warn('Share-URL ungültig');}
+    const res = await fetch(CONFIG.ANMELDUNG_ENDPOINT, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "apikey":CONFIG.SUPABASE_ANON, "Authorization":"Bearer "+CONFIG.SUPABASE_ANON },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(()=>({}));
+    if(res.ok && data.ok){
+      msg.className="anm-msg ok";
+      msg.textContent = MODUS==="buchung"
+        ? "Vielen Dank! Ihre Anmeldung ist eingegangen. Sie erhalten gleich eine Eingangsbestätigung mit den Zahlungsinformationen; die verbindliche Teilnahmebestätigung mit Kalender-Termin folgt nach Zahlungseingang."
+        : "Vielen Dank! Ihre Anfrage ist eingegangen – wir melden uns in Kürze mit Terminvorschlägen, Ablauf und Preis.";
+      $("#anmForm").reset(); buildTerminSelect();
+    } else { throw new Error(data.storeErr || data.error || res.status); }
+  }catch(err){
+    msg.className="anm-msg err";
+    const sub = encodeURIComponent("Schulungsanmeldung: "+payload.kurs_titel);
+    const body = encodeURIComponent(`Kurs: ${payload.kurs_titel}\nTermin: ${payload.termin}\nFormat: ${payload.format}\nName: ${payload.name}\nE-Mail: ${payload.email}\nTelefon: ${payload.telefon}\nFirma: ${payload.firma}\nPersonen: ${payload.anzahl_personen}\nNachricht: ${payload.nachricht}`);
+    msg.innerHTML = 'Die Online-Übermittlung hat nicht geklappt. Bitte senden Sie die Anmeldung direkt per <a href="mailto:info@oak-engineering.de?subject='+sub+'&body='+body+'" style="color:var(--oak-deep);font-weight:700">E-Mail</a>.';
+  }finally{ btn.disabled=false; btn.textContent = MODUS==="buchung" ? "Anmeldung absenden →" : "Anfrage absenden →"; }
 }
 
-// ═══════════════════════════════════════════════════════════
-// OAK SCHULUNGEN BUCHEN
-// ═══════════════════════════════════════════════════════════
-function renderBuchungList(){
-  const el=document.getElementById('buchung-list');
-  const admin=currentProfile?.rolle==='admin';
-  document.getElementById('btn-anfragen-admin').style.display=admin?'inline-flex':'none';
-
-  el.innerHTML=`<div class="katalog-grid">${OAK_KATALOG.map(k=>katalogCard(k)).join('')}</div>`;
-}
-
-function katalogCard(k){
-  const preisInfo = k.preis_gruppe
-    ? `${k.preis_gruppe.toLocaleString('de-DE',{minimumFractionDigits:0})} € pauschal`
-    : `${(k.preis_pp||0).toLocaleString('de-DE',{minimumFractionDigits:2})} € / Person`;
-  const formatBadges = k.format_optionen
-    ? k.format_optionen.map(f=>f==='online'?'🖥 Online':'📍 Vor Ort').join(' · ')
-    : '';
-  return `<div class="katalog-card">
-    <div style="height:4px;background:#2d6a2d;border-radius:10px 10px 0 0"></div>
-    <div style="padding:18px;flex:1">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;line-height:1.3;margin-bottom:6px">${esc(k.titel)}</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            ${k.zertifikat==='ja'?'<span class="badge b-ok">🏆 Zertifikat</span>':''}
-            ${k.dauer?`<span class="badge b-info">⏱ ${esc(k.dauer)}</span>`:''}
-            ${k.maxTn?`<span class="badge b-info">👥 max. ${k.maxTn} TN</span>`:''}
-            ${k.intervall?`<span class="badge b-warn">🔁 Alle ${k.intervall} Jahre</span>`:''}
-          </div>
-        </div>
-      </div>
-      <p style="font-size:13px;color:var(--t2);line-height:1.5;margin-bottom:10px">${esc((k.beschreibung||'').slice(0,150))}${(k.beschreibung||'').length>150?'…':''}</p>
-      ${k.inhalte?`<div style="font-size:12px;color:var(--t3);white-space:pre-line;margin-bottom:10px;line-height:1.6">${esc(k.inhalte.split('\n').slice(0,5).join('\n'))}${k.inhalte.split('\n').length>5?'\n…':''}</div>`:''}
-      ${k.zielgruppe?`<div class="ts" style="margin-bottom:4px">👥 ${esc(k.zielgruppe)}</div>`:''}
-      ${k.rechtsgrundlage?`<div class="ts" style="margin-bottom:4px">⚖ ${esc(k.rechtsgrundlage)}</div>`:''}
-      ${formatBadges?`<div style="font-size:12px;color:var(--t2);margin-top:8px">${formatBadges}</div>`:''}
+function printFlyer(kursId){
+  const k = KURSE.find(k=>k.id===kursId); if(!k) return;
+  $("#flyer").innerHTML = `<div class="fly">
+    <div class="fly-band">
+      <img src="assets/oak-logo.png" alt="OAK engineering">
+      <div class="fly-ey">Schulung · ${k.bereich}</div>
+      <h1>${k.titel}</h1>
+      <div class="fly-meta"><span>${k.recht}</span><span>${k.dauer}</span><span>online · vor Ort · inhouse</span></div>
     </div>
-    <div style="padding:14px 18px;border-top:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:space-between;gap:10px">
-      <div>
-        <div style="font-size:18px;font-weight:800;color:var(--ok)">${preisInfo}</div>
-        <div style="font-size:10px;color:var(--t3)">zzgl. MwSt.</div>
-      </div>
-      <button class="btn btn-p btn-sm" onclick="openBuchungModal('${k.id}')">📩 Anfragen</button>
+    <p class="fly-lead">${k.praxis}</p>
+    <div class="fly-sec"><h3>Ziele</h3><ul>${li(k.ziele)}</ul></div>
+    <div class="fly-sec"><h3>Inhalte</h3><ul>${li(k.inhalte)}</ul></div>
+    <div class="fly-sec"><h3>Methodik</h3><p>${k.methodik}</p></div>
+    <div class="fly-sec"><h3>Zielgruppe</h3><p>${k.zielgruppe}</p></div>
+    <div class="fly-sec"><h3>Abschluss</h3><p>${k.abschluss}</p></div>
+    <div class="fly-foot">
+      <span><b>OAK engineering</b> · Nikolai Krawielitzki · Gögginger Straße 137 · 86199 Augsburg</span>
+      <span>info@oak-engineering.de · +49&nbsp;15679&nbsp;787193 · oak-engineering.de</span>
     </div>
   </div>`;
+  window.print();
 }
 
-function openBuchungModal(katalogId){
-  const k=OAK_KATALOG.find(x=>x.id===katalogId);if(!k)return;
-  document.getElementById('buchung-katalog-id').value=katalogId;
-  document.getElementById('m-buchung-titel').textContent=k.titel;
-  document.getElementById('m-buchung-sub').textContent=k.kategorie+' · '+k.dauer+(k.preis_gruppe?' · '+k.preis_gruppe.toLocaleString('de-DE')+'€ pauschal':'');
-  if(currentProfile)document.getElementById('b-kontakt').value=currentProfile.name||'';
-  ['b-firma','b-email','b-tel','b-tn','b-termin','b-termin2','b-nachricht'].forEach(id=>{const el=document.getElementById(id);if(el&&id!=='b-kontakt')el.value='';});
-  openM('m-buchung');
-  setTimeout(()=>document.getElementById('b-firma')?.focus(),120);
+function prefillKurs(kursId, terminLabelStr, format, note){
+  $("#f-kurs").value = kursId; buildTerminSelect();
+  if(terminLabelStr){ const opt=[...$("#f-termin").options].find(o=>o.value.startsWith(terminLabelStr)); if(opt) $("#f-termin").value=opt.value; }
+  if(format && format!=="Live-Online"){ const fo=[...$("#f-format").options].find(o=>o.value===format); if(fo) $("#f-format").value=format; }
+  if(note){ $("#f-msg").value = note; }
+  document.getElementById("anmeldung").scrollIntoView({behavior:"smooth"});
+  setTimeout(()=>$("#f-name").focus(), 400);
 }
 
-async function submitBuchung(){
-  const firma=document.getElementById('b-firma').value.trim();
-  const kontakt=document.getElementById('b-kontakt').value.trim();
-  const email=document.getElementById('b-email').value.trim();
-  if(!firma||!kontakt||!email){toast('Firma, Ansprechpartner und E-Mail erforderlich','err');return;}
-  const sp=document.getElementById('buchung-spinner');sp.style.display='inline-block';
-  const katalogId=document.getElementById('buchung-katalog-id').value;
-  const k=OAK_KATALOG.find(x=>x.id===katalogId);
-  try{
-    const{error}=await getSB().from('buchungsanfragen').insert({
-      id:'ANF'+Date.now(),katalog_id:katalogId,firma,ansprechpartner:kontakt,email,
-      telefon:document.getElementById('b-tel').value.trim()||null,
-      teilnehmerzahl:parseInt(document.getElementById('b-tn').value)||null,
-      wunschtermin:document.getElementById('b-termin').value||null,
-      wunschtermin_alternativ:document.getElementById('b-termin2').value||null,
-      nachricht:document.getElementById('b-nachricht').value.trim()||null,
-      status:'offen'
-    });
-    if(error)throw error;
-    closeM('m-buchung');
-    sendBuchungsBestaetigung(k,{firma,ansprechpartner:kontakt,email,teilnehmerzahl:parseInt(document.getElementById('b-tn').value)||null,wunschtermin:document.getElementById('b-termin').value});
-    toast('Buchungsanfrage gesendet ✓','ok');
-  }catch(e){toast('Fehler: '+e.message,'err');}
-  finally{sp.style.display='none';}
+// Anfrage-Modus: Kalender & Termin-Feld ausblenden, Texte auf „Anfrage" umstellen
+function setupAnfrageUI(){
+  const hide = el => { if(el) el.style.display="none"; };
+  hide(document.getElementById("kalender"));
+  hide(document.querySelector(".cal-wrap"));
+  const tsel = document.getElementById("f-termin");
+  if(tsel && tsel.closest(".anm-field")) tsel.closest(".anm-field").style.display="none";
+  const sec = document.getElementById("anmeldung");
+  if(sec){ const ey=sec.querySelector(".ey"), h2=sec.querySelector("h2"); if(ey) ey.textContent="Anfrage"; if(h2) h2.textContent="Schulung anfragen"; }
+  const lead = document.querySelector(".anm-card .lead");
+  if(lead) lead.textContent = "Sagen Sie uns, welche Schulung Sie interessiert – wir melden uns mit Terminvorschlägen, Ablauf und Preis. Unverbindlich und kostenfrei beraten wir Sie vorab gern.";
+  const sub = document.getElementById("anmSubmit");
+  if(sub) sub.textContent = "Anfrage absenden →";
 }
 
-function sendBuchungsBestaetigung(k,a){
-  const betreff=encodeURIComponent('Buchungsanfrage: '+(k?.titel||'EHS-Schulung'));
-  const body=encodeURIComponent(`Guten Tag,\n\nhiermit senden wir unsere Buchungsanfrage:\n\nSchulung: ${k?.titel||'–'}\nFirma: ${a.firma}\nAnsprechpartner: ${a.ansprechpartner}\nE-Mail: ${a.email}\nTeilnehmerzahl: ${a.teilnehmerzahl||'–'}\n${a.wunschtermin?'Wunschtermin: '+new Date(a.wunschtermin).toLocaleDateString('de-DE')+'\n':''}\nMit freundlichen Grüßen\n${a.ansprechpartner}\n${a.firma}`);
-  window.location.href=`mailto:info@oak-engineering.de?subject=${betreff}&body=${body}`;
-}
+/* Init */
+renderKurse();
+buildKursSelect();
+if(MODUS==="buchung"){ loadTermine(); } else { setupAnfrageUI(); }
 
-async function openBuchungsanfragenModal(){
-  openM('m-anfragen');
-  const el=document.getElementById('anfragen-list');
-  el.innerHTML='<div style="text-align:center;padding:20px;color:var(--t3)">Wird geladen…</div>';
-  try{
-    const{data}=await getSB().from('buchungsanfragen').select('*').order('created_at',{ascending:false});
-    allAnfragen=data||[];
-    if(!allAnfragen.length){el.innerHTML='<div class="empty"><div class="empty-i">📋</div><p>Noch keine Anfragen.</p></div>';return;}
-    const statusLabel={offen:'⏳ Offen',bestaetigt:'✓ Bestätigt',abgesagt:'✗ Abgesagt'};
-    el.innerHTML=allAnfragen.map(a=>{
-      const k=OAK_KATALOG.find(x=>x.id===a.katalog_id);
-      return`<div class="card" style="margin-bottom:10px">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-          <div>
-            <div style="font-weight:600;font-size:14px;margin-bottom:4px">${esc(a.firma)} – ${esc(a.ansprechpartner)}</div>
-            <div class="ts">${k?esc(k.titel):'Unbekannte Schulung'}</div>
-            <div class="ts">✉ ${esc(a.email)}${a.telefon?' · 📞 '+esc(a.telefon):''}</div>
-            <div class="ts">👥 ${a.teilnehmerzahl||'–'} Pers.${a.wunschtermin?' · Wunsch: '+new Date(a.wunschtermin).toLocaleDateString('de-DE'):''}</div>
-            ${a.nachricht?`<div class="ts" style="margin-top:4px;font-style:italic">"${esc(a.nachricht.slice(0,100))}"</div>`:''}
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-            <select style="padding:5px 8px;border-radius:6px;border:1px solid var(--border);font-size:12px;background:var(--s2)" onchange="updateAnfrageStatus('${a.id}',this.value)">
-              ${['offen','bestaetigt','abgesagt'].map(s=>`<option value="${s}" ${a.status===s?'selected':''}>${statusLabel[s]}</option>`).join('')}
-            </select>
-            <button class="btn btn-p btn-sm" onclick="antwortMail('${a.id}')">✉ Antworten</button>
-          </div>
-        </div>
-        <div class="ts" style="margin-top:8px">Eingang: ${new Date(a.created_at).toLocaleString('de-DE')}</div>
-      </div>`;
-    }).join('');
-  }catch(e){el.innerHTML=`<div class="ts" style="color:var(--nok)">${e.message}</div>`;}
-}
-
-async function updateAnfrageStatus(id,status){
-  const{error}=await getSB().from('buchungsanfragen').update({status}).eq('id',id);
-  if(error){toast('Fehler: '+error.message,'err');return;}
-  toast('Status aktualisiert ✓','ok');
-}
-
-function antwortMail(id){
-  const a=allAnfragen.find(x=>x.id===id);if(!a)return;
-  const k=OAK_KATALOG.find(x=>x.id===a.katalog_id);
-  const betreff=encodeURIComponent('Ihre Buchungsanfrage: '+(k?.titel||'EHS-Schulung'));
-  const body=encodeURIComponent(`Sehr geehrte/r ${a.ansprechpartner},\n\nvielen Dank für Ihre Buchungsanfrage zur Schulung „${k?.titel||'–'}".\n\n[Hier Ihre Antwort einfügen]\n\nMit freundlichen Grüßen\nOak Engineering\nEHS-Team`);
-  window.location.href=`mailto:${a.email}?subject=${betreff}&body=${body}`;
-}
-
-// Dummy activeUser für Kompatibilität
-const DB = { activeUser: null };
-
-// ── Dark Mode Toggle ──────────────────────────────────────
-function initDarkToggle() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  updateDarkToggleUI(isDark);
-}
-
-function toggleDarkMode(e) {
-  e && e.stopPropagation();
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  localStorage.setItem('ehs_theme', isDark ? 'dark' : 'light');
-  updateDarkToggleUI(isDark);
-}
-
-function updateDarkToggleUI(isDark) {
-  const toggle = document.getElementById('dark-toggle');
-  const knob = document.getElementById('dark-knob');
-  if (toggle) toggle.style.background = isDark ? '#1a1a1a' : 'var(--border2)';
-  if (knob) knob.style.left = isDark ? '18px' : '2px';
-}
+$("#filterBar").addEventListener("click", e=>{ const c=e.target.closest(".chip"); if(c) applyFilter(c.dataset.f); });
+$("#f-kurs").addEventListener("change", buildTerminSelect);
+$("#anmForm").addEventListener("submit", submitAnmeldung);
+document.addEventListener("click", e=>{
+  const fl = e.target.closest("[data-flyer]");
+  if(fl){ printFlyer(fl.dataset.flyer); return; }
+  const an = e.target.closest("[data-anfrage]");
+  if(an){ prefillKurs(an.dataset.anfrage); return; }
+  const ih = e.target.closest("[data-inhouse]");
+  if(ih){ prefillKurs(ih.dataset.inhouse, "", "Inhouse", "Inhouse-Anfrage: Bitte ein Angebot für diese Schulung als Inhouse-Veranstaltung (bei uns vor Ort oder online für unser Team)."); return; }
+  const iv = e.target.closest("[data-individuell]");
+  if(iv){ prefillKurs(iv.dataset.individuell, "", "egal", "Anfrage individuell zugeschnittene Schulung: Inhalte, Umfang und Termin nach Absprache."); return; }
+  const a = e.target.closest("[data-anmelden]");
+  if(a){ prefillKurs(a.dataset.anmelden); return; }
+  const t = e.target.closest("[data-termin]");
+  if(t && !t.disabled){ const d=JSON.parse(t.dataset.termin); prefillKurs(d.kurs_id, d.label, d.format); }
+});
 </script>
+<script src="site.js"></script>
 </body>
 </html>

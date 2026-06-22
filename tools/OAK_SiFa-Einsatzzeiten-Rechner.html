@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>SiFa-Einsatzzeiten-Rechner – Grundbetreuung nach DGUV Vorschrift 2 | OAK engineering</title>
+<meta name="description" content="Ermitteln Sie in 30 Sekunden die jährliche Grundbetreuungszeit Ihrer Fachkraft für Arbeitssicherheit nach DGUV Vorschrift 2 – als Orientierung für Ihren Betreuungsbedarf.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+/* ── OAK-CI Tokens ──────────────────────────────────────────────── */
+:root{
+  --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D;
+  --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+  --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70;
+  --border:#D6E4DA; --white:#FDFCFA; --warn:#8B6914;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--oak-ghost);color:var(--ink);line-height:1.65;
+  -webkit-font-smoothing:antialiased;padding:clamp(1rem,4vw,3rem) 1rem;}
+.widget{max-width:680px;margin:0 auto;background:var(--white);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(27,67,50,.07);}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.wx-head{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;
+  padding:1.6rem clamp(1.2rem,4vw,2.2rem);}
+.wx-brand{display:flex;align-items:center;gap:.6rem;margin-bottom:1.1rem;}
+.wx-logo{height:38px;width:auto;flex:none;}
+.wx-brand b{font-family:var(--serif);font-weight:600;font-size:1.2rem;letter-spacing:.02em;}
+.wx-brand span{font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;opacity:.8;
+  border-left:1px solid rgba(255,255,255,.3);padding-left:.6rem;}
+.wx-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.5rem,4vw,2rem);
+  line-height:1.15;margin-bottom:.4rem;}
+.wx-head p{font-size:.86rem;opacity:.9;font-weight:300;max-width:48ch;}
+.wx-head .ref{display:inline-block;margin-top:.8rem;font-size:.7rem;letter-spacing:.08em;
+  text-transform:uppercase;background:rgba(255,255,255,.14);padding:.25rem .7rem;border-radius:99px;}
+
+/* ── Body ───────────────────────────────────────────────────────── */
+.wx-body{padding:clamp(1.3rem,4vw,2.2rem);}
+.step-label{display:flex;align-items:center;gap:.6rem;font-size:.72rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--oak);margin:0 0 .9rem;}
+.step-label i{font-style:normal;display:grid;place-items:center;width:1.4rem;height:1.4rem;
+  background:var(--oak);color:#fff;border-radius:50%;font-size:.78rem;}
+.step + .step{margin-top:2rem;padding-top:2rem;border-top:1px solid var(--border);}
+
+/* Gruppen-Karten */
+.groups{display:grid;gap:.7rem;}
+.grp{display:block;cursor:pointer;border:1.5px solid var(--border);border-radius:10px;
+  padding:.9rem 1rem;transition:border-color .15s,background .15s,box-shadow .15s;}
+.grp:hover{border-color:var(--oak-light);}
+.grp input{position:absolute;opacity:0;pointer-events:none;}
+.grp-top{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;}
+.grp-name{font-weight:600;font-size:.98rem;color:var(--ink);}
+.grp-h{font-family:var(--serif);font-size:1.25rem;color:var(--oak);font-weight:600;white-space:nowrap;}
+.grp-h small{font-family:var(--sans);font-size:.68rem;color:var(--muted);font-weight:400;}
+.grp-ex{font-size:.78rem;color:var(--muted);margin-top:.25rem;line-height:1.45;}
+.grp:has(input:checked){border-color:var(--oak);background:var(--oak-ghost);
+  box-shadow:0 0 0 1px var(--oak);}
+
+/* Inputs */
+.field{margin-top:1.1rem;}
+.field label{display:block;font-size:.82rem;font-weight:500;color:var(--ink-2);margin-bottom:.4rem;}
+.num-wrap{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:10px;
+  overflow:hidden;max-width:240px;}
+.num-wrap input{flex:1;border:none;padding:.7rem .9rem;font-family:var(--sans);font-size:1.05rem;
+  color:var(--ink);width:100%;background:transparent;}
+.num-wrap input:focus{outline:none;}
+.num-wrap:focus-within{border-color:var(--oak);box-shadow:0 0 0 3px var(--oak-pale);}
+.stepbtn{border:none;background:var(--oak-ghost);color:var(--oak);width:2.6rem;align-self:stretch;
+  font-size:1.2rem;cursor:pointer;transition:background .15s;}
+.stepbtn:hover{background:var(--oak-pale);}
+
+/* Slider */
+.slider-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.5rem;}
+.slider-head label{font-size:.82rem;font-weight:500;color:var(--ink-2);}
+.slider-head b{font-family:var(--serif);font-size:1.1rem;color:var(--oak);}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:5px;border-radius:99px;
+  background:var(--oak-pale);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--oak);cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(27,67,50,.3);}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--oak);
+  cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(27,67,50,.3);}
+.range-meta{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:.35rem;}
+.hint{font-size:.76rem;color:var(--muted);margin-top:.5rem;line-height:1.5;}
+
+/* Toggle betriebsspezifisch */
+.bs-presets{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:.4rem;}
+.bs-presets button{border:1.5px solid var(--border);background:#fff;border-radius:9px;padding:.6rem .4rem;
+  cursor:pointer;font-family:var(--sans);transition:all .15s;text-align:center;}
+.bs-presets button:hover{border-color:var(--oak-light);}
+.bs-presets button.on{border-color:var(--oak);background:var(--oak-ghost);box-shadow:0 0 0 1px var(--oak);}
+.bs-presets .t{display:block;font-weight:600;font-size:.85rem;color:var(--ink);}
+.bs-presets .s{display:block;font-size:.68rem;color:var(--muted);margin-top:.1rem;}
+
+/* ── Result ─────────────────────────────────────────────────────── */
+.result{margin-top:2rem;background:var(--oak-deep);border-radius:12px;padding:clamp(1.3rem,4vw,1.8rem);
+  color:#fff;}
+.result h2{font-family:var(--serif);font-weight:300;font-size:1.35rem;margin-bottom:1.1rem;
+  display:flex;align-items:center;gap:.5rem;}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+.res-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;
+  padding:.95rem 1.1rem;}
+.res-card.span{grid-column:1/-1;background:var(--oak-light);color:var(--oak-deep);border:none;}
+.res-k{font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;opacity:.82;margin-bottom:.25rem;}
+.res-card.span .res-k{opacity:1;font-weight:600;}
+.res-v{font-family:var(--serif);font-size:1.7rem;font-weight:600;line-height:1.1;}
+.res-v small{font-family:var(--sans);font-size:.8rem;font-weight:400;opacity:.85;}
+.res-card.span .res-v{font-size:2rem;}
+.res-note{font-size:.74rem;opacity:.8;margin-top:1rem;line-height:1.5;}
+
+/* CTA */
+.cta{margin-top:1.3rem;display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:6px;padding:.8rem 1.5rem;
+  font-family:var(--sans);font-size:.86rem;font-weight:500;letter-spacing:.02em;cursor:pointer;
+  border:none;transition:transform .15s,background .2s,color .2s;text-decoration:none;}
+.btn-primary{background:#fff;color:var(--oak-deep);}
+.btn-primary:hover{transform:translateY(-1px);background:var(--oak-pale);}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);}
+.btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.1);}
+
+/* Footer / Disclaimer */
+.wx-foot{padding:1.1rem clamp(1.2rem,4vw,2.2rem);background:var(--oak-ghost);
+  border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.55;}
+.wx-foot strong{color:var(--ink-2);}
+.wx-foot a{color:var(--oak);font-weight:500;}
+
+@media(max-width:480px){.res-grid{grid-template-columns:1fr;}.bs-presets{grid-template-columns:1fr;}}
+
+/* ── Website-Integration: identischer Header & Footer ───────────── */
+body{padding:0 !important;}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);}
+nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+nav .nav-logo img{height:38px;width:auto;}
+.nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);
+  font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+.nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.nav-links a{transition:color .2s;text-decoration:none;color:var(--muted);}
+.nav-links a:hover{color:var(--oak);}
+.nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;
+  font-size:.78rem;font-weight:500;letter-spacing:.04em;transition:background .2s;}
+.nav-cta:hover{background:var(--oak);}
+.page-wrap{padding:clamp(1.5rem,4vw,3rem) 1rem;}
+.site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;
+  justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+.site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+.site-footer .footer-links{display:flex;gap:1.5rem;}
+.site-footer a{color:inherit;text-decoration:none;}
+.site-footer .footer-links a:hover{color:var(--oak-light);}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:6px;}
+.nav-burger span{display:block;width:22px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px;}
+@media(max-width:880px){
+  .nav-burger{display:block;}
+  .nav-links{display:none;position:fixed;top:68px;left:0;right:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;z-index:99;text-transform:none;letter-spacing:0;font-size:.95rem;}
+  .nav-links.open{display:flex;}
+}
+@media(max-width:700px){.nav-wordmark small{display:none;}}
+.wx-head{position:relative;overflow:hidden;}
+.wx-head #gridCanvas{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;}
+.wx-head-inner{position:relative;z-index:1;}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+<div class="page-wrap">
+<div class="widget">
+
+  <header class="wx-head">
+      <canvas id="gridCanvas" aria-hidden="true"></canvas>
+      <div class="wx-head-inner">
+<h1>SiFa-Einsatzzeiten-Rechner</h1>
+    <p>Wie viele Betreuungsstunden braucht Ihr Betrieb pro Jahr? In 30&nbsp;Sekunden ermittelt – als Orientierung für Ihren Bedarf an externer Fachkraft für Arbeitssicherheit.</p>
+    <span class="ref">Grundbetreuung nach DGUV Vorschrift&nbsp;2</span>
+  </div>
+    </header>
+
+  <div class="wx-body">
+
+    <!-- Schritt 1: Betreuungsgruppe -->
+    <div class="step">
+      <p class="step-label"><i>1</i> Betreuungsgruppe Ihres Betriebs</p>
+      <div class="groups">
+        <label class="grp">
+          <input type="radio" name="grp" value="2.5">
+          <span class="grp-top"><span class="grp-name">Gruppe I – hohes Gefährdungspotenzial</span>
+            <span class="grp-h">2,5&nbsp;<small>h / MA·Jahr</small></span></span>
+          <span class="grp-ex">z.&nbsp;B. Bau, Metall-/Kunststoffverarbeitung, Chemie, Holz, Gießerei, Abfallwirtschaft</span>
+        </label>
+        <label class="grp">
+          <input type="radio" name="grp" value="1.5">
+          <span class="grp-top"><span class="grp-name">Gruppe II – mittleres Gefährdungspotenzial</span>
+            <span class="grp-h">1,5&nbsp;<small>h / MA·Jahr</small></span></span>
+          <span class="grp-ex">z.&nbsp;B. Maschinenbau-Montage, Lager/Logistik, Lebensmittel, Kfz-Werkstatt, Gesundheitswesen</span>
+        </label>
+        <label class="grp">
+          <input type="radio" name="grp" value="0.5">
+          <span class="grp-top"><span class="grp-name">Gruppe III – geringes Gefährdungspotenzial</span>
+            <span class="grp-h">0,5&nbsp;<small>h / MA·Jahr</small></span></span>
+          <span class="grp-ex">z.&nbsp;B. Büro/Verwaltung, Handel, IT, Beratung, Banken/Versicherungen</span>
+        </label>
+      </div>
+      <p class="hint">Die Zuordnung richtet sich nach der WZ-Kodierung Ihres Betriebs (DGUV&nbsp;V2, Anlage&nbsp;2). Unsicher? Wählen Sie die naheliegende Gruppe – wir prüfen die exakte Einstufung gemeinsam.</p>
+    </div>
+
+    <!-- Schritt 2: Beschäftigte -->
+    <div class="step">
+      <p class="step-label"><i>2</i> Anzahl der Beschäftigten</p>
+      <div class="field">
+        <div class="num-wrap">
+          <button class="stepbtn" type="button" data-step="-1" aria-label="weniger">−</button>
+          <input id="emp" type="number" min="1" step="1" value="50" inputmode="numeric">
+          <button class="stepbtn" type="button" data-step="1" aria-label="mehr">+</button>
+        </div>
+        <p class="hint">Kopfzahl aller Beschäftigten (Teilzeit zählt voll mit, vgl. DGUV&nbsp;V2).</p>
+      </div>
+    </div>
+
+    <!-- Schritt 3: betriebsspezifische Betreuung (grobe Schätzung) -->
+    <div class="step">
+      <p class="step-label"><i>3</i> Betriebsspezifische Betreuung <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:.8rem">· grobe Schätzung (optional)</span></p>
+      <div class="bs-presets" id="bsPresets">
+        <button type="button" data-bs="0" class="on"><span class="t">Keine</span><span class="s">nur Grundbetreuung</span></button>
+        <button type="button" data-bs="0.5"><span class="t">Gering · +0,5 h/MA</span><span class="s">überwiegend klassische SiFa-Aufgaben</span></button>
+        <button type="button" data-bs="1.0"><span class="t">Mittel · +1,0 h/MA</span><span class="s">zusätzlich einzelne weitere Aufgaben</span></button>
+        <button type="button" data-bs="2.0"><span class="t">Hoch · +2,0 h/MA</span><span class="s">viele Zusatzaufgaben (Audits, PSA/Arbeitskleidung …)</span></button>
+      </div>
+      <p class="hint">Richtwert je nachdem, wie viel über die klassische SiFa-Tätigkeit hinaus anfällt. Die betriebsspezifische Betreuung ist gesetzlich <strong>nicht pauschal</strong>, sondern über einen Leistungskatalog (Aufwandskriterien) zu ermitteln – diese Stufen sind nur eine grobe Orientierung für die Gesamtgröße.</p>
+    </div>
+
+    <!-- Hinweis Unternehmermodell -->
+    <div class="step" style="background:#FFF8E6;border:1px solid #EAD9A0;border-radius:10px;padding:1rem 1.2rem;border-top:1px solid #EAD9A0;">
+      <p style="font-size:.85rem;color:var(--ink-2);line-height:1.6;margin:0;"><strong>Brauchen Sie überhaupt eine externe SiFa?</strong> In vielen Branchen können Betriebe <strong>bis 50 Beschäftigte</strong> das <strong>Unternehmermodell</strong> (DGUV&nbsp;Vorschrift&nbsp;2, Anlage&nbsp;3) wählen: Der Unternehmer übernimmt die Betreuung nach einer Schulung selbst und zieht SiFa/Betriebsarzt nur anlassbezogen hinzu – eine externe SiFa-Regelbetreuung ist dann nicht zwingend. Die obige Berechnung gilt für die <strong>Regelbetreuung</strong>.</p>
+    </div>
+
+    <!-- Ergebnis -->
+    <div class="result" id="result">
+      <h2>Ihr geschätzter SiFa-Aufwand</h2>
+      <div class="res-grid">
+        <div class="res-card">
+          <div class="res-k">Grundbetreuung gesamt</div>
+          <div class="res-v"><span id="rGrund">–</span> <small>h/Jahr</small></div>
+        </div>
+        <div class="res-card">
+          <div class="res-k">davon SiFa-Anteil <span id="rSharePct" style="opacity:.7"></span></div>
+          <div class="res-v"><span id="rSifa">–</span> <small>h/Jahr</small></div>
+        </div>
+        <div class="res-card">
+          <div class="res-k">+ betriebsspezifisch (Schätzung)</div>
+          <div class="res-v"><span id="rBs">–</span> <small>h/Jahr</small></div>
+        </div>
+        <div class="res-card span">
+          <div class="res-k">SiFa-Stunden gesamt</div>
+          <div class="res-v"><span id="rTotalH">–</span> <small>h / Jahr</small></div>
+        </div>
+        <div class="res-card span" style="background:var(--oak-mid);color:#fff;">
+          <div class="res-k" style="opacity:1;font-weight:600;">Erforderliche Vollzeit-SiFa <small style="font-weight:400;opacity:.85;">· Basis 1.500&nbsp;h/Jahr je VZÄ</small></div>
+          <div class="res-v"><span id="rFte">–</span> <small>VZÄ (Vollzeitäquivalente)</small></div>
+        </div>
+      </div>
+      <p class="res-note" id="fteNote"></p>
+
+      <!-- SiFa-Anteil Slider -->
+      <div style="margin-top:1.2rem;background:rgba(255,255,255,.07);padding:1rem 1.1rem;border-radius:10px;">
+        <div class="slider-head">
+          <label for="share">Aufteilung Grundbetreuung – SiFa-Anteil</label>
+          <b><span id="shareVal">50</span>&nbsp;%</b>
+        </div>
+        <input type="range" id="share" min="20" max="80" step="5" value="50">
+        <div class="range-meta"><span>20&nbsp;% (überwiegend Betriebsarzt)</span><span>80&nbsp;% (überwiegend SiFa)</span></div>
+        <p class="res-note" style="margin-top:.6rem">Die Grundbetreuung teilen sich Betriebsarzt und Fachkraft für Arbeitssicherheit. Die Aufteilung legt der Betrieb anhand des Aufgabenkatalogs fest – Standardannahme hier 50&nbsp;%.</p>
+      </div>
+
+      <div class="cta">
+        <a class="btn btn-primary" id="ctaMail" href="#">Individuelles Angebot anfragen →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="wx-foot">
+    <strong>Hinweis:</strong> Unverbindliche Orientierungsrechnung auf Basis der Grundbetreuung nach DGUV&nbsp;Vorschrift&nbsp;2 (Anlage&nbsp;2). Maßgeblich sind die tatsächliche Einstufung und der betriebsspezifische Leistungskatalog. Das individuelle Angebot erhalten Sie auf Anfrage. Die externe SiFa-Betreuung bieten wir ab 2027 bzw. in Kooperation mit einer ausgebildeten Fachkraft für Arbeitssicherheit an. Keine Rechtsberatung. · <a href="https://www.oak-engineering.de">oak-engineering.de</a>
+    <div style="margin-top:.7rem;padding-top:.7rem;border-top:1px solid var(--border);"><strong>Feedback &amp; Verbesserungsvorschläge?</strong> Schreiben Sie uns gern an <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20SiFa-Einsatzzeiten-Rechner">info@oak-engineering.de</a> – wir entwickeln die Tools laufend weiter.</div>
+  </footer>
+
+</div>
+</div><!-- /page-wrap -->
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const fmtH = n => n.toLocaleString('de-DE',{minimumFractionDigits:0,maximumFractionDigits:1});
+  const fmtFte = n => n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const FTE_HOURS = 1500;  // angenommene produktive SiFa-Jahresstunden je Vollzeitstelle
+  let bsPerEmp = 0; // betriebsspezifische Schätzung h/MA
+
+  function calc(){
+    const grpEl = document.querySelector('input[name=grp]:checked');
+    const emp = Math.max(0, parseInt($('emp').value)||0);
+    const sharePct = parseInt($('share').value);
+    $('shareVal').textContent = sharePct;
+    $('rSharePct').textContent = '('+sharePct+'%)';
+
+    if(!grpEl || emp<=0){
+      ['rGrund','rSifa','rBs','rTotalH','rFte'].forEach(i=>$(i).textContent='–');
+      $('fteNote').textContent='';
+      return;
+    }
+    const perEmp = parseFloat(grpEl.value);
+    const grund = perEmp * emp;                 // Grundbetreuung gesamt (BA+SiFa)
+    const sifaGrund = grund * sharePct/100;     // SiFa-Anteil der Grundbetreuung
+    const bs = bsPerEmp * emp;                   // betriebsspezifisch (Schätzung, SiFa)
+    const totalSifa = sifaGrund + bs;
+    const fte = totalSifa / FTE_HOURS;           // Vollzeitäquivalente
+
+    $('rGrund').textContent  = fmtH(grund);
+    $('rSifa').textContent   = fmtH(sifaGrund);
+    $('rBs').textContent     = fmtH(bs);
+    $('rTotalH').textContent = fmtH(totalSifa);
+    $('rFte').textContent    = fmtFte(fte);
+
+    // Einordnung der Vollzeit-SiFa
+    let note;
+    if(fte < 0.5){
+      note = 'Das entspricht deutlich weniger als einer halben Vollzeitstelle – eine externe oder anteilige SiFa-Betreuung ist hier in der Regel die wirtschaftlichste Lösung.';
+    } else if(fte < 1){
+      note = 'Das liegt unter einer Vollzeitstelle – eine externe oder Teilzeit-SiFa deckt den Bedarf meist vollständig ab.';
+    } else {
+      note = 'Das entspricht rechnerisch rund '+fmtFte(fte)+' Vollzeitstellen – sinnvoll ist oft eine Kombination aus interner und externer Betreuung. Sprechen Sie uns an.';
+    }
+    $('fteNote').textContent = note;
+
+    // mailto vorbefüllen
+    const subj = encodeURIComponent('Anfrage externe SiFa – Einsatzzeiten & Angebot');
+    const body = encodeURIComponent(
+      'Hallo Herr Krawielitzki,\n\nüber den Online-Rechner habe ich folgende Schätzung ermittelt:\n'
+      +'• Beschäftigte: '+emp+'\n'
+      +'• Grundbetreuung gesamt: '+fmtH(grund)+' h/Jahr\n'
+      +'• SiFa-Anteil ('+sharePct+'%): '+fmtH(sifaGrund)+' h/Jahr\n'
+      +'• inkl. betriebsspezifischer Schätzung: '+fmtH(totalSifa)+' h/Jahr\n'
+      +'• rechnerisch erforderliche Vollzeit-SiFa: '+fmtFte(fte)+' VZÄ\n\n'
+      +'Bitte senden Sie mir ein individuelles Angebot für die externe SiFa-Betreuung (ab 2027 bzw. in Kooperation mit einer ausgebildeten SiFa).\n\nViele Grüße');
+    $('ctaMail').href = 'mailto:info@oak-engineering.de?subject='+subj+'&body='+body;
+  }
+
+  // Events
+  document.querySelectorAll('input[name=grp]').forEach(r=>r.addEventListener('change',calc));
+  $('emp').addEventListener('input',calc);
+  $('share').addEventListener('input',calc);
+  document.querySelectorAll('.stepbtn').forEach(b=>b.addEventListener('click',()=>{
+    const d=parseInt(b.dataset.step); const el=$('emp');
+    el.value=Math.max(1,(parseInt(el.value)||0)+d); calc();
+  }));
+  document.querySelectorAll('#bsPresets button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#bsPresets button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); bsPerEmp=parseFloat(b.dataset.bs); calc();
+  }));
+
+  // Default-Auswahl: Gruppe I vorselektieren für sofortiges Ergebnis
+  document.querySelector('input[name=grp]').checked = true;
+  calc();
+})();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>

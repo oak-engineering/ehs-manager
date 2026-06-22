@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="../favicon.png">
+<title>EMKG-Helfer – Einfaches Maßnahmenkonzept Gefahrstoffe (BAuA) | OAK engineering</title>
+<meta name="description" content="Schutzmaßnahmen für Tätigkeiten mit Gefahrstoffen nach dem Einfachen Maßnahmenkonzept Gefahrstoffe (EMKG) der BAuA abschätzen – Gefährdungsgruppen und Maßnahmenstufen für Einatmen, Haut, Augen sowie Brand & Explosion. Verarbeitung lokal im Browser.">
+<link rel="stylesheet" href="../fonts.css">
+<link rel="stylesheet" href="../nav-dd.css">
+<style>
+  :root{
+    --oak:#2D6A4F; --oak-deep:#1B4332; --oak-mid:#40916C; --oak-light:#74C69D; --oak-pale:#D8F3DC; --oak-ghost:#F0FAF3;
+    --ink:#111A14; --ink-2:#2C3A30; --muted:#6B7C70; --border:#D6E4DA; --white:#FDFCFA;
+    --serif:'Cormorant Garamond',Georgia,serif; --sans:'Jost',sans-serif;
+    --s1:#2e7d32; --s2:#ef6c00; --s3:#c62828; --s4:#7b1f1f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);color:var(--ink);background:var(--oak-ghost);font-size:14px;line-height:1.5;}
+
+  nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:68px;background:rgba(253,252,250,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  nav .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  nav .nav-logo img{height:38px;width:auto;}
+  .nav-wordmark{display:flex;flex-direction:column;line-height:1;font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--oak-deep);letter-spacing:.02em;}
+  .nav-wordmark small{font-family:var(--sans);font-size:.58rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+  .nav-links{display:flex;align-items:center;gap:1.7rem;font-size:.78rem;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+  .nav-links a{text-decoration:none;color:var(--muted);transition:color .2s;}
+  .nav-links a:hover{color:var(--oak);}
+  .nav-cta{background:var(--oak-deep);color:#fff !important;padding:.5rem 1.25rem;border-radius:3px;letter-spacing:.04em;}
+  .nav-burger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;}
+  .nav-burger span{width:24px;height:2px;background:var(--oak-deep);display:block;}
+  @media(max-width:880px){.nav-burger{display:flex;}
+    .nav-links{position:absolute;top:68px;right:0;left:0;flex-direction:column;align-items:flex-start;background:var(--white);border-bottom:1px solid var(--border);padding:1rem 5vw;gap:1rem;display:none;}
+    .nav-links.open{display:flex;}}
+  @media(max-width:700px){.nav-wordmark small{display:none;}}
+
+  .tool-head{background:linear-gradient(135deg,var(--oak-deep),var(--oak));color:#fff;padding:1.8rem 5vw;}
+  .tool-head .th-inner{max-width:1180px;margin:0 auto;}
+  .tool-head h1{font-family:var(--serif);font-weight:300;font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.1;margin:0 0 .5rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;}
+  .beta{font-family:var(--sans);font-size:.62rem;font-weight:700;letter-spacing:.12em;background:#fff;color:var(--oak-deep);padding:.22rem .6rem;border-radius:99px;text-transform:uppercase;}
+  .tool-head p{font-size:.9rem;opacity:.92;font-weight:300;max-width:80ch;margin:0 0 1.1rem;}
+  .tool-head .th-actions{display:flex;gap:.6rem;flex-wrap:wrap;}
+  .tool-head button{font-family:var(--sans);font-size:.82rem;font-weight:500;border:none;border-radius:6px;padding:.6rem 1.2rem;cursor:pointer;}
+  .b-print{background:#fff;color:var(--oak-deep);}
+  .b-demo{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.45);}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(1.2rem,3vw,2rem) 5vw;}
+  .disc{background:#fff4e5;border:1px solid #ef9a3d;border-radius:10px;padding:.8rem 1.1rem;font-size:.82rem;color:#7a4300;line-height:1.55;margin-bottom:1.3rem;}
+  .disc b{color:#5e3300;}
+  .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;margin-bottom:1.3rem;box-shadow:0 4px 16px rgba(27,67,50,.05);}
+  .card h2{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--oak-deep);margin-bottom:.3rem;}
+  .card h2 .step{display:inline-grid;place-items:center;width:1.5rem;height:1.5rem;background:var(--oak);color:#fff;border-radius:50%;font-size:.8rem;margin-right:.5rem;vertical-align:middle;}
+  .card .sub{font-size:.82rem;color:var(--muted);margin-bottom:1rem;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.9rem;}
+  label.fld{display:flex;flex-direction:column;gap:.3rem;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);}
+  .fld input,.fld select{font-family:var(--sans);font-size:.92rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);padding:.5rem .6rem;border:1.5px solid var(--border);border-radius:8px;background:#fff;width:100%;}
+  input:focus,select:focus{outline:none;border-color:var(--oak);box-shadow:0 0 0 3px var(--oak-pale);}
+  .freiblock{margin-top:.35rem;}
+  .freimethod{display:flex;gap:1.2rem;margin-bottom:.5rem;font-size:.85rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink-2);}
+  .freimethod label{display:flex;align-items:center;gap:.35rem;cursor:pointer;}
+  .numu{display:flex;max-width:200px;}
+  .numu input{flex:1;border-radius:8px 0 0 8px;}
+  .numu .unit{display:flex;align-items:center;padding:0 .75rem;font-size:.85rem;color:var(--muted);border:1.5px solid var(--border);border-left:none;border-radius:0 8px 8px 0;background:var(--oak-ghost);}
+  .freibadge{display:inline-block;font-size:.72rem;font-weight:700;padding:.1rem .55rem;border-radius:99px;text-transform:none;letter-spacing:0;margin-left:.4rem;vertical-align:middle;}
+  .freibadge.g1{background:#e8f5e9;color:#2e7d32;} .freibadge.g2{background:#fff4e5;color:#ef6c00;} .freibadge.g3{background:#fdecea;color:#c62828;}
+  .agw-row{display:flex;gap:.4rem;}.agw-row input{flex:1;}.agw-row select{width:120px;}
+  .recog{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem;}
+  .hchip{font-size:.7rem;background:var(--oak-ghost);border:1px solid var(--border);border-radius:6px;padding:.15rem .45rem;color:var(--ink-2);}
+  .hchip.unknown{background:#fdecea;border-color:#e0a;color:#b3261e;}
+  .hint{font-size:.72rem;color:var(--muted);margin-top:.35rem;line-height:1.45;}
+
+  /* Module-Ergebnis */
+  .mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.1rem;}
+  .mod{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;}
+  .mod .mh{display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;color:#fff;font-weight:600;}
+  .mod .mh .ic{font-size:1.2rem;}
+  .mod.m-ein .mh{background:#1565c0;} .mod.m-haut .mh{background:#00897b;} .mod.m-aug .mh{background:#6a1b9a;} .mod.m-brand .mh{background:#c62828;} .mod.m-lager .mh{background:#6d4c41;}
+  .mod .mb{padding:1rem 1.1rem;}
+  .stufe{display:inline-block;padding:.25rem .8rem;border-radius:99px;font-weight:700;font-size:.85rem;color:#fff;margin-bottom:.6rem;}
+  .st1{background:var(--s1);} .st2{background:var(--s2);} .st3{background:var(--s3);} .st4{background:var(--s4);}
+  .mod .grp{font-size:.82rem;color:var(--muted);margin-bottom:.6rem;}
+  .mod .grp b{color:var(--ink-2);}
+  .mod ul{margin:.4rem 0 0 1.1rem;font-size:.86rem;line-height:1.5;}
+  .mod li{margin:.2rem 0;}
+  .mod .reason{font-size:.72rem;color:var(--muted);margin-top:.7rem;border-top:1px dashed var(--border);padding-top:.5rem;line-height:1.45;}
+
+  .result{margin-top:.4rem;}
+  .result > h2{font-family:var(--serif);font-weight:300;font-size:1.6rem;color:var(--oak-deep);margin-bottom:.2rem;}
+  .result > .rsub{font-size:.85rem;color:var(--muted);margin-bottom:1.1rem;}
+  .legend{font-size:.74rem;color:var(--muted);margin-top:1rem;line-height:1.55;}
+  .legend b{color:var(--ink-2);}
+
+  .site-footer{background:var(--ink);color:rgba(255,255,255,.45);padding:2.5rem 5vw;display:flex;justify-content:space-between;align-items:center;font-size:.78rem;flex-wrap:wrap;gap:1rem;}
+  .site-footer .footer-brand{font-family:var(--serif);font-size:1rem;color:rgba(255,255,255,.7);}
+  .site-footer .footer-links{display:flex;gap:1.5rem;}
+  .site-footer a{color:inherit;text-decoration:none;}
+  .site-footer .footer-links a:hover{color:var(--oak-light);}
+
+  @media print{
+    nav,.tool-head,.site-footer,.card.input,.no-print{display:none!important;}
+    body{background:#fff;}
+    .wrap{max-width:100%;padding:0;}
+    .mod,.mod .mh,.stufe{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .mods{grid-template-columns:1fr 1fr;}
+    @page{size:A4 portrait;margin:14mm;}
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="../index.html" aria-label="OAK engineering – zur Startseite">
+    <img src="../assets/oak-logo.png" alt="OAK engineering">
+    <span class="nav-wordmark">OAK Engineering<small>EHS-Management &amp; Digitalisierung</small></span>
+  </a>
+  <button class="nav-burger" aria-label="Menü"><span></span><span></span><span></span></button>
+  <div class="nav-links">
+    <div class="nav-dd">
+      <button type="button" class="nav-dd-btn">Leistungen <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+      <div class="nav-dd-menu">
+        <a href="../arbeitssicherheit.html">Arbeitssicherheit</a>
+        <a href="../umweltschutz.html">Umweltschutz</a>
+        <a href="../ki-digitalisierung.html">KI &amp; Digitalisierung</a>
+        <a href="../schulungen.html">Schulungen</a>
+      </div>
+    </div>
+    <a href="../about.html">Über uns</a>
+    <a href="../kontakt.html" class="nav-cta">Kontakt</a>
+  </div>
+</nav>
+
+<header class="tool-head">
+  <div class="th-inner">
+    <h1>EMKG-Helfer <span class="beta">Beta</span></h1>
+    <p>Schutzmaßnahmen für Tätigkeiten mit Gefahrstoffen nach dem <b>Einfachen Maßnahmenkonzept Gefahrstoffe (EMKG)</b> der BAuA abschätzen. Aus H-Sätzen, Menge und Tätigkeitsangaben werden Gefährdungsgruppen und Maßnahmenstufen für <b>Einatmen, Haut, Augen</b> sowie <b>Brand &amp; Explosion</b> ermittelt. Verarbeitung ausschließlich lokal im Browser.</p>
+    <div class="th-actions">
+      <button class="b-print" onclick="window.print()">Ergebnis drucken / als PDF</button>
+      <button class="b-demo" onclick="loadDemo()">Beispiel laden</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="disc no-print">
+    <b>Hinweis (Beta):</b> Dieses Werkzeug bildet die Logik des EMKG (BAuA) ab und dient der <b>orientierenden</b> Maßnahmenfindung.
+    Die H-Satz-Zuordnungen und Maßnahmenstufen sind <b>fachkundig zu prüfen</b> und durch die Original-Schutzleitfäden der BAuA
+    sowie die Gefährdungsbeurteilung nach § 6 GefStoffV zu bestätigen. Keine Rechtsberatung.
+  </div>
+
+  <div class="card input">
+    <h2><span class="step">1</span>Stoff &amp; Gefahrenmerkmale</h2>
+    <div class="grid">
+      <label class="fld" style="grid-column:1/-1">Stoff / Tätigkeit<input id="stoff" placeholder="z. B. Reinigung mit Lösemittel X"></label>
+      <label class="fld" style="grid-column:1/-1">H-Sätze<input id="hsaetze" list="hlist" placeholder="H225, H319, H336 …" oninput="recompute()"><div class="recog" id="recog"></div><span class="hint">H-Sätze &amp; Gefahrenmerkmale: siehe Sicherheitsdatenblatt (SDB), <b>Abschnitt 2</b>.</span></label>
+      <label class="fld">AGW (optional)
+        <span class="agw-row"><input id="agw" type="number" step="any" placeholder="z. B. 50" oninput="recompute()"><select id="agwUnit" onchange="recompute()"><option value="mg">mg/m³</option><option value="ml">ml/m³ (ppm)</option></select></span>
+        <span class="hint">Arbeitsplatzgrenzwert: <b>TRGS 900</b> bzw. SDB Abschnitt 8.</span>
+      </label>
+      <label class="fld">Aggregatzustand<select id="agg" onchange="recompute()"><option value="fluessig">flüssig</option><option value="fest">fest</option><option value="gas">gasförmig</option></select></label>
+    </div>
+  </div>
+
+  <div class="card input">
+    <h2><span class="step">2</span>Angaben zur Tätigkeit</h2>
+    <div class="grid">
+      <label class="fld">Mengengruppe<select id="menge" onchange="recompute()"><option value="1">klein (g / ml)</option><option value="2" selected>mittel (kg / l)</option><option value="3">groß (t / m³)</option></select></label>
+      <div class="fld" style="grid-column:1/-1;">Freisetzungsgruppe <span id="freiBadge" class="freibadge"></span>
+        <div id="freiLiquid" class="freiblock">
+          <div class="freimethod">
+            <label><input type="radio" name="freiMethod" value="sp" checked onchange="recompute()"> über Siedepunkt</label>
+            <label><input type="radio" name="freiMethod" value="vp" onchange="recompute()"> über Dampfdruck</label>
+          </div>
+          <span class="numu" id="spWrap"><input id="sp" type="number" step="any" placeholder="z. B. 78" oninput="recompute()"><span class="unit">°C</span></span>
+          <span class="numu" id="vpWrap" hidden><input id="vp" type="number" step="any" placeholder="z. B. 60" oninput="recompute()"><span class="unit">hPa</span></span>
+          <span class="hint">Siedepunkt: &gt; 150 °C → niedrig · 50–150 °C → mittel · &lt; 50 °C → hoch.<br>Dampfdruck (bei Verarbeitungstemperatur): &lt; 5 hPa → niedrig · 5–250 hPa → mittel · &gt; 250 hPa → hoch.<br>Werte zum Stoff: <b>SDB Abschnitt 9</b> (physikalische/chemische Eigenschaften).</span>
+        </div>
+        <div id="freiSolid" class="freiblock" hidden>
+          <select id="dust" onchange="recompute()">
+            <option value="1">niedrig – Granulat, Pellets, Wachs</option>
+            <option value="2" selected>mittel – Staub, der sich absetzt (z. B. Zucker, Waschmittel)</option>
+            <option value="3">hoch – Staub, der in der Luft verbleibt (z. B. Mehl, Toner)</option>
+          </select>
+        </div>
+        <div id="freiGas" class="freiblock" hidden>
+          <span class="hint">Gase und Dämpfe gelten als vollständig verfügbar → Freisetzungsgruppe <b>hoch</b>.</span>
+        </div>
+      </div>
+      <label class="fld">Wirkfläche (Haut)<select id="flaeche" onchange="recompute()"><option value="1">klein (z. B. Spritzer, Hände)</option><option value="2">groß (z. B. Unterarme/Eintauchen)</option></select></label>
+      <label class="fld">Wirkdauer (Haut)<select id="dauer" onchange="recompute()"><option value="1">kurz (≤ 15 min)</option><option value="2">lang (&gt; 15 min)</option></select></label>
+      <label class="fld">Lagermenge (Modul Lagern)
+        <span class="numu"><input id="lager" type="number" step="any" placeholder="z. B. 150" oninput="recompute()"><span class="unit">kg/L</span></span>
+        <span class="hint">Menge am Lagerort. Schwellen: &lt; 50 · 50–200 · 200–1.000 · &gt; 1.000&nbsp;kg/L. Leer lassen, wenn keine Lagerung beurteilt wird.</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="result">
+    <h2>Ergebnis – Gefährdungsgruppen &amp; Maßnahmen</h2>
+    <div class="rsub" id="rsub">— H-Sätze eingeben —</div>
+    <div class="mods" id="mods"></div>
+    <div class="legend">
+      <b>Maßnahmenstufen (Einatmen):</b> 1 = allgemeine Lüftung &amp; organisatorische Grundmaßnahmen · 2 = lüftungstechnische Maßnahmen (z. B. Absaugung) · 3 = geschlossenes System · 4 = besondere Maßnahmen / Beratung erforderlich. Zu jeder Stufe gehören die <b>Schutzleitfäden der BAuA</b> (Reihe 100/200/300/400). · <b>Modul Lagern:</b> orientierende Näherung – die Lagergruppe (La&nbsp;A–E) wird hier aus der Gesundheitsgefährdung genähert und mit der Lagermenge zur Maßnahmenstufe verknüpft; an den EMKG-Leitfaden „Lagern" anzupassen. ·
+      Grundlage &amp; Quelle: <a href="https://www.baua.de/DE/Angebote/Publikationen/Praxis/Poster/EMKG" target="_blank" rel="noopener" style="color:#74C69D;font-weight:600">EMKG – Einfaches Maßnahmenkonzept Gefahrstoffe (BAuA)</a>. Ergebnis ist eine Orientierung und ersetzt nicht die Gefährdungsbeurteilung nach § 6 GefStoffV. · Erstellt mit OAK engineering. · <b>Feedback &amp; Verbesserungsvorschläge?</b> <a href="mailto:info@oak-engineering.de?subject=Feedback%3A%20EMKG-Helfer" style="color:#74C69D;font-weight:500;">info@oak-engineering.de</a>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-brand">OAK engineering · Nikolai Krawielitzki</div>
+  <div>© 2026 OAK engineering</div>
+  <div class="footer-links">
+    <a href="../kontakt.html">Kontakt</a>
+    <a href="../impressum.html">Impressum</a>
+    <a href="../datenschutz.html">Datenschutz</a>
+    <a href="../agb.html">AGB</a>
+    <a href="https://www.linkedin.com/company/115144306/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</footer>
+
+<datalist id="hlist"></datalist>
+
+<script>
+/* ===== EMKG-Logik (BAuA) – orientierend, fachlich zu prüfen =====
+   Gefährlichkeitsgruppen je Wirkungsweg aus H-Sätzen; Maßnahmenstufe aus Gruppe × Menge × Freisetzung (Einatmen)
+   bzw. Gruppe × Wirkfläche × Wirkdauer (Haut). */
+const HTXT = {
+  H300:"Lebensgefahr bei Verschlucken",H301:"Giftig bei Verschlucken",H302:"Gesundheitsschädlich bei Verschlucken",H304:"Kann bei Verschlucken in die Atemwege tödlich sein",
+  H310:"Lebensgefahr bei Hautkontakt",H311:"Giftig bei Hautkontakt",H312:"Gesundheitsschädlich bei Hautkontakt",H314:"Verursacht schwere Verätzungen der Haut und Augenschäden",H315:"Verursacht Hautreizungen",H317:"Kann allergische Hautreaktionen verursachen",
+  H318:"Verursacht schwere Augenschäden",H319:"Verursacht schwere Augenreizung",H320:"Verursacht Augenreizung",
+  H330:"Lebensgefahr bei Einatmen",H331:"Giftig bei Einatmen",H332:"Gesundheitsschädlich bei Einatmen",H334:"Kann bei Einatmen Allergie/Asthma/Atembeschwerden verursachen",H335:"Kann die Atemwege reizen",H336:"Kann Schläfrigkeit und Benommenheit verursachen",
+  H340:"Kann genetische Defekte verursachen",H341:"Kann vermutlich genetische Defekte verursachen",H350:"Kann Krebs erzeugen","H350i":"Kann bei Einatmen Krebs erzeugen",H351:"Kann vermutlich Krebs erzeugen",
+  H360:"Kann die Fruchtbarkeit/das Kind schädigen",H361:"Kann vermutlich die Fruchtbarkeit/das Kind schädigen",H370:"Schädigt die Organe",H371:"Kann die Organe schädigen",H372:"Schädigt die Organe bei längerer Exposition",H373:"Kann die Organe bei längerer Exposition schädigen",
+  H220:"Extrem entzündbares Gas",H221:"Entzündbares Gas",H222:"Extrem entzündbares Aerosol",H223:"Entzündbares Aerosol",H224:"Flüssigkeit und Dampf extrem entzündbar",H225:"Flüssigkeit und Dampf leicht entzündbar",H226:"Flüssigkeit und Dampf entzündbar",H228:"Entzündbarer Feststoff",
+  H200:"Instabil, explosiv",H201:"Explosiv, Massenexplosion",H240:"Erwärmung kann Explosion verursachen",H241:"Erwärmung kann Brand oder Explosion verursachen",H242:"Erwärmung kann Brand verursachen",H250:"Entzündet sich an Luft von selbst",H260:"Mit Wasser entzündbare Gase, selbstentzündlich",H261:"Mit Wasser entzündbare Gase",H270:"Kann Brand verstärken; Oxidationsmittel",H271:"Starkes Oxidationsmittel",H272:"Kann Brand verstärken; Oxidationsmittel",
+  EUH071:"Wirkt ätzend auf die Atemwege",EUH066:"Wiederholter Kontakt kann Haut spröde/rissig machen",EUH018:"Kann explosionsfähiges Gemisch bilden",EUH019:"Kann explosionsfähige Peroxide bilden"
+};
+// Einatmen: Gefährlichkeitsgruppe A(1)..E(5) je H-Satz
+const EIN = {H332:2,H333:2,H335:3,H336:3,H304:3,H371:3,H373:3,EUH071:4,H331:4,H370:4,H372:4,H341:4,H351:4,H361:4,H330:5,H334:5,H340:5,H350:5,"H350i":5,H360:5};
+const EIN_LET = {1:"A",2:"B",3:"C",4:"D",5:"E"};
+// Haut-Gruppe 1(gering)..3(hoch)
+const HAUT = {EUH066:1,H313:1,H312:2,H315:2,H317:2,H311:3,H310:3,H314:3,H340:3,H350:3,H360:3};
+// Augen-Gruppe 1..3
+const AUG = {H320:1,H319:2,H318:3,H314:3};
+// Brand/Explosion-Gruppe 1..4
+const BRAND = {H226:2,H228:2,EUH018:2,H223:3,H221:3,H242:3,H272:3,H270:3,H261:3,EUH019:2,H225:3,H222:4,H224:4,H220:4,H241:4,H251:3,H200:4,H201:4,H240:4,H250:4,H260:4,H271:4};
+
+document.getElementById("hlist").innerHTML = Object.keys(HTXT).map(h=>`<option value="${h}">${h} – ${HTXT[h]}</option>`).join("");
+
+function parseH(str){ return (str||"").toUpperCase().match(/(EUH\d{3}|H\d{3}I?)/g)?.map(x=>x.trim()) || []; }
+function maxGroup(codes,map){ let m=0,hit=[]; codes.forEach(c=>{ if(map[c]!=null){ if(map[c]>m) m=map[c]; if(map[c]===Math.max(m,map[c])) hit.push(c);} });
+  // bestimme tatsächliche Treiber
+  const drivers=codes.filter(c=>map[c]===m); return {g:m,drivers}; }
+
+// AGW → Einatmen-Gruppe (EMKG-orientiert)
+function agwGroup(){
+  const v=parseFloat(document.getElementById("agw").value); if(!(v>0)) return null;
+  const unit=document.getElementById("agwUnit").value;
+  if(unit==="mg"){ // partikel/dampf in mg/m³
+    if(v>10) return 1; if(v>1) return 2; if(v>0.1) return 3; return 4;
+  } else { // ml/m³ (ppm) – Gase/Dämpfe
+    if(v>500) return 1; if(v>50) return 2; if(v>5) return 3; return 4;
+  }
+}
+// Maßnahmenstufe Einatmen: Gruppe × Menge × Freisetzung
+const EIN_MATRIX = { // [gruppe][menge-1][frei-1]
+  1:[[1,1,1],[1,1,1],[1,1,1]],
+  2:[[1,1,1],[1,1,2],[1,2,2]],
+  3:[[1,1,2],[1,2,2],[2,2,3]],
+  4:[[2,2,3],[2,3,3],[3,3,4]],
+  5:[[4,4,4],[4,4,4],[4,4,4]]
+};
+const EIN_MASS = {
+  1:["Allgemeine Lüftung (ausreichender Luftwechsel)","Organisatorische Grundmaßnahmen, Unterweisung, Hygiene","Schutzleitfäden der Reihe 100"],
+  2:["Lüftungstechnische Maßnahmen (z. B. Absaugung/Erfassung an der Quelle)","Expositionsarme Arbeitsweise","Schutzleitfäden der Reihe 200"],
+  3:["Geschlossenes System / Einhausung","Minimierung offener Handhabung","Schutzleitfäden der Reihe 300"],
+  4:["Besondere Maßnahmen erforderlich – fachkundige Beratung hinzuziehen","Ggf. Messungen, erweiterte Schutzmaßnahmen, ärztliche Vorsorge","Schutzleitfäden der Reihe 400"]
+};
+// Modul Lagern (orientierende Näherung – Matrix an EMKG-Leitfaden „Lagern" der BAuA anzupassen).
+// Lagergruppe La A–E hier genähert aus der Gesundheits-Gefährlichkeitsgruppe (Einatmen, 1–5).
+const LAGER_MATRIX = { 1:[1,1,1,2], 2:[1,1,2,2], 3:[1,2,2,3], 4:[2,2,3,3], 5:[2,3,3,4] }; // [laGruppe][mengeGruppe-1]
+const LAGER_MASS = {
+  1:["Mindeststandards: geeignete, dicht verschlossene und gekennzeichnete Behälter; getrennt von Lebensmitteln aufbewahren","Auffangwanne bei wassergefährdenden Stoffen · Schutzleitfäden La-100-Reihe"],
+  2:["Lagermenge am Arbeitsplatz begrenzen; ausreichend belüfteter Lagerbereich","Zusammenlagerungsverbote nach TRGS 510 beachten · Schutzleitfäden La-200-Reihe"],
+  3:["Separater Lagerbereich / Gefahrstofflager mit Brandschutz und Rückhaltung","Zugang beschränken; Lagerklassen und Trennung nach TRGS 510 · Schutzleitfäden La-300-Reihe"],
+  4:["Dediziertes Gefahrstofflager nach TRGS 510 (Brandabschnitt, Löschtechnik, Rückhaltevolumen)","Fachkundige Planung; ggf. Genehmigung prüfen · Schutzleitfäden La-400-Reihe"]
+};
+function lagerMengeGroup(){ const v=parseFloat(document.getElementById("lager").value)||0; if(v<=0) return 0; if(v<50) return 1; if(v<=200) return 2; if(v<=1000) return 3; return 4; }
+function stufeCls(s){return "st"+s;}
+
+// Freisetzungsgruppe aus Siedepunkt/Dampfdruck (flüssig), Staubungsverhalten (fest) oder fix hoch (gasförmig)
+function computeFrei(){
+  const agg=document.getElementById("agg").value;
+  if(agg==="gas") return 3;
+  if(agg==="fest") return +document.getElementById("dust").value;
+  const method=(document.querySelector('input[name=freiMethod]:checked')||{}).value||"sp";
+  if(method==="vp"){
+    const vp=parseFloat(document.getElementById("vp").value);
+    if(!isFinite(vp)) return 2;
+    return vp<5 ? 1 : (vp<=250 ? 2 : 3);
+  }
+  const sp=parseFloat(document.getElementById("sp").value);
+  if(!isFinite(sp)) return 2;
+  return sp>150 ? 1 : (sp>=50 ? 2 : 3);
+}
+function syncFreiUI(){
+  const agg=document.getElementById("agg").value;
+  document.getElementById("freiLiquid").hidden = agg!=="fluessig";
+  document.getElementById("freiSolid").hidden  = agg!=="fest";
+  document.getElementById("freiGas").hidden     = agg!=="gas";
+  if(agg==="fluessig"){
+    const m=(document.querySelector('input[name=freiMethod]:checked')||{}).value||"sp";
+    document.getElementById("spWrap").hidden = m!=="sp";
+    document.getElementById("vpWrap").hidden = m!=="vp";
+  }
+  const g=computeFrei();
+  const badge=document.getElementById("freiBadge");
+  badge.className="freibadge g"+g;
+  badge.textContent=["","niedrig","mittel","hoch"][g];
+}
+
+function recompute(){
+  syncFreiUI();
+  const codes=parseH(document.getElementById("hsaetze").value);
+  document.getElementById("recog").innerHTML = codes.map(c=>HTXT[c]
+    ?`<span class="hchip" title="${HTXT[c]}">${c}</span>`
+    :`<span class="hchip unknown" title="nicht hinterlegt – bitte prüfen">${c} ?</span>`).join("");
+  const rsub=document.getElementById("rsub"), mods=document.getElementById("mods");
+  const stoff=document.getElementById("stoff").value.trim();
+  if(!codes.length){ rsub.textContent="— H-Sätze eingeben —"; mods.innerHTML=""; return; }
+  rsub.innerHTML = stoff?`<b>${esc(stoff)}</b>`:"&nbsp;";
+
+  const menge=+document.getElementById("menge").value, frei=computeFrei();
+  const flaeche=+document.getElementById("flaeche").value, dauer=+document.getElementById("dauer").value;
+
+  // --- Einatmen ---
+  const agwG=agwGroup();
+  const einH=maxGroup(codes,EIN);
+  let einG = Math.max(agwG||0, einH.g);
+  let einSrc;
+  if(agwG && agwG>=einH.g){ einSrc=`AGW-basiert (Gruppe ${EIN_LET[agwG]})`; }
+  else if(einH.g){ einSrc=`H-Satz-basiert (${einH.drivers.join(", ")})`; }
+  if(!einG){ einG=1; einSrc="kein einatembezogener H-Satz/AGW – Grundmaßnahmen"; }
+  const einStufe = EIN_MATRIX[einG][menge-1][frei-1];
+  const mengeT=["klein","mittel","groß"][menge-1], freiT=["niedrig","mittel","hoch"][frei-1];
+
+  // --- Haut ---
+  const hautR=maxGroup(codes,HAUT); let hautG=hautR.g||0;
+  let hautStufe=0, hautMass=[];
+  if(hautG){
+    const HAUT_M={1:[1,1,2],2:[2,2,3],3:[3,3,4]}; // [gruppe][modifikator] · mod=Wirkfläche+Wirkdauer (0..2)
+    const mod=(flaeche-1)+(dauer-1);
+    hautStufe = HAUT_M[hautG][mod];
+    hautMass = hautStufe<=1
+      ? ["Hautschutzplan, geeignete Schutzhandschuhe situativ","Hautschutz-/Hautreinigungs-/Hautpflegemittel"]
+      : hautStufe===2
+      ? ["Geeignete Schutzhandschuhe (Durchbruchzeit beachten)","Hautkontakt minimieren, Hautschutzplan"]
+      : hautStufe===3
+      ? ["Beständige Schutzhandschuhe + ggf. Schutzkleidung","Spritzschutz, geschlossene Handhabung anstreben"]
+      : ["Vollständige Vermeidung von Hautkontakt, Schutzkleidung","Fachkundige Beratung; bei H314 Notfallmaßnahmen (Augendusche)"];
+  }
+
+  // --- Augen ---
+  const augR=maxGroup(codes,AUG); let augG=augR.g||0;
+  let augMass = augG>=3 ? ["Korbbrille/Gesichtsschutz","Augenspüleinrichtung/Notdusche in der Nähe"]
+            : augG===2 ? ["Gestellbrille mit Seitenschutz","Spritzschutz an der Quelle"]
+            : augG===1 ? ["Schutzbrille bei Spritzgefahr"] : [];
+
+  // --- Brand & Explosion ---
+  const brR=maxGroup(codes,BRAND); let brG=brR.g||0;
+  const agg=document.getElementById("agg").value;
+  let brMass = brG>=4 ? ["Zündquellen konsequent vermeiden; Explosionsschutz prüfen (Zoneneinteilung)","Mengen begrenzen, Inertisierung/geschlossene Handhabung, EX-Geräte"]
+           : brG===3 ? ["Zündquellen vermeiden, Mengen am Arbeitsplatz begrenzen","Belüftung; geeignete Lagerung getrennt von Zündquellen"]
+           : brG===2 ? ["Zündquellen vermeiden, geringe Mengen bereithalten","Sachgerechte Lagerung"] : [];
+
+  // Module rendern
+  const m=[];
+  m.push(modCard("ein","","Einatmen",
+    `Maßnahmenstufe ${einStufe}`, stufeCls(einStufe),
+    `Gefährlichkeitsgruppe <b>${EIN_LET[einG]||"A"}</b> · ${einSrc}`,
+    EIN_MASS[einStufe],
+    `Ermittelt aus: Gruppe ${EIN_LET[einG]||"A"} × Menge ${mengeT} × Freisetzung ${freiT} → Stufe ${einStufe}.`));
+
+  if(hautG) m.push(modCard("haut","","Haut",
+    `Maßnahmenstufe ${hautStufe}`, stufeCls(hautStufe),
+    `Gefährlichkeitsgruppe <b>${["–","gering","mittel","hoch"][hautG]}</b> · Treiber: ${hautR.drivers.join(", ")}`,
+    hautMass,
+    `Ermittelt aus: Hautgruppe (${["–","gering","mittel","hoch"][hautG]}) + Wirkfläche ${flaeche===2?"groß":"klein"} + Wirkdauer ${dauer===2?"lang":"kurz"} → Stufe ${hautStufe}.`));
+  else m.push(modCard("haut","","Haut","keine spezifische Hautgefahr","st1","Kein hautrelevanter H-Satz angegeben.",["Allgemeine Hauthygiene"],""));
+
+  if(augG) m.push(modCard("aug","","Augen",
+    augG>=3?"hohe Gefährdung":augG===2?"mittlere Gefährdung":"geringe Gefährdung",
+    augG>=3?"st3":augG===2?"st2":"st1",
+    `Treiber: ${augR.drivers.join(", ")}`, augMass,""));
+  else m.push(modCard("aug","","Augen","keine spezifische Augengefahr","st1","Kein augenrelevanter H-Satz angegeben.",["Schutzbrille bei Spritzgefahr"],""));
+
+  if(brG) m.push(modCard("brand","","Brand &amp; Explosion",
+    brG>=4?"sehr hohe Gefährdung":brG===3?"hohe Gefährdung":"mittlere Gefährdung",
+    brG>=4?"st4":brG===3?"st3":"st2",
+    `Treiber: ${brR.drivers.join(", ")} · Aggregatzustand: ${agg}`, brMass,""));
+  else m.push(modCard("brand","","Brand &amp; Explosion","keine physikalische Brandgefahr","st1","Kein brand-/explosionsrelevanter H-Satz angegeben.",["Allgemeine Brandschutzregeln beachten"],""));
+
+  // --- Lagern ---
+  const lagerMG=lagerMengeGroup();
+  if(lagerMG){
+    const laLetter=EIN_LET[einG]||"A";
+    const lagerStufe=LAGER_MATRIX[einG][lagerMG-1];
+    const mengeLabels=["","< 50 kg/L","50–200 kg/L","200–1.000 kg/L","> 1.000 kg/L"];
+    m.push(modCard("lager","","Lagern",
+      `Maßnahmenstufe ${lagerStufe}`, stufeCls(lagerStufe),
+      `Lagergruppe <b>La ${laLetter}</b> (genähert aus Gesundheitsgefährdung) · Lagermenge ${mengeLabels[lagerMG]}`,
+      LAGER_MASS[lagerStufe],
+      `Orientierende Näherung: La ${laLetter} × Lagermenge ${mengeLabels[lagerMG]} → Stufe ${lagerStufe}. Matrix an den EMKG-Leitfaden „Lagern" (BAuA) anzupassen.`));
+  } else {
+    m.push(modCard("lager","","Lagern","keine Lagerung beurteilt","st1","Keine Lagermenge angegeben.",["Bei Lagerung: Lagermenge in Schritt 2 eintragen"],""));
+  }
+
+  mods.innerHTML=m.join("");
+}
+function modCard(cls,ic,title,stufeLabel,stufeCls,grp,mass,reason){
+  return `<div class="mod m-${cls}">
+    <div class="mh">${title}</div>
+    <div class="mb">
+      <span class="stufe ${stufeCls}">${stufeLabel}</span>
+      <div class="grp">${grp}</div>
+      <ul>${(mass||[]).map(x=>`<li>${x}</li>`).join("")}</ul>
+      ${reason?`<div class="reason">${reason}</div>`:""}
+    </div></div>`;
+}
+function esc(s){return String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+function loadDemo(){
+  document.getElementById("stoff").value="Teilereinigung mit Lösemittel (offen, Pinsel)";
+  document.getElementById("hsaetze").value="H225, H319, H336, H315";
+  document.getElementById("agw").value="100"; document.getElementById("agwUnit").value="ml";
+  document.getElementById("agg").value="fluessig";
+  document.getElementById("menge").value="2";
+  document.querySelector('input[name=freiMethod][value=sp]').checked=true;
+  document.getElementById("sp").value="45";
+  document.getElementById("flaeche").value="2"; document.getElementById("dauer").value="2";
+  document.getElementById("lager").value="150";
+  recompute();
+}
+recompute();
+</script>
+<script src="../site.js"></script>
+</body>
+</html>
